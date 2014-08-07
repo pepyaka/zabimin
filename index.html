@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="favicon.ico">
+        <title>ZabImIn</title>
+        <link href="css/bootstrap/bootstrap.css" rel="stylesheet">
+        <link href="css/bootstrap/bootstrap-theme.css" rel="stylesheet">
+        <link href="css/jquery-ui/ui-lightness/jquery-ui-1.10.4.css" rel="stylesheet">
+        <link href="css/jquery.jqplot.css" rel="stylesheet">
+        <link href="css/zabimin.css" rel="stylesheet">
+
+        <script src="js/jquery.js"></script>
+        <script src="js/jquery-ui.js"></script>
+        <script src="js/bootstrap/bootstrap.js"></script>
+        <script src="js/jqplot/jquery.jqplot.js"></script>
+        <script src="js/jqplot/plugins/jqplot.dateAxisRenderer.js"></script>
+        <script src="js/jqplot/plugins/jqplot.cursor.js"></script>
+        <script src="js/jqplot/plugins/jqplot.highlighter.js"></script>
+        <script src="js/jqplot/plugins/jqplot.enhancedLegendRenderer.js"></script>
+        <script src="js/zabimin.js"></script>
+        <script src="js/amcharts/amcharts.js"></script>
+        <script src="js/amcharts/serial.js"></script>
+    </head>
+<body>
+<div class="container-fluid">
+    <div id="mainNavigation">
+        <div class="row">
+            <div class="col-md-12 col-lg-8 navbar navbar-inverse navbar-corner navbar-fixed-top">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href=".">ZabImIn</a>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                      <li class="dropdown">
+                        <a id="Monitoring" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Monitoring <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="Monitoring">
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=dashboard"><span class="glyphicon glyphicon-th"></span> Dashboard</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=overview">Overview</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=web">Web</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=latest_data">Latest data</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=triggers">Triggers</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=events">Events</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=graphs">Graphs</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=screens">Screens</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=maps">Maps</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=discovery">Discovery</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=it_services">IT services</a></li>
+                        </ul>
+                      </li>
+                      <li class="dropdown">
+                        <a id="Inventory" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Inventory <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="Inventory">
+                          <li><a class="ajax-link" href="#!page=inventory_overview">Overview</a></li>
+                          <li><a class="ajax-link" href="#!page=inventory_hosts">Hosts</a></li>
+                        </ul>
+                      </li>
+                      <li class="dropdown">
+                        <a id="Reports" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Reports <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="Reports">
+                          <li><a class="ajax-link" href="#!page=reports_zabbix_status">Status of Zabbix</a></li>
+                          <li><a class="ajax-link" href="#!page=reports_availability_report">Availability report</a></li>
+                          <li><a class="ajax-link" href="#!page=reports_triggers_top">Triggers top 100</a></li>
+                          <li><a class="ajax-link" href="#!page=reports_bar">Bar reports</a></li>
+                        </ul>
+                      </li>
+                      <li class="dropdown">
+                        <a id="Configuration" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="Configiration">
+                          <li><a class="ajax-link" href="#!page=conf_host_groups">Host Groups</a></li>
+                          <li><a class="ajax-link" href="#!page=conf_templates">Templates</a></li>
+                          <li><a class="ajax-link" href="#!page=conf_hosts">Hosts</a></li>
+                          <li><a class="ajax-link" href="#!page=conf_maintenance">Maintenance</a></li>
+                          <li><a class="ajax-link" href="#!page=conf_actions">Actions</a></li>
+                          <li><a class="ajax-link" href="#!page=conf_screens">Screens</a></li>
+                          <li><a class="ajax-link" href="#!page=conf_slide_shows">Slide shows</a></li>
+                          <li><a class="ajax-link" href="#!page=conf_maps">Maps</a></li>
+                          <li><a class="ajax-link" href="#!page=conf_discovery">Discovery</a></li>
+                          <li><a class="ajax-link" href="#!page=conf_it_services">IT services</a></li>
+                        </ul>
+                      </li>
+                      <li class="dropdown">
+                        <a id="Administration" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Administration <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="Administration">
+                          <li><a class="ajax-link" href="#!page=adm_general">General</a></li>
+                          <li><a class="ajax-link" href="#!page=adm_dm">DM</a></li>
+                          <li><a class="ajax-link" href="#!page=adm_authentification">Authentication</a></li>
+                          <li><a class="ajax-link" href="#!page=adm_users">Users</a></li>
+                          <li><a class="ajax-link" href="#!page=adm_media_types">Media types</a></li>
+                          <li><a class="ajax-link" href="#!page=adm_scripts">Scripts</a></li>
+                          <li><a class="ajax-link" href="#!page=adm_audit">Audit</a></li>
+                          <li><a class="ajax-link" href="#!page=adm_queue">Queue</a></li>
+                          <li><a class="ajax-link" href="#!page=adm_notifications">Notifications</a></li>
+                          <li><a class="ajax-link" href="#!page=adm_installation">Installation</a></li>
+                        </ul>
+                      </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" id="user-menu" role="button" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> </a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="user-menu">
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="http://www.zabbix.com/documentation/">Documentation</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="profile.html">Profile</a></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="settings.html">Settings</a></li>
+                                <li role="presentation" class="divider"></li>
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="logout.html">Logout</a></li>
+                            </ul>
+                        </li>
+                        <!--
+                        <li>
+                            <form class="navbar-form" role="form">
+                                <input type="text" class="form-control" placeholder="Search...">
+                            </form>
+                        </li>
+                        -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="ajaxPage">
+         <!--
+         <div id="ajaxPagePreloader">
+             <img src="img/devoops_getdata.gif" alt="preloader"/>
+         </div>
+         -->
+    </div>
+</div>
+</body>
+</html>
