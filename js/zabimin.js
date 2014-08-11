@@ -1,18 +1,35 @@
 "use strict";
-// Get configs and validate them
-$.getScript("js/zabimin.conf.js")
 
+var page = {
+    util: {
+        name: 'Utilites'
+    },
+    Graphs: {
+        name: 'Graphs',
+        url: 'ajaxPages/Graphs.html'
+    },
+    Dashboard: {
+        name: 'Dashbpard',
+        url: 'ajaxPages/Dashboard.html'
+    },
+    Triggers: {
+        name: 'Triggers',
+        url: 'ajaxPages/Triggers.html'
+    }
+}
 // functions for loadable ajax pages
-function ajaxPageReady(hash) {
-    switch ( hash.page ) {
-        case 'graphs':
-            pageGraphNavigation(hash)
-            break;
+page.ready = function(hash) {
+    if (page[hash.page]) {
+        page[hash.page].init(hash)
+    } else {
+        page.dashboard.init(hash)
     }
 }
 
-// get servergroup/servers/filter scope data
-function pageGraphNavigation(hash) {
+page.Graphs.init = function() {
+    this.createHostNavigation(page.hash)
+}
+page.Graphs.createHostNavigation = function(hash) {
     var hashHostGroup = hash.hostgroup ? hash.hostgroup[0] : '';
     var hashHost = hash.host ? hash.host[0] : '';
     var hashGraph = hash.graph ? hash.graph[0] : '';
@@ -34,7 +51,7 @@ function pageGraphNavigation(hash) {
         hosts.sort(function(a, b) {
             return a.name > b.name ? 1 : -1
         })
-        createHostList(hosts)
+        page.Graphs.createHostList(hosts)
         // Create host group list
         $.each(hosts, function(i, host) {
             // fill host group list
@@ -52,7 +69,7 @@ function pageGraphNavigation(hash) {
             return a.name > b.name ? 1 : -1
         })
         $.each(hostGroupList, function(i, hostGroup) {
-            hostGroupListA.push('<li id="gid'+hostGroup.groupid+'"><a href="#!page=graphs&hostgroup='+hostGroup.name+'">'+hostGroup.name+'</a></li>')
+            hostGroupListA.push('<li id="gid'+hostGroup.groupid+'"><a href="#!page=Graphs&hostgroup='+hostGroup.name+'">'+hostGroup.name+'</a></li>')
         })
         $('#hostGroupList')
             .empty()
@@ -72,7 +89,7 @@ function pageGraphNavigation(hash) {
                     })
                     return (hg.length > 0)
                 })
-                createHostList(hostList)
+                page.Graphs.createHostList(hostList)
             });
 
         //
@@ -108,8 +125,8 @@ function pageGraphNavigation(hash) {
                 }
                 $("#graphList")
                     //.append('<li><a id="'+o.div+'" href="#!page=graph&host='+selHost.host+'&graph='+thumbGraph+'"class="graph-thumbnail pull-left">'+thumbGraph+'</a></li>')
-                    .append('<li><a id="'+o.div+'" href="#!page=graphs&host='+selHost.host+'&graph='+thumbGraph+'"class="graph-thumbnail pull-left"></a></li>')
-                pageGraphGetData(o)
+                    .append('<li><a id="'+o.div+'" href="#!page=Graphs&host='+selHost.host+'&graph='+thumbGraph+'"class="graph-thumbnail pull-left"></a></li>')
+                chart.getData(o)
             })
             if (hashGraph) {
                 var o = {
@@ -119,31 +136,170 @@ function pageGraphNavigation(hash) {
                     graph: selGraphs[0]
                 }
                 $("#graphs").append('<div id="'+o.div+'" class="graph"></div>')
-                pageGraphGetData(o)
+                chart.getData(o)
             }
         }
     })
-    function createHostList(hosts) {
-        var hostListA = [];
-        $.each(hosts, function(i, host) {
-            hostListA.push('<li id="hid'+host.id+'"><a href="#!page=graphs&host='+host.name+'">'+host.name+'</a></li>')
-        })
-        $('#hostList')
-            .empty()
-            .append(hostListA.join(''))
-    }
+}
+page.Graphs.createHostList = function(hosts) {
+    var hostListA = [];
+    $.each(hosts, function(i, host) {
+        hostListA.push('<li id="hid'+host.id+'"><a href="#!page=Graphs&host='+host.name+'">'+host.name+'</a></li>')
+    })
+    $('#hostList')
+        .empty()
+        .append(hostListA.join(''))
+}
+page.Dashboard.init = function(hash) {
+    var req = {
+        method: 'trigger.get',
+        params: {
+            output: 'extend',
+            filter: {
+                'value': 1
+            },
+            expandComment: true,
+            expandDescription: true,
+            expandExpression: true,
+            //only_true: true,
+            active: true,
+            monitored: true
+        }
+}
+    zapi([req], function(zapiResponse) {
+        
 
+        $('#aaa').append('<pre>'+JSON.stringify(zapiResponse, undefined, 2)+'</pre>')
+    })
+}
+page.Triggers.init = function(hash) {
+    var req = {
+        method: 'trigger.get',
+        params: {
+            output: 'extend',
+            filter: {
+                'value': 1
+            },
+            expandComment: true,
+            expandDescription: true,
+            expandExpression: true,
+            //only_true: true,
+            active: true,
+            monitored: true
+        }
+    }
+    zapi([req], function(zapiResponse) {
+        $('#triggers').append('<pre>'+JSON.stringify(zapiResponse, undefined, 2)+'</pre>')
+    })
+}
+page.util.hostSelector = function(hash) {
+    var page = hash.page
+    var hashHostGroup = hash.hostgroup ? hash.hostgroup[0] : '';
+    var hashHost = hash.host ? hash.host[0] : '';
+
+    // host group list created from host list
+    var hostGet = {
+        method: 'host.get',
+        params: {
+            output: 'extend',
+            selectGroups: 'extend',
+            selectGraphs: 'extend',
+            sortfield: 'name'
+        }
+    }
+    var hostGroupList = [], hostGroupListA = [];
+    zapi([hostGet], function(zapiResponse) {
+        var hosts = zapiResponse[0].result
+        // sort hosts by name and create full host list by default
+        hosts.sort(function(a, b) {
+            return a.name > b.name ? 1 : -1
+        })
+        page.Graphs.createHostList(hosts)
+        // Create host group list
+        $.each(hosts, function(i, host) {
+            // fill host group list
+            $.each(host.groups, function(i, group) {
+                if (hostGroupList[group.groupid]) {
+                    hostGroupList[group.groupid].hosts.push(host.name)
+                } else {
+                    hostGroupList[group.groupid] = $.extend(group, { hosts: [] })
+                }
+            })
+        });
+        // remove undefined and sort host group list
+        hostGroupList = hostGroupList.filter(Boolean)
+        hostGroupList.sort(function(a, b) {
+            return a.name > b.name ? 1 : -1
+        })
+        $.each(hostGroupList, function(i, hostGroup) {
+            hostGroupListA.push('<li id="gid'+hostGroup.groupid+'"><a href="#!page='+page+'&hostgroup='+hostGroup.name+'">'+hostGroup.name+'</a></li>')
+        })
+        $('#hostGroupList')
+            .empty()
+            .append(hostGroupListA.join(''))
+        // add host group select bubbling events trigger. scope hosts by host group
+        $('#hostGroupList')
+            .on( 'click', 'a', function(e) {
+                e.preventDefault();
+                var selText = $(this).text()
+                $(this)
+                    .parents('.btn-group')
+                    .find('span:first')
+                    .text(selText)
+                var hostList = $.grep(hosts, function(h) {
+                    var hg = $.grep(h.groups, function(g) {
+                        return g.name == selText
+                    })
+                    return (hg.length > 0)
+                })
+                page.Graphs.createHostList(hostList)
+            });
+
+        //
+        if (hashHost) {
+            $('#hostList')
+                .parents('.btn-group')
+                .find('span:first')
+                .text(hashHost)
+            var selHost = $.grep(hosts, function(host) {
+                return host.host == hashHost
+            })[0]
+            // sirt graphs by name
+            selHost.graphs.sort(function(a, b) {
+                return a.name > b.name ? 1 : -1
+            })
+            var selGraphs = [], thumbGraphs = [];
+            $.each(selHost.graphs, function(i, graph) {
+                // ignore graph name case
+                if (graph.name.toLowerCase() == hashGraph.toLowerCase()) {
+                    selGraphs.push(graph.name)
+                } else {
+                    thumbGraphs.push(graph.name)
+                }
+            })
+        }
+    })
+}
+page.util.createHostList = function(hosts) {
+    var hostListA = [];
+    $.each(hosts, function(i, host) {
+        hostListA.push('<li id="hid'+host.id+'"><a href="#!page='+page+'&host='+host.name+'">'+host.name+'</a></li>')
+    })
+    $('#hostList')
+        .empty()
+        .append(hostListA.join(''))
+}
+// common class for chart anywhere
+var chart = {
 }
 
 // Get graph data
-function pageGraphGetData(graphReq) {
+chart.getData = function(graphReq) {
     var timeFrom = (Date.now()/1000>>0) - 60*60*24
-    var chart = {
-        type: graphReq.type,
-        div: graphReq.div,
-        timeFrom: timeFrom
-        
-    };
+    var chartData = {};
+    chartData.type = graphReq.type,
+    chartData.div = graphReq.div,
+    chartData.timeFrom = timeFrom
     var graphGet = {
         method: "graph.get",
         params: {
@@ -159,7 +315,7 @@ function pageGraphGetData(graphReq) {
         }
     }
     zapi([graphGet], function(zapiResponse) {
-        chart.prop = zapiResponse[0].result[0]
+        chartData.prop = zapiResponse[0].result[0]
         var graphItemReq = [],
             historyGet = {
                 method: 'history.get',
@@ -176,7 +332,7 @@ function pageGraphGetData(graphReq) {
         if (graphReq.type == 'thumbnail') {
             historyGet.method = 'trends.get'
         }
-        $.each(chart.prop.items, function(i, item) {
+        $.each(chartData.prop.items, function(i, item) {
             graphItemReq.push(
                 $.extend(true,
                     {},
@@ -193,12 +349,12 @@ function pageGraphGetData(graphReq) {
         // fetch graph items data for chart
         zapi(graphItemReq, function(zapiData) {
             if (zapiData[0].result[0]) {
-                chart.data = zapiData
+                chartData.data = zapiData
                 // Create graph itself
                 //nvd3Charts(graphData)
                 //rickshawGraph(graphData)
-                jqplotGraph(chart)
-                //amchartsGraph(chart)
+                chart[zabimin.chartLib](chartData)
+                //chart.amcharts(chartData)
             } else {
                 console.warn("Empty zapi results:", zapiData)
             }
@@ -206,8 +362,7 @@ function pageGraphGetData(graphReq) {
     });
 }
 
-
-function jqplotGraph(chart) {
+chart.jqplot = function(chart) {
 /*
     var zapi = {
         graph: {
@@ -336,7 +491,9 @@ function jqplotGraph(chart) {
             return item.itemid == itemid
         })[0]
         var gitemProp = $.grep(chart.prop.gitems, function(gitem) {
-            return gitem.itemid == itemid
+            var ss = gitem.itemid == itemid
+            //return gitem.itemid == itemid
+            return ss
         })[0]
         if (chart.type != 'thumbnail') {
             // if ever one y2axis exist? we must create it
@@ -366,7 +523,7 @@ function jqplotGraph(chart) {
             color: '#' + gitemProp.color,
             yaxis: seriesYaxis,
             fill: jqplotOptions.stackSeries || gitemProp.drawtype == 5,
-            fillAlpha: 0.5
+            fillAlpha: jqplotOptions.stackSeries ? 0.8 : 0.5
         };
         // create series dataset
         $.each(itemData.result, function(i, sample) {
@@ -415,20 +572,9 @@ function jqplotGraph(chart) {
     $('#'+chart.div).empty()
     $.jqplot(chart.div, jqplotData, jqplotOptions)
 }
-
-function pageGraphDataJustify(data, options) {
-    $.extend(options, {
-        interval: 60,
-        interpolation: 'avg'
-    })
-    $.each(data, function(i, dataItem) {
-        $.each(dataItem.result, function(i, point) {
-        })
-    })
-}
      
 // http://amcharts.com
-function amchartsGraph(chart) {
+chart.amcharts = function(chart) {
     // mapping zabbix api to amcharts
     var zapiGraph = {
         graphtype: [
@@ -976,20 +1122,20 @@ function metricPrefix(value, units) {
 // Zabbix API with multi request support
 function zapi(zapiReqs, allReqSuccessful, eitherOneHasError) {
     var ajaxReqs = [], zapiData = [];
-    $.each(zapiReqs, function() {
+    $.each(zapiReqs, function(i, req) {
         var reqData = { jsonrpc: "2.0" };
-        reqData.method = this.method
+        reqData.method = req.method
         // try to login
-        if (this.method == "user.login") {
+        if (req.method == "user.login") {
             reqData.id = 0
             reqData.params = {
-                user: this.params.user,
-                password: this.params.password,
+                user: req.params.user,
+                password: req.params.password,
                 userData: true
             }
         } else {
             reqData.id = 1
-            reqData.params = this.params
+            reqData.params = req.params
             if (localStorage.sessionid == undefined) {
                 window.location = "login.html"
             }
@@ -1027,6 +1173,21 @@ function zapi(zapiReqs, allReqSuccessful, eitherOneHasError) {
     );
 }
 
+zapi.host = {
+}
+zapi.host.get = function(allReqSuccessful, eitherOneHasError) {
+    var req = {
+        method: 'host.get',
+        params: {
+            output: 'extend',
+            selectGroups: 'extend',
+            selectGraphs: 'extend',
+            sortfield: 'name'
+        }
+    }
+    zapi(req, allReqSuccessful, eitherOneHasError)
+}
+
 // Main navigation function
 function parseHashFrag() {
     var hashData = {};
@@ -1043,6 +1204,20 @@ function parseHashFrag() {
     hashData.page = hashData.page ? hashData.page[0] : 'dashboard'
     return hashData
 }
+// Main navigation function
+page.util.parseHash = function() {
+    var hashData = {};
+    var hashFrag = location.hash.replace(/^#!/, "");
+    if (hashFrag) {
+        $.each(hashFrag.split("&"), function(i, arg) {
+            var kv = arg.split("=");
+            var argKey = kv[0];
+            var argValues = kv[1].split(',');
+            hashData[argKey] = argValues;
+        });
+    }
+    return hashData
+}
 //  Function for load content from url and put in $('#ajaxPage') block
 function loadAjaxPage(hashFrag){
     // load page
@@ -1054,29 +1229,48 @@ function loadAjaxPage(hashFrag){
     });
     jqxhr.done(function(data) {
             $('#ajaxPage').html(data);
-            ajaxPageReady(hashFrag);
+            page.ready(hashFrag);
     });
     jqxhr.fail(function (jqXHR, textStatus, errorThrown) {
             alert(errorThrown);
     });
 }
 
+//  Function for load content from url and put in $('#ajaxPage') block
+page.load = function() {
+    var hash = page.util.parseHash()
+    // arg page mandatory and only one - default dashboard
+    hash.page = hash.page ? hash.page[0] : 'Dashboard'
+    // Check if we have same page    
+    if (hash === page.hash) {
+        page[hash.page].init()
+    } else {
+        page.hash = hash
+        // load page
+        var jqxhr = $.ajax({
+            mimeType: 'text/html; charset=utf-8', // ! Need set mimeType only when run from local file
+            url: 'ajaxPage/'+hash.page+'.html',
+            type: 'GET',
+            dataType: "html",
+        });
+        jqxhr.done(function(data) {
+                $('#ajaxPage').html(data);
+                page[hash.page].init();
+        });
+        jqxhr.fail(function (jqXHR, textStatus, errorThrown) {
+                alert(errorThrown);
+        });
+    }
+}
 // main function
 $(document).ready(function(){
     // Add user welcome message
     $('#user-menu')
         .append(localStorage.name+' '+localStorage.surname+'<b class="caret"></b>');
-    var hashFrag = parseHashFrag();
-    // Initial page load
-    loadAjaxPage(hashFrag)
+    // initial page load
+    page.load()
     // Ajax pages on hash url changes
     $(window).on("hashchange", function() {
-        var newHashFrag = parseHashFrag();
-        if (hashFrag.page == newHashFrag.page) {
-            ajaxPageReady(newHashFrag)
-        } else {
-            loadAjaxPage(newHashFrag)
-        }
-        hashFrag = newHashFrag;
-    });
+        page.load()
+    })
 });

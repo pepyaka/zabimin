@@ -7,12 +7,18 @@
         <meta name="author" content="">
         <link rel="icon" href="favicon.ico">
         <title>ZabImIn</title>
+<!--
         <link href="css/bootstrap/bootstrap.css" rel="stylesheet">
         <link href="css/bootstrap/bootstrap-theme.css" rel="stylesheet">
         <link href="css/jquery-ui/ui-lightness/jquery-ui-1.10.4.css" rel="stylesheet">
         <link href="css/jquery.jqplot.css" rel="stylesheet">
+-->
+        <link href="//code.jquery.com/ui/1.11.0/themes/ui-lightness/jquery-ui.css" rel="stylesheet">
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.css" rel="stylesheet">
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.css" rel="stylesheet">
+        <link href="//cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.css" rel="stylesheet">
         <link href="css/zabimin.css" rel="stylesheet">
-
+<!--
         <script src="js/jquery.js"></script>
         <script src="js/jquery-ui.js"></script>
         <script src="js/bootstrap/bootstrap.js"></script>
@@ -21,9 +27,21 @@
         <script src="js/jqplot/plugins/jqplot.cursor.js"></script>
         <script src="js/jqplot/plugins/jqplot.highlighter.js"></script>
         <script src="js/jqplot/plugins/jqplot.enhancedLegendRenderer.js"></script>
-        <script src="js/zabimin.js"></script>
         <script src="js/amcharts/amcharts.js"></script>
         <script src="js/amcharts/serial.js"></script>
+-->
+        <script src="//code.jquery.com/jquery-2.1.1.js"></script>
+        <script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+        <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.js"></script>
+        <script src="//cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.js"></script>
+        <script src="//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.dateAxisRenderer.js"></script>
+        <script src="//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.cursor.js"></script>
+        <script src="//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.highlighter.js"></script>
+        <script src="//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.enhancedLegendRenderer.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/amcharts/3.10.0/amcharts.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/amcharts/3.10.0/serial.js"></script>
+        <script src="js/zabimin.conf.js"></script>
+        <script src="js/zabimin.js"></script>
     </head>
 <body>
 <div class="container-fluid">
@@ -44,13 +62,13 @@
                       <li class="dropdown">
                         <a id="Monitoring" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Monitoring <b class="caret"></b></a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="Monitoring">
-                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=dashboard"><span class="glyphicon glyphicon-th"></span> Dashboard</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=Dashboard"><span class="glyphicon glyphicon-th"></span> Dashboard</a></li>
                           <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=overview">Overview</a></li>
                           <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=web">Web</a></li>
                           <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=latest_data">Latest data</a></li>
-                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=triggers">Triggers</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=Triggers"><span class="glyphicon glyphicon-retweet"></span> Triggers</a></li>
                           <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=events">Events</a></li>
-                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=graphs">Graphs</a></li>
+                          <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=Graphs"><span class="glyphicon glyphicon-stats"></span> Graphs</a></li>
                           <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=screens">Screens</a></li>
                           <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=maps">Maps</a></li>
                           <li role="presentation"><a role="menuitem" tabindex="-1" class="ajax-link" href="#!page=discovery">Discovery</a></li>
