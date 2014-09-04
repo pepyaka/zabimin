@@ -1,65 +1,32 @@
 <div id="pageNavigation" class="row">
     <div class="col-lg-4 col-lg-offset-8 navbar">
-<!--
-        <ul class="nav navbar-nav nav-pills">
-            <li class="dropdown">
-              <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Host group <b class="caret"></b></a>
-              <ul id="hostGroupList" class="dropdown-menu">
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Host <b class="caret"></b></a>
-              <ul id="hostList" class="dropdown-menu">
-              </ul>
-            </li>
-        </ul>
         <div class="navbar-btn">
-            <div class="btn-toolbar">
-                <div class="btn-group btn-group-justified">
-                    <div id="hostGroupNavigation" class="btn-group dropdown">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                          <span>Host group </span>
-                          <span class="badge">111</span>
-                        </button>
-                        <ul id="hostGroupList" class="dropdown-menu dropdown-menu-right">
-                        </ul>
-                    </div>
-                    <div id="hostNavigation" class="btn-group dropdown">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                          Host
-                          <span class="caret"></span>
-                        </button>
-                        <ul id="hostList" class="dropdown-menu dropdown-menu-right">
-                        </ul>
-                    </div>
-                </div>
+            <select id="hostGroupSelect" class="selectpicker" title="Host group">
+            </select>
+            <select id="hostSelect" class="selectpicker" title="Host">
+            </select>
+        </div><!-- .navbar-btn -->
+<!--
+        <div class="navbar-btn btn-group btn-group-justified">
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <span id="hostGroupName">Host group</span>
+                    <span class="caret"></span>
+                </button>
+                <ul id="hostGroupList" class="dropdown-menu" role="menu">
+                </ul>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                    <span id="hostName">Host </span>
+                    <span class="caret"></span>
+                </button>
+                <ul id="hostList" class="dropdown-menu" role="menu">
+                </ul>
             </div>
         </div>
 -->
-        <form class="navbar-form" role="form">
-            <div class="input-group">
-                <div class="input-group-btn dropdown">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                            <span>Host group </span>
-                            <span class="caret"></span>
-                        </button>
-                        <ul id="hostGroupList" class="dropdown-menu">
-                        </ul>
-                    </div>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                            <span>Host </span>
-                            <span class="caret"></span>
-                        </button>
-                        <ul id="hostList" class="dropdown-menu">
-                        </ul>
-                    </div>
-                </div><!-- /btn-group -->
-                <input type="text" class="form-control">
-            </div><!-- /input-group -->
-        </form>
-    </div><!--/.navbar-->
+    </div><!-- .navbar -->
 </div><!-- Page navigation end -->
 <div id="pageContent" class="row">
     <div class="col-lg-8">

@@ -1,298 +1,7 @@
 "use strict";
 
-var page = {
-    util: {
-        name: 'Utilites'
-    },
-    Graphs: {
-        name: 'Graphs',
-        url: 'ajaxPages/Graphs.html'
-    },
-    Dashboard: {
-        name: 'Dashbpard',
-        url: 'ajaxPages/Dashboard.html'
-    },
-    Triggers: {
-        name: 'Triggers',
-        url: 'ajaxPages/Triggers.html'
-    }
-}
-// functions for loadable ajax pages
-page.ready = function(hash) {
-    if (page[hash.page]) {
-        page[hash.page].init(hash)
-    } else {
-        page.dashboard.init(hash)
-    }
-}
-
-page.Graphs.init = function() {
-    this.createHostNavigation(page.hash)
-}
-page.Graphs.createHostNavigation = function(hash) {
-    var hashHostGroup = hash.hostgroup ? hash.hostgroup[0] : '';
-    var hashHost = hash.host ? hash.host[0] : '';
-    var hashGraph = hash.graph ? hash.graph[0] : '';
-
-    // host group list created from host list
-    var hostGet = {
-        method: 'host.get',
-        params: {
-            output: 'extend',
-            selectGroups: 'extend',
-            selectGraphs: 'extend',
-            sortfield: 'name'
-        }
-    }
-    var hostGroupList = [], hostGroupListA = [];
-    zapi([hostGet], function(zapiResponse) {
-        var hosts = zapiResponse[0].result
-        // sort hosts by name and create full host list by default
-        hosts.sort(function(a, b) {
-            return a.name > b.name ? 1 : -1
-        })
-        page.Graphs.createHostList(hosts)
-        // Create host group list
-        $.each(hosts, function(i, host) {
-            // fill host group list
-            $.each(host.groups, function(i, group) {
-                if (hostGroupList[group.groupid]) {
-                    hostGroupList[group.groupid].hosts.push(host.name)
-                } else {
-                    hostGroupList[group.groupid] = $.extend(group, { hosts: [] })
-                }
-            })
-        });
-        // remove undefined and sort host group list
-        hostGroupList = hostGroupList.filter(Boolean)
-        hostGroupList.sort(function(a, b) {
-            return a.name > b.name ? 1 : -1
-        })
-        $.each(hostGroupList, function(i, hostGroup) {
-            hostGroupListA.push('<li id="gid'+hostGroup.groupid+'"><a href="#!page=Graphs&hostgroup='+hostGroup.name+'">'+hostGroup.name+'</a></li>')
-        })
-        $('#hostGroupList')
-            .empty()
-            .append(hostGroupListA.join(''))
-        // add host group select bubbling events trigger. scope hosts by host group
-        $('#hostGroupList')
-            .on( 'click', 'a', function(e) {
-                e.preventDefault();
-                var selText = $(this).text()
-                $(this)
-                    .parents('.btn-group')
-                    .find('span:first')
-                    .text(selText)
-                var hostList = $.grep(hosts, function(h) {
-                    var hg = $.grep(h.groups, function(g) {
-                        return g.name == selText
-                    })
-                    return (hg.length > 0)
-                })
-                page.Graphs.createHostList(hostList)
-            });
-
-        //
-        if (hashHost) {
-            $('#hostList')
-                .parents('.btn-group')
-                .find('span:first')
-                .text(hashHost)
-            var selHost = $.grep(hosts, function(host) {
-                return host.host == hashHost
-            })[0]
-            // sirt graphs by name
-            selHost.graphs.sort(function(a, b) {
-                return a.name > b.name ? 1 : -1
-            })
-            var selGraphs = [], thumbGraphs = [];
-            $.each(selHost.graphs, function(i, graph) {
-                // ignore graph name case
-                if (graph.name.toLowerCase() == hashGraph.toLowerCase()) {
-                    selGraphs.push(graph.name)
-                } else {
-                    thumbGraphs.push(graph.name)
-                }
-            })
-            $("#graphList")
-                .empty()
-            $.each(thumbGraphs, function(i, thumbGraph) {
-                var o = {
-                    type: 'thumbnail',
-                    div: 'graphThumb-' + i,
-                    host: selHost.host,
-                    graph: thumbGraph
-                }
-                $("#graphList")
-                    //.append('<li><a id="'+o.div+'" href="#!page=graph&host='+selHost.host+'&graph='+thumbGraph+'"class="graph-thumbnail pull-left">'+thumbGraph+'</a></li>')
-                    .append('<li><a id="'+o.div+'" href="#!page=Graphs&host='+selHost.host+'&graph='+thumbGraph+'"class="graph-thumbnail pull-left"></a></li>')
-                chart.getData(o)
-            })
-            if (hashGraph) {
-                var o = {
-                    type: 'history',
-                    div: 'graph',
-                    host: selHost.host,
-                    graph: selGraphs[0]
-                }
-                $("#graphs").append('<div id="'+o.div+'" class="graph"></div>')
-                chart.getData(o)
-            }
-        }
-    })
-}
-page.Graphs.createHostList = function(hosts) {
-    var hostListA = [];
-    $.each(hosts, function(i, host) {
-        hostListA.push('<li id="hid'+host.id+'"><a href="#!page=Graphs&host='+host.name+'">'+host.name+'</a></li>')
-    })
-    $('#hostList')
-        .empty()
-        .append(hostListA.join(''))
-}
-page.Dashboard.init = function(hash) {
-    var req = {
-        method: 'trigger.get',
-        params: {
-            output: 'extend',
-            filter: {
-                'value': 1
-            },
-            expandComment: true,
-            expandDescription: true,
-            expandExpression: true,
-            //only_true: true,
-            active: true,
-            monitored: true
-        }
-}
-    zapi([req], function(zapiResponse) {
-        
-
-        $('#aaa').append('<pre>'+JSON.stringify(zapiResponse, undefined, 2)+'</pre>')
-    })
-}
-page.Triggers.init = function(hash) {
-    var req = {
-        method: 'trigger.get',
-        params: {
-            output: 'extend',
-            filter: {
-                'value': 1
-            },
-            expandComment: true,
-            expandDescription: true,
-            expandExpression: true,
-            //only_true: true,
-            active: true,
-            monitored: true
-        }
-    }
-    zapi([req], function(zapiResponse) {
-        $('#triggers').append('<pre>'+JSON.stringify(zapiResponse, undefined, 2)+'</pre>')
-    })
-}
-page.util.hostSelector = function(hash) {
-    var page = hash.page
-    var hashHostGroup = hash.hostgroup ? hash.hostgroup[0] : '';
-    var hashHost = hash.host ? hash.host[0] : '';
-
-    // host group list created from host list
-    var hostGet = {
-        method: 'host.get',
-        params: {
-            output: 'extend',
-            selectGroups: 'extend',
-            selectGraphs: 'extend',
-            sortfield: 'name'
-        }
-    }
-    var hostGroupList = [], hostGroupListA = [];
-    zapi([hostGet], function(zapiResponse) {
-        var hosts = zapiResponse[0].result
-        // sort hosts by name and create full host list by default
-        hosts.sort(function(a, b) {
-            return a.name > b.name ? 1 : -1
-        })
-        page.Graphs.createHostList(hosts)
-        // Create host group list
-        $.each(hosts, function(i, host) {
-            // fill host group list
-            $.each(host.groups, function(i, group) {
-                if (hostGroupList[group.groupid]) {
-                    hostGroupList[group.groupid].hosts.push(host.name)
-                } else {
-                    hostGroupList[group.groupid] = $.extend(group, { hosts: [] })
-                }
-            })
-        });
-        // remove undefined and sort host group list
-        hostGroupList = hostGroupList.filter(Boolean)
-        hostGroupList.sort(function(a, b) {
-            return a.name > b.name ? 1 : -1
-        })
-        $.each(hostGroupList, function(i, hostGroup) {
-            hostGroupListA.push('<li id="gid'+hostGroup.groupid+'"><a href="#!page='+page+'&hostgroup='+hostGroup.name+'">'+hostGroup.name+'</a></li>')
-        })
-        $('#hostGroupList')
-            .empty()
-            .append(hostGroupListA.join(''))
-        // add host group select bubbling events trigger. scope hosts by host group
-        $('#hostGroupList')
-            .on( 'click', 'a', function(e) {
-                e.preventDefault();
-                var selText = $(this).text()
-                $(this)
-                    .parents('.btn-group')
-                    .find('span:first')
-                    .text(selText)
-                var hostList = $.grep(hosts, function(h) {
-                    var hg = $.grep(h.groups, function(g) {
-                        return g.name == selText
-                    })
-                    return (hg.length > 0)
-                })
-                page.Graphs.createHostList(hostList)
-            });
-
-        //
-        if (hashHost) {
-            $('#hostList')
-                .parents('.btn-group')
-                .find('span:first')
-                .text(hashHost)
-            var selHost = $.grep(hosts, function(host) {
-                return host.host == hashHost
-            })[0]
-            // sirt graphs by name
-            selHost.graphs.sort(function(a, b) {
-                return a.name > b.name ? 1 : -1
-            })
-            var selGraphs = [], thumbGraphs = [];
-            $.each(selHost.graphs, function(i, graph) {
-                // ignore graph name case
-                if (graph.name.toLowerCase() == hashGraph.toLowerCase()) {
-                    selGraphs.push(graph.name)
-                } else {
-                    thumbGraphs.push(graph.name)
-                }
-            })
-        }
-    })
-}
-page.util.createHostList = function(hosts) {
-    var hostListA = [];
-    $.each(hosts, function(i, host) {
-        hostListA.push('<li id="hid'+host.id+'"><a href="#!page='+page+'&host='+host.name+'">'+host.name+'</a></li>')
-    })
-    $('#hostList')
-        .empty()
-        .append(hostListA.join(''))
-}
-// common class for chart anywhere
 var chart = {
 }
-
 // Get graph data
 chart.getData = function(graphReq) {
     var timeFrom = (Date.now()/1000>>0) - 60*60*24
@@ -314,7 +23,7 @@ chart.getData = function(graphReq) {
             expandName: true
         }
     }
-    zapi([graphGet], function(zapiResponse) {
+    util.zapi([graphGet], function(zapiResponse) {
         chartData.prop = zapiResponse[0].result[0]
         var graphItemReq = [],
             historyGet = {
@@ -347,7 +56,7 @@ chart.getData = function(graphReq) {
             )
         });
         // fetch graph items data for chart
-        zapi(graphItemReq, function(zapiData) {
+        util.zapi(graphItemReq, function(zapiData) {
             if (zapiData[0].result[0]) {
                 chartData.data = zapiData
                 // Create graph itself
@@ -362,6 +71,7 @@ chart.getData = function(graphReq) {
     });
 }
 
+// jqplot charts
 chart.jqplot = function(chart) {
 /*
     var zapi = {
@@ -505,7 +215,7 @@ chart.jqplot = function(chart) {
                     {
                         tickOptions: {
                             formatter: function(format, val) {
-                                return metricPrefix(val, itemProp.units)+itemProp.units
+                                return util.createMetricPrefix(val, itemProp.units)+itemProp.units
                             }
                         }
                     }
@@ -513,7 +223,7 @@ chart.jqplot = function(chart) {
             } else {
                 var seriesYaxis = 'yaxis'
                 jqplotOptions.axes.yaxis.tickOptions.formatter = function(format, val) {
-                    return metricPrefix(val, itemProp.units)+itemProp.units
+                    return util.createMetricPrefix(val, itemProp.units)+itemProp.units
                 }
             }
         }
@@ -713,7 +423,7 @@ chart.amcharts = function(chart) {
 
         // value axis label defined by last item properties
         chartConf.valueAxes[gitemProp.yaxisside].labelFunction = function(value, valueText, valueAxis) {
-            return metricPrefix(value, itemProp.units) + itemProp.units
+            return util.createMetricPrefix(value, itemProp.units) + itemProp.units
         }
 
         // baloon text array for all items
@@ -794,7 +504,7 @@ chart.amcharts = function(chart) {
             var balloonText = [];
             $.each(GraphDataItem.dataContext, function(k, v) {
                 if (k != 'date') {
-                    if (v) balloonText.push(k + ': ' + metricPrefix(v) + graph.zapiItemUnits )
+                    if (v) balloonText.push(k + ': ' + util.createMetricPrefix(v) + graph.zapiItemUnits )
                 }
             })
             return balloonText.join('<br>')
@@ -814,53 +524,53 @@ chart.amcharts = function(chart) {
 }
 
 // http://dygraphs.com/
-function dygraphsProc(graphData) {
-/* data should look like:
- * [
- *    [ new Date("2009/07/12"), 100, 200 ],
- *    [ new Date("2009/07/19"), 150, 220 ]
- * ]
- */
+chart.dygraphs = function(graphData) {
+    /* data should look like:
+     * [
+     *    [ new Date("2009/07/12"), 100, 200 ],
+     *    [ new Date("2009/07/19"), 150, 220 ]
+     * ]
+     */
 }
-function xchartsGraph(graphData) {
-/* data should look like:
- *{
- *  "xScale": "ordinal",
- *  "yScale": "linear",
- *  "type": "bar",
- *  "main": [
- *    {
- *      "className": ".pizza",
- *      "data": [
- *        {
- *          "x": "Pepperoni",
- *          "y": 12
- *        },
- *        {
- *          "x": "Cheese",
- *          "y": 8
- *        }
- *      ]
- *    }
- *  ],
- *  "comp": [
- *    {
- *      "className": ".pizza",
- *      "type": "line-dotted",
- *      "data": [
- *        {
- *          "x": "Pepperoni",
- *          "y": 10
- *        },
- *        {
- *          "x": "Cheese",
- *          "y": 4
- *        }
- *      ]
- *    }
- *  ]
- *}
- */
+chart.xcharts = function(graphData) {
+    /* data should look like:
+     *{
+     *  "xScale": "ordinal",
+     *  "yScale": "linear",
+     *  "type": "bar",
+     *  "main": [
+     *    {
+     *      "className": ".pizza",
+     *      "data": [
+     *        {
+     *          "x": "Pepperoni",
+     *          "y": 12
+     *        },
+     *        {
+     *          "x": "Cheese",
+     *          "y": 8
+     *        }
+     *      ]
+     *    }
+     *  ],
+     *  "comp": [
+     *    {
+     *      "className": ".pizza",
+     *      "type": "line-dotted",
+     *      "data": [
+     *        {
+     *          "x": "Pepperoni",
+     *          "y": 10
+     *        },
+     *        {
+     *          "x": "Cheese",
+     *          "y": 4
+     *        }
+     *      ]
+     *    }
+     *  ]
+     *}
+     */
     var xchartsData = {
         main: [
             {
@@ -879,7 +589,7 @@ function xchartsGraph(graphData) {
         });
     }
 }
-function rickshawGraph(graphData) {
+chart.rickshaw = function(graphData) {
     var rickshawSeries = [];
     // prepare data
     $.each(graphData.data, function(i, itemData) {
@@ -906,47 +616,46 @@ function rickshawGraph(graphData) {
         });
     });
     console.log("rickshawSeries", rickshawSeries)
-/*
-    var rickshawGraph = new Rickshaw.Graph({
-            element: document.querySelector("#xchart-3"),
-            renderer: 'line',
-            width: 580,
-            height: 250,
-            series: rickshawSeries
-    });
-*/
-var seriesData = [ [], [], [] ];
-var random = new Rickshaw.Fixtures.RandomData(150);
-
-for (var i = 0; i < 150; i++) {
-    random.addData(seriesData);
-}
-
-// instantiate our graph!
-
-var graph = new Rickshaw.Graph( {
-    element: document.getElementById("xchart-3"),
-    width: 960,
-    height: 500,
-    renderer: 'line',
-    series: rickshawSeries
-} );
-
-graph.render();
-
-var hoverDetail = new Rickshaw.Graph.HoverDetail( {
-    graph: graph,
-    formatter: function(series, x, y) {
-        var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
-        var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
-        var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
-        return content;
+    /*
+        var rickshawGraph = new Rickshaw.Graph({
+                element: document.querySelector("#xchart-3"),
+                renderer: 'line',
+                width: 580,
+                height: 250,
+                series: rickshawSeries
+        });
+    */
+    var seriesData = [ [], [], [] ];
+    var random = new Rickshaw.Fixtures.RandomData(150);
+    
+    for (var i = 0; i < 150; i++) {
+        random.addData(seriesData);
     }
-} );
-
+    
+    // instantiate our graph!
+    
+    var graph = new Rickshaw.Graph( {
+        element: document.getElementById("xchart-3"),
+        width: 960,
+        height: 500,
+        renderer: 'line',
+        series: rickshawSeries
+    } );
+    
+    graph.render();
+    
+    var hoverDetail = new Rickshaw.Graph.HoverDetail({
+        graph: graph,
+        formatter: function(series, x, y) {
+            var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
+            var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+            var content = swatch + series.name + ": " + parseInt(y) + '<br>' + date;
+            return content;
+        }
+    });
 }
 // http://nvd3.org/
-function nvd3Charts(graphData) {
+chart.nvd3 = function(graphData) {
     // create initiate graph data
     var graph = {
         name: graphData.prop.name,
@@ -1044,233 +753,3 @@ function nvd3Charts(graphData) {
         return chart;
     });
 }
-
-/*
-var spinnerConf = {
-  lines: 13, // The number of lines to draw
-  length: 20, // The length of each line
-  width: 10, // The line thickness
-  radius: 30, // The radius of the inner circle
-  corners: 1, // Corner roundness (0..1)
-  rotate: 0, // The rotation offset
-  direction: 1, // 1: clockwise, -1: counterclockwise
-  color: '#000', // #rgb or #rrggbb or array of colors
-  speed: 1, // Rounds per second
-  trail: 60, // Afterglow percentage
-  shadow: false, // Whether to render a shadow
-  hwaccel: false, // Whether to use hardware acceleration
-  className: 'spinner', // The CSS class to assign to the spinner
-  zIndex: 2e9, // The z-index (defaults to 2000000000)
-  top: '50%', // Top position relative to parent
-  left: '50%' // Left position relative to parent
-};
-var target = document.getElementById('foo');
-var spinner = new Spinner(opts).spin(target);
-*/
-
-// format numbers view
-function metricPrefix(value, units) {
-    if (!$.isNumeric(value)) return
-    var v, prefix, metric = [
-        { symbol: 'Y', decimal: 1E+24, binary: Math.pow(2, 80) },
-        { symbol: 'Z', decimal: 1E+21, binary: Math.pow(2, 70) },
-        { symbol: 'E', decimal: 1E+18, binary: Math.pow(2, 60) },
-        { symbol: 'P', decimal: 1E+15, binary: Math.pow(2, 50) },
-        { symbol: 'T', decimal: 1E+12, binary: Math.pow(2, 40) },
-        { symbol: 'G', decimal: 1E+9, binary: Math.pow(2, 30) },
-        { symbol: 'M', decimal: 1E+6, binary: Math.pow(2, 20) },
-        { symbol: 'k', decimal: 1E+3, binary: Math.pow(2, 10) },
-        { decimal: 1, binary: 1 },
-        { symbol: 'm', decimal: 1E-3 },
-        { symbol: 'μ', decimal: 1E-6 },
-        { symbol: 'n', decimal: 1E-9 },
-        { symbol: 'p', decimal: 1E-12 },
-        { symbol: 'f', decimal: 1E-15 },
-        { symbol: 'a', decimal: 1E-18 },
-        { symbol: 'z', decimal: 1E-21 },
-        { symbol: 'y', decimal: 1E-24 }
-    ]
-    if (units == 'B' || units == 'Bps' || units == 'bps') units = 'binary'
-    switch(units) {
-        case 'binary':
-            if (value < 1024) {
-                return value+' '
-            } else {
-                $.each(metric, function(p, i) {
-                    v = value / i.binary
-                    prefix = i.symbol
-                    return ( v < 1 )
-                })
-                return v.toLocaleString('en-US', {maximumFractionDigits: 1})+' '+prefix
-            }
-        case '%':
-            return value.toLocaleString({style: 'percent'})
-        default:
-            if (value == 0 || (value >= 0.001 && value < 1000)) {
-                return value.toLocaleString()+' '
-            } else {
-                $.each(metric, function(p, i) {
-                    v = value / i.decimal
-                    prefix = i.symbol
-                    return ( v < 1 )
-                })
-                return v.toLocaleString()+' '+prefix
-            }
-    }
-}
-
-// Zabbix API with multi request support
-function zapi(zapiReqs, allReqSuccessful, eitherOneHasError) {
-    var ajaxReqs = [], zapiData = [];
-    $.each(zapiReqs, function(i, req) {
-        var reqData = { jsonrpc: "2.0" };
-        reqData.method = req.method
-        // try to login
-        if (req.method == "user.login") {
-            reqData.id = 0
-            reqData.params = {
-                user: req.params.user,
-                password: req.params.password,
-                userData: true
-            }
-        } else {
-            reqData.id = 1
-            reqData.params = req.params
-            if (localStorage.sessionid == undefined) {
-                window.location = "login.html"
-            }
-            reqData.auth = localStorage.sessionid
-        }
-        var jqxhr = $.ajax({
-            url: "/api_jsonrpc.php",
-            type: "POST",
-            contentType: 'application/json-rpc',
-            dataType: 'json',
-            cache: false,
-            processData: false,
-            data: JSON.stringify(reqData)
-        });
-        ajaxReqs.push(
-            jqxhr.done(function(zapiResponse) {
-                zapiData.push({
-                    method: reqData.method,
-                    request: reqData.params,
-                    result: zapiResponse.result
-                })
-            })
-        );
-    });
-    // The reason that .apply is needed is because $.when can take multiple arguments,
-    // but not an array of arguments.
-    $.when.apply(undefined, ajaxReqs).then(
-        function() {
-            console.log("zapi", zapiData)
-            allReqSuccessful(zapiData)
-        },
-        function() {
-            eitherOneHasError(zapiData)
-        }
-    );
-}
-
-zapi.host = {
-}
-zapi.host.get = function(allReqSuccessful, eitherOneHasError) {
-    var req = {
-        method: 'host.get',
-        params: {
-            output: 'extend',
-            selectGroups: 'extend',
-            selectGraphs: 'extend',
-            sortfield: 'name'
-        }
-    }
-    zapi(req, allReqSuccessful, eitherOneHasError)
-}
-
-// Main navigation function
-function parseHashFrag() {
-    var hashData = {};
-    var hashFrag = location.hash.replace(/^#!/, "");
-    if (hashFrag) {
-        $.each(hashFrag.split("&"), function(i, arg) {
-            var kv = arg.split("=");
-            var argKey = kv[0];
-            var argValues = kv[1].split(',');
-            hashData[argKey] = argValues;
-        });
-    }
-    // page mandatory and only one - default dashboard
-    hashData.page = hashData.page ? hashData.page[0] : 'dashboard'
-    return hashData
-}
-// Main navigation function
-page.util.parseHash = function() {
-    var hashData = {};
-    var hashFrag = location.hash.replace(/^#!/, "");
-    if (hashFrag) {
-        $.each(hashFrag.split("&"), function(i, arg) {
-            var kv = arg.split("=");
-            var argKey = kv[0];
-            var argValues = kv[1].split(',');
-            hashData[argKey] = argValues;
-        });
-    }
-    return hashData
-}
-//  Function for load content from url and put in $('#ajaxPage') block
-function loadAjaxPage(hashFrag){
-    // load page
-    var jqxhr = $.ajax({
-        mimeType: 'text/html; charset=utf-8', // ! Need set mimeType only when run from local file
-        url: 'ajaxPage/'+hashFrag.page+'.html',
-        type: 'GET',
-        dataType: "html",
-    });
-    jqxhr.done(function(data) {
-            $('#ajaxPage').html(data);
-            page.ready(hashFrag);
-    });
-    jqxhr.fail(function (jqXHR, textStatus, errorThrown) {
-            alert(errorThrown);
-    });
-}
-
-//  Function for load content from url and put in $('#ajaxPage') block
-page.load = function() {
-    var hash = page.util.parseHash()
-    // arg page mandatory and only one - default dashboard
-    hash.page = hash.page ? hash.page[0] : 'Dashboard'
-    // Check if we have same page    
-    if (hash === page.hash) {
-        page[hash.page].init()
-    } else {
-        page.hash = hash
-        // load page
-        var jqxhr = $.ajax({
-            mimeType: 'text/html; charset=utf-8', // ! Need set mimeType only when run from local file
-            url: 'ajaxPage/'+hash.page+'.html',
-            type: 'GET',
-            dataType: "html",
-        });
-        jqxhr.done(function(data) {
-                $('#ajaxPage').html(data);
-                page[hash.page].init();
-        });
-        jqxhr.fail(function (jqXHR, textStatus, errorThrown) {
-                alert(errorThrown);
-        });
-    }
-}
-// main function
-$(document).ready(function(){
-    // Add user welcome message
-    $('#user-menu')
-        .append(localStorage.name+' '+localStorage.surname+'<b class="caret"></b>');
-    // initial page load
-    page.load()
-    // Ajax pages on hash url changes
-    $(window).on("hashchange", function() {
-        page.load()
-    })
-});

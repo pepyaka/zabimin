@@ -1,48 +1,161 @@
 <div id="pageNavigation" class="row">
     <div class="col-lg-4 col-lg-offset-8 navbar">
-        <form class="navbar-form" role="form">
-            <div class="input-group">
-                <div class="input-group-btn dropdown">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                            <span>Host group </span>
-                            <span class="caret"></span>
-                        </button>
-                        <ul id="hostGroupList" class="dropdown-menu">
-                        </ul>
-                    </div>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                            <span>Host </span>
-                            <span class="caret"></span>
-                        </button>
-                        <ul id="hostList" class="dropdown-menu">
-                        </ul>
-                    </div>
-                </div><!-- /btn-group -->
-                <input type="text" class="form-control">
-            </div><!-- /input-group -->
-        </form>
+        <div class="navbar-btn">
+            <div id="hostSelector">
+                <select id="hostGroupSelect" class="selectpicker show-tick" title="Host group" data-style="btn-primary" disabled>
+                </select>
+                <select id="hostSelect" class="selectpicker" title="Host" data-live-search="true" multiple data-selected-text-format="count" data-style="btn-primary" disabled>
+                </select>
+            </div>
+        </div><!-- .navbar-btn -->
     </div><!--/.navbar-->
 </div><!-- Page navigation end -->
 
-<!--Start Breadcrumb-->
-<div class="row">
-	<div id="breadcrumb" class="col-xs-12">
-		<ol class="breadcrumb">
-			<li><a href="index.html">Home</a></li>
-			<li><a href="#">Dashboard</a></li>
-		</ol>
-	</div>
-</div>
-<!--End Breadcrumb-->
 <div id="pageContent" class="row">
-    <div class="col-lg-8">
-        <div id="triggers">
+    <div class="col-lg-3 col-lg-push-9">
+        <div id="filter">
+            <form class="form-horizontal" role="form">
+                <div class="form-group">
+                    <label for="filterTriggerStatus" class="col-xs-6 control-label">Trigger status</label>
+                    <div class="col-xs-6">
+                        <select class="selectpicker form-control" id="filterTriggerStatus">
+                            <option value="only_true">Problem</option>
+                            <option value="Any">Any</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="filterAcknowledgeStatus" class="col-xs-6 control-label">Acknowledge status</label>
+                    <div class="col-xs-6">
+                        <select class="selectpicker form-control pull-right" id="filterAcknowledgeStatus">
+                            <option>Any</option>
+                            <option value="withUnacknowledgedEvents">With unacknowledged events</option>
+                            <option value="withLastEventUnacknowledged">With last event unacknowledged</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="filterEvents" class="col-xs-6 control-label">Events</label>
+                    <div class="col-xs-6">
+                        <select class="selectpicker form-control pull-right" id="filterEvents">
+                            <option>Hide all</option>
+                            <option value="showAll">Show all (7 Days)</option>
+                            <option value="showUnacknowledged">Show unacknowledged (7 Days)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="filterMinSeverity" class="col-xs-6 control-label">Minimum trigger severity</label>
+                    <div class="col-xs-6">
+                        <select class="selectpicker form-control" id="filterMinSeverity">
+                            <option value="0">Not classified</option>
+                            <option value="1">Information</option>
+                            <option value="2">Warning</option>
+                            <option value="3">Average</option>
+                            <option value="4">High</option>
+                            <option value="5">Disaster</option>
+                        </select>
+                    </div>
+                </div>
+<!--
+                <div class="form-group">
+                    <label for="filterStatusChangeDays" class="col-sm-6 control-label">Age less than</label>
+                    <div class="col-lg-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">
+                                <input type="checkbox">
+                            </span>
+                            <input id="filterStatusChangeDays" type="number" class="form-control" value="14" disabled="disabled">
+                            <span class="input-group-addon">
+                                days
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+-->
+                <div class="form-group">
+                    <label for="filterLastChangeSince" class="col-xs-6 control-label">Last change since</label>
+                    <div class='col-xs-6'>
+                        <div class="input-group date datetimepicker" id="filterLastChangeSince">
+                            <span class="input-group-addon datepickerbutton">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            <input type='text' class="form-control" data="datePicktime" data-date-pickTime="false"/>
+                            <span class="input-group-addon datetimepicker-clear">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="filterLastChangeTill" class="col-xs-6 control-label">Last change till</label>
+                    <div class='col-xs-6'>
+                        <div class='input-group date datetimepicker' id='filterLastChangeTill' data-date-use-current="false">
+                            <span class="input-group-addon datepickerbutton">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            <input type='text' class="form-control" data="datePicktime" data-date-pickTime="false"/>
+                            <span class="input-group-addon datetimepicker-clear">
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="filterByName" class="col-xs-6 control-label">Filter by name</label>
+                    <div class="col-xs-6">
+                        <div class="input-group" id="filterByName">
+                            <input class="form-control" type="text" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-filter"></span></button>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-xs-offset-6 col-xs-6">
+                        <div class="checkbox">
+                            <label>
+                                <input id="filterShowDetails" type="checkbox" /> Show details
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-xs-offset-6 col-xs-6">
+                        <div class="checkbox">
+                            <label>
+                                <input id="filterMaintenance" type="checkbox" /> Show only hosts in maintenance
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-xs-offset-6 col-xs-4">
+                        <button class="btn btn-default btn-block" id="filterReset">Reset</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
-    <div class="col-lg-4">
-        <div id="filter">
+    <div class="col-lg-9 col-lg-pull-3">
+        <div id="triggers">
+            <table class="table table-hover table-condensed">
+                <thead>
+                    <tr>
+                        <th abbr="severity">Severity</th>
+                        <th abbr="value">Status</th>
+                        <th abbr="lastchange">Last change</th>
+                        <th abbr="age">Age</th>
+                        <th abbr="hosts">Host</th>
+                        <th abbr="description">Name</th>
+                        <th abbr="comments">Comments</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
 </div><!-- Page content end -->
