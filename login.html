@@ -8,24 +8,21 @@
         <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
         <link href='http://fonts.googleapis.com/css?family=Righteous' rel='stylesheet' type='text/css'>
         <link href="css/style.css" rel="stylesheet">
-        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-                <script src="http://getbootstrap.com/docs-assets/js/html5shiv.js"></script>
-                <script src="http://getbootstrap.com/docs-assets/js/respond.min.js"></script>
-        <![endif]-->
         <script src="plugins/jquery/jquery-2.1.0.js"></script>
         <script src="plugins/jquery-ui/jquery-ui.min.js"></script>
         <script src="plugins/bootstrap/bootstrap.min.js"></script>
         <script src="plugins/justified-gallery/jquery.justifiedgallery.min.js"></script>
         <script src="plugins/tinymce/tinymce.min.js"></script>
         <script src="plugins/tinymce/jquery.tinymce.min.js"></script>
+        <script src="js/zabimin/Zapi.js"></script>
+        <script src="js/zabimin/Login.js"></script>
     </head>
 <body>
 <div class="container-fluid">
     <div id="page-login" class="row">
         <div class="col-xs-12 col-md-4 col-md-offset-4">
             <div class="box">
-                <form class="box-content" method="post">
+                <form class="box-content">
                     <div class="text-center">
                         <h3 class="page-header">ZabImIn Login Page</h3>
                     </div>
@@ -51,30 +48,5 @@
         </div>
     </div>
 </div>
-<script src="js/zabimin.js"></script>
-<script>
-$("form").submit( function(event) {
-    event.preventDefault();
-    username = $("form :text").val()
-    password = $("form :password").val()
-    var loginReq = {
-        method: "user.login",
-        params: {
-            user: username,
-            password: password
-        }
-    }
-    zapi([loginReq], function(loginRes) {
-        $.each(loginRes[0].result, function(key, value) {
-            if ($.isPlainObject(value)) {
-                localStorage[key] = JSON.stringify(value)
-            } else {
-                localStorage[key] = value
-            }
-        });
-        window.location = "index.html"
-    });
-});
-</script>
 </body>
 </html>

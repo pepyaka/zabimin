@@ -1,15 +1,14 @@
 'use strict';
 
 $(document).ready(function(){
-    // Add user welcome message
-    $('#user-menu')
-        .append(localStorage.name+' '+localStorage.surname+'<b class="caret"></b>');
+    $('#ajaxPage').spin();
+    $('#userMenu a span').text(localStorage.name + ' ' + localStorage.surname);
     // Ajax pages on hash url changes
     $(window).on("hashchange", function() {
-        page.load()
+        Page.load()
     })
     // initial page load
-    page.load()
+    Page.load()
 });
 
 

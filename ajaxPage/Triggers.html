@@ -19,7 +19,7 @@
                     <label for="filterTriggerStatus" class="col-xs-6 control-label">Trigger status</label>
                     <div class="col-xs-6">
                         <select class="selectpicker form-control" id="filterTriggerStatus">
-                            <option value="only_true">Problem</option>
+                            <option value="">Problem</option>
                             <option value="Any">Any</option>
                         </select>
                     </div>
@@ -28,7 +28,7 @@
                     <label for="filterAcknowledgeStatus" class="col-xs-6 control-label">Acknowledge status</label>
                     <div class="col-xs-6">
                         <select class="selectpicker form-control pull-right" id="filterAcknowledgeStatus">
-                            <option>Any</option>
+                            <option value="">Any</option>
                             <option value="withUnacknowledgedEvents">With unacknowledged events</option>
                             <option value="withLastEventUnacknowledged">With last event unacknowledged</option>
                         </select>
@@ -38,7 +38,7 @@
                     <label for="filterEvents" class="col-xs-6 control-label">Events</label>
                     <div class="col-xs-6">
                         <select class="selectpicker form-control pull-right" id="filterEvents">
-                            <option>Hide all</option>
+                            <option value="">Hide all</option>
                             <option value="showAll">Show all (7 Days)</option>
                             <option value="showUnacknowledged">Show unacknowledged (7 Days)</option>
                         </select>
@@ -48,32 +48,15 @@
                     <label for="filterMinSeverity" class="col-xs-6 control-label">Minimum trigger severity</label>
                     <div class="col-xs-6">
                         <select class="selectpicker form-control" id="filterMinSeverity">
-                            <option value="0">Not classified</option>
-                            <option value="1">Information</option>
-                            <option value="2">Warning</option>
-                            <option value="3">Average</option>
-                            <option value="4">High</option>
-                            <option value="5">Disaster</option>
+                            <option value="">Not classified</option>
+                            <option value="information">Information</option>
+                            <option value="warning">Warning</option>
+                            <option value="average">Average</option>
+                            <option value="high">High</option>
+                            <option value="disaster">Disaster</option>
                         </select>
                     </div>
                 </div>
-<!--
-                <div class="form-group">
-                    <label for="filterStatusChangeDays" class="col-sm-6 control-label">Age less than</label>
-                    <div class="col-lg-6">
-                        <div class="input-group">
-                            <span class="input-group-addon">
-                                <input type="checkbox">
-                            </span>
-                            <input id="filterStatusChangeDays" type="number" class="form-control" value="14" disabled="disabled">
-                            <span class="input-group-addon">
-                                days
-                            </span>
-                        </div>
-                    </div>
-
-                </div>
--->
                 <div class="form-group">
                     <label for="filterLastChangeSince" class="col-xs-6 control-label">Last change since</label>
                     <div class='col-xs-6'>
