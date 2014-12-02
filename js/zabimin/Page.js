@@ -81,7 +81,7 @@ var Page = (function () {
             .prop('disabled', true)
             .selectpicker('refresh');
         
-        var hostGet = Zapi.host.get();
+        var hostGet = Zapi('host.get');
         //Util.zapi([req], function(zapiResponse) {
         hostGet.done(function(zapiResponse) {
             hosts = zapiResponse.result;
@@ -618,8 +618,9 @@ var Page = (function () {
             thead.push(this.abbr)
         })
         //Util.zapi([req], function(zapiResponse) {
-        Zapi.trigger.get(reqParams, function(zapiResponse) {
-            $.each(zapiResponse[0].result, function(i, trigger) {
+        var triggerGet = Zapi('trigger.get', reqParams)
+        triggerGet.done(function(zapiResponse) {
+            $.each(zapiResponse.result, function(i, trigger) {
                 var tr = [];
                 var rowData = {};
                 $.each(trigger, function(k, v) {
@@ -637,7 +638,7 @@ var Page = (function () {
             $('#triggers tbody')
                 .empty()
                 .append(tbody.join(''))
-        })
+        });
     }
     
     Monitoring.Triggers = Triggers;
