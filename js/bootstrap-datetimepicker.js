@@ -1,1 +1,0 @@
-../dist/bootstrap-datetimepicker/src/js/bootstrap-datetimepicker.js

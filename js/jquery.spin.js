@@ -1,1 +1,1 @@
-../dist/jquery.spin.js
+../../dist/jquery.spin.js
