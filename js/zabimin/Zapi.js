@@ -108,8 +108,8 @@ var Zapi = (function() {
             method: method
         };
         var m = method.split('.', 2)
-        req.params = defaults[m[0]] && defaults[m[0]][m[1]] || {}
-        $.extend(req.params, params)
+        var defaultParams = defaults[m[0]] && defaults[m[0]][m[1]] || {}
+        req.params = $.extend({}, defaultParams, params)
         $.extend(settings, extSettings)
         if (req.method === 'user.login') {
             id = 0;
