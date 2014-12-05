@@ -6,6 +6,9 @@ main, aside {
     overflow-y: auto;
 }
 @media (max-width: 1199px) {
+    body {
+        padding-top: 120px;
+    }
     .navbar-page {
         margin-top: 50px;
         z-index: 1020;

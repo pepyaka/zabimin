@@ -66,13 +66,11 @@ var Page = (function () {
 (function(nav) {
     var hostSelector = {};//Object for public methods
     var hosts;
-    var hostGroups = [];
-    var selHosts = [];
-    var selHostGroups = [];
-    var callback;
+    var hostGroups;
+    var hostSelDone;
     
-    hostSelector.init = function(hostSelDone, initDone) {
-        callback = hostSelDone;
+    hostSelector.init = function(initDone) {
+        var hostGet = Zapi('host.get');
         // set selectors to disabled before ajax request
         $('#hostGroupSelect')
             .prop('disabled', true)
@@ -81,8 +79,6 @@ var Page = (function () {
             .prop('disabled', true)
             .selectpicker('refresh');
         
-        var hostGet = Zapi('host.get');
-        //Util.zapi([req], function(zapiResponse) {
         hostGet.done(function(zapiResponse) {
             hosts = zapiResponse.result;
             // sort hosts by name and create full host list by default
@@ -91,6 +87,7 @@ var Page = (function () {
             })
         
             // Create host group list
+            hostGroups = [];
             $.each(hosts, function(i, host) {
                 // fill host group list
                 $.each(host.groups, function(i, group) {
@@ -107,13 +104,16 @@ var Page = (function () {
                 return a.name > b.name ? 1 : -1
             })
             // anyway create full host group list
-            createHostGroupList(hostSelDone)
+            createHostGroupList()
             createHostList()
             if ($.isFunction(initDone)) {
                 initDone(hosts, hostGroups);
             };
         })
-    }
+    };
+    hostSelector.done = function(callback) {
+        hostSelDone = callback;
+    };
     // set selectors on hash url
     hostSelector.set = function(hashArgs) {
         var hostSelectorArgs = {};
@@ -125,7 +125,7 @@ var Page = (function () {
             hostgroup: function(v) {
                 $('#hostGroupSelect')
                     .selectpicker('val', v[0])
-                createHostList(v[0], callback);
+                createHostList(v[0]);
             },
             hostid: function(v) {
             },
@@ -138,36 +138,10 @@ var Page = (function () {
                 hostSelectorArgs[k] = v;
             };
         });
-        callback(hostSelectorArgs);
-    }
-    //// set selectors on hash url and fire events
-    //hostSelection.change = function(hash) {
-    //    if (hash.hostgroup) {
-    //        $.each(selHostGroups, function(i, hostGroup) {
-    //            //if ($.inArray
-    //        });
-    //        selHostGroupNames.sort()
-    //        
-    //        $('#hostGroupSelect')
-    //            .selectpicker('val', hash.hostgroup[0])
-    //        selHostGroups = $.grep(hostGroups, function(hostGroup) {
-    //            return $.inArray(hostGroup.name, hash.hostgroup) > -1
-    //        })
-    //    } else {
-    //        selHostGroups = hostGroups
-    //    }
-    //    if (hash.host) {
-    //        $('#hostSelect')
-    //            .selectpicker('val', hash.host)
-    //        selHosts = $.grep(hosts, function(host) {
-    //            return $.inArray(host.host, hash.host) > -1
-    //        })
-    //    } else {
-    //        selHosts = []
-    //    }
-    //    selectionDone(selHosts, selHostGroups)
-    //}
-    function createHostGroupList(hostSelDone) {
+        hostSelDone(hostSelectorArgs);
+    };
+
+    function createHostGroupList() {
         var hostGroupList = ['<option>All groups</option>']
         $.each(hostGroups, function(i, hostGroup) {
             hostGroupList.push('<option>'+hostGroup.name+'</option>')
@@ -187,34 +161,13 @@ var Page = (function () {
                 } else {
                     hostSelDone({hostgroup: selVal, host: null});
                 }
-                createHostList(selVal, hostSelDone)
+                createHostList(selVal)
             });
     }
-    function onHostGroupListChange() {
-        var selVal = $(this).val();
-        if (selVal && selVal != 'All groups') {
-            selHostGroups = $.grep(hostGroups, function(hostGroup) {
-                return hostGroup.name === selVal
-            })
-        } else {
-            selHostGroups = hostGroups
-        }
-        createHostList()
-        selHosts = []
-        callback({hostgroups: selHostGroups})
-    }
-    function createHostList(selGroupName, hostSelDone) {
+    function createHostList(selGroupName) {
         var hostList = [];
         var selHostNames = [];
-        //$.each(selHostGroups, function(i, selHostGroup) {
-        //    $.each(selHostGroup.hosts, function(i, host) {
-        //        selHostNames.push(host.name);
-        //    });
-        //});
-        //selHostNames = $.grep(selHostNames, function(v, k){
-        //    return $.inArray(v, selHostNames) === k;
-        //});
-        if (selGroupName === 'All groups') {
+        if (!selGroupName || selGroupName === 'All groups') {
             $.each(hosts, function(i, host) {
                 selHostNames.push(host.host);
             });
@@ -236,20 +189,10 @@ var Page = (function () {
             .append(hostList.join(''))
             .selectpicker('refresh')
             .off('change.hostSelect')
-            //.on('change.hostSelect', onHostListChange);
             .on('change.hostSelect', function() {
                 var selVal = $(this).val();
                 hostSelDone({host: selVal || null});
             });
-    }
-    function onHostListChange() {
-        var selVal = $(this).val();
-        if (selVal && selVal != 'No host') {
-            selHosts = $.grep(hosts, function(host) {
-                return $.inArray(host.host, selVal) > -1
-            })
-        }
-        callback({host: selHosts})
     }
 
     // Common part of Module pattern
@@ -274,6 +217,7 @@ var Page = (function () {
     var Triggers = {}; // Object for public methods
     var data = {};// work data
     var hash = {}; // Each page has own arguments
+    var hostSelector = Page.nav.hostSelector; // Shorthands
     var filter = {
         init: function(changeHashArgs) {
             filter.callback = changeHashArgs;
@@ -420,59 +364,237 @@ var Page = (function () {
     };
 
     Triggers.init = function(hashArgs) {
-        Page.nav.hostSelector.init(hostSelDone, hostSelInit)
+        hostSelector.init(function(hosts, hostGroups) {
+            console.log('hostSelector init: ', hosts, hostGroups)
+            data.hosts = hosts;
+            data.hostGroups = hostGroups;
+            hostSelector.set(hashArgs);
+            setTriggersReqParams(hashArgs)
+        });
+        hostSelector.done(function(selected) {
+            console.log('hostSelector callback: ', selected)
+            Util.setHash(selected);
+        });
 
         filter.init(function(filterArgs) {
             console.log('filterArgs callback: ', filterArgs)
             Util.setHash(filterArgs);
         });
         filter.set(hashArgs);
-
-
-        function hostSelDone(selected) {
-            console.log('hostSelector callback: ', selected)
-            Util.setHash(selected);
+    };
+    Triggers.hashChange = function(hashArgs) {
+        filter.set(hashArgs);
+        hostSelector.set(hashArgs);
+        setTriggersReqParams(hashArgs); 
+    };
+    
+    function setTriggersReqParams(args) {
+        var reqParams = {
+            //filter: {
+            //    'value': 1
+            //},
+            only_true: true,
+            skipDependent: true,
+            //active: true,
+            monitored: true
+            //search: {description: 'ping'}
         };
-        function hostSelInit(hosts, hostGroups) {
+        var map = {
+            triggerStatus: function(v) {
+                if (v[0] == 'Problem') {
+                    reqParams.filter = {value: 1};
+                }
+                if (v[0] == 'Any') {
+                    delete reqParams.only_true;
+                }
+            },
+            acknowledgeStatus: function(v) {
+                var map = {
+                    Acknowledged: 'withAcknowledgedEvents',
+                    Unacknowledged: 'withUnacknowledgedEvents',
+                    LastUnacknowledged: 'withLastEventUnacknowledged'
+                };
+                reqParams[map[v[0]]] = true;
+            },
+            events: function(v) {
+            },
+            minSeverity: function(v) {
+                var severity = {
+                    'Not classified': 0,
+                    'Information': 1,
+                    'Warning': 2,
+                    'Average': 3,
+                    'High': 4,
+                    'Disaster': 5
+                };
+                reqParams.min_severity = severity[v[0]];
+            },
+            lastChangeSince: function(v) {
+                var timestamp = new Date(v[0]).getTime() / 1000;
+                reqParams.lastChangeSince = timestamp;
+            },
+            lastChangeTill: function(v) {
+                var timestamp = new Date(v[0]).getTime() / 1000;
+                reqParams.lastChangeTill = timestamp;
+            },
+            byName: function(v) {
+                reqParams.search = {description: v[0]};
+            },
+            showDetails: function(v) {
+                reqParams.expandExpression = !!v[0];
+            },
+            maintenance: function(v) {
+                reqParams.maintenance = !!v[0];
+            },
+            host: function(v) {
+                reqParams.hostids = [];
+                $.each(v, function(i, hostname) {
+                    $.each(data.hosts, function(i, host) {
+                        if (hostname === host.host) {
+                            reqParams.hostids.push(host.hostid)
+                        }
+                    });
+                });
+            },
+            hostgroup: function(v) {
+                reqParams.groupids = [];
+                $.each(v, function(i, groupname) {
+                    $.each(data.hostGroups, function(i, group) {
+                        if (groupname === group.name) {
+                            reqParams.groupids.push(group.groupid)
+                        }
+                    });
+                });
+            }
+        }
+        $.each(args, function(k, v) {
+            map[k] && map[k](v);
+        });
+        createStatusTable(reqParams);
+    }
+    function createStatusTable(reqParams) {
+        console.log(reqParams)
+        var thead = [];
+        var tbody = [];
+        var rowDataMap = {
+            lastchange: function(rowData, unixtime) {
+                var d = moment(unixtime * 1000);
+                rowData.lastchange = d.format('lll')
+                rowData.age = d.fromNow()
+            },
+            hosts: function(rowData, hostsArray) {
+                rowData.hosts = hostsArray[0].host
+            },
+            priority: function(rowData, priority) {
+                rowData.priority = [
+                    'info',
+                    'info',
+                    'warning',
+                    'warning',
+                    'danger',
+                    'danger'][priority];
+                rowData.severity = [
+                    'Not classified',
+                    'Information',
+                    'Warning',
+                    'Average',
+                    'High',
+                    'Disaster'
+                ][priority];
+            },
+            value: function(rowData, val) {
+                rowData.value = [
+                    '<span class="text-success">OK</span>',
+                    '<span class="text-danger">Problem</span>'
+                ][val];
+            }
+        };
+        var triggerGet = Zapi('trigger.get', reqParams)
+        $('#triggers th').each(function() {
+            thead.push(this.abbr)
+        })
+        $('#triggers')
+            .fadeTo('fast', 0.2)
+        triggerGet.done(function(zapiResponse) {
+            $.each(zapiResponse.result, function(i, trigger) {
+                var tr = [];
+                var rowData = {};
+                $.each(trigger, function(k, v) {
+                    if (rowDataMap[k]) {
+                        rowDataMap[k](rowData, v)
+                    } else {
+                        rowData[k] = v
+                    }
+                })
+                $.each(thead, function(i, th) {
+                    tr.push('<td>' + rowData[th] + '</td>')
+                })
+                tbody.push('<tr class="'+rowData.priority+'">'+tr.join('')+'</tr>')
+            })
+            $('#triggers tbody')
+                .empty()
+                .append(tbody.join(''))
+            $('#triggers')
+                .fadeTo('fast', 1)
+        });
+    }
+    
+    Monitoring.Triggers = Triggers;
+    return Monitoring
+})(Page.Monitoring);
+
+// Monitoring/Events page
+(function(Monitoring) {
+    var Events = {}; // Object for public methods
+    var data = {};
+    var hostSelector = Page.nav.hostSelector; // Shorthands
+    var filter = {
+        init: function(changeHashArgs) {
+            filter.callback = changeHashArgs;
+        },
+        set: function(hashArgs) {
+            var filterArgs = {};
+            var map = {
+            };
+            $.each(hashArgs, function(k, v) {
+                if (map[k]) {
+                    map[k](v[0]);
+                    filterArgs[k] = v;
+                };
+            });
+            filter.callback(filterArgs)
+        },
+        reset: function() {
+            filter.callback({
+            });
+        }
+    };
+
+    Events.init = function(hashArgs) {
+        hostSelector.init(function(hosts, hostGroups) {
             console.log('hostSelector init: ', hosts, hostGroups)
             data.hosts = hosts;
             data.hostGroups = hostGroups;
-            Page.nav.hostSelector.set(hashArgs);
+            hostSelector.set(hashArgs);
             setTriggersReqParams(hashArgs)
-        };
-    }
-    Triggers.hashChange = function(hashArgs) {
+        });
+        hostSelector.done(function(selected) {
+            console.log('hostSelector callback: ', selected)
+            Util.setHash(selected);
+        });
+
+        filter.init(function(filterArgs) {
+            console.log('filterArgs callback: ', filterArgs)
+            Util.setHash(filterArgs);
+        });
         filter.set(hashArgs);
-        //Page.nav.hostSelector.set(hashArgs);
+    }
+    Events.hashChange = function(hashArgs) {
+        filter.set(hashArgs);
+        hostSelector.set(hashArgs);
         setTriggersReqParams(hashArgs); 
     }
     
-    function separateHashArgs(args, mod) {
-        var hashArgsMap = {
-            filter: [
-                'triggerStatus',
-                'acknowledgeStatus',
-                'events',
-                'minSeverity',
-                'lastChangeSince',
-                'lastChangeTill',
-                'byName',
-                'showDetails',
-                'maintenance'
-            ],
-            hostSelector: [
-                'host',
-                'hostgroup',
-                'hostid',
-                'groupid'
-            ]
-        };
-        var refArgs = $.grep(args, function(k, v) {
-            return $.inArray(k, hashArgsMap[mod]) > -1
-        });
-        return refArgs
-    };
-
     function convertSelectedHostData(selectedHostData) {
         triggerGetReqParams.hostids = [];
         $.each(selectedHostData.hosts, function(i, host) {
@@ -641,7 +763,7 @@ var Page = (function () {
         });
     }
     
-    Monitoring.Triggers = Triggers;
+    Monitoring.Events = Events;
     return Monitoring
 })(Page.Monitoring);
 

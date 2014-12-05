@@ -1,18 +1,24 @@
 <div class="navbar navbar-default navbar-fixed-top navbar-page">
     <div id="pageNavigation" class="container-fluid">
-                <select id="hostGroupSelect" class="navbar-btn selectpicker show-tick" title="Host group" data-style="btn-primary" data-width="30%" disabled>
+        <div class="row">
+            <div class="col-lg-9 col-sm-6 col-xs-10">
+                <select id="hostGroupSelect" class="navbar-btn selectpicker show-tick" title="Host group" data-style="btn-primary" data-width="49%" disabled>
                 </select>
-                <select id="hostSelect" class="navbar-btn selectpicker" title="Host" data-live-search="true" multiple data-selected-text-format="count" data-style="btn-primary" data-width="40%" disabled>
+                <select id="hostSelect" class="navbar-btn selectpicker" title="Host" data-live-search="true" multiple data-selected-text-format="count" data-style="btn-primary" data-width="49%" disabled>
                 </select>
-                <button type="button" class="btn btn-default navbar-btn pull-right">
+            </div>
+            <div class="col-lg-3 col-sm-6 col-xs-2">
+                <button type="button" class="btn btn-default navbar-btn pull-right" data-toggle="collapse" data-target="#filterPanel">
                     <span class="glyphicon glyphicon-filter"></span>
                 </button>
+            </div>
+        </div>
     </div><!--/.navbar-->
 </div><!-- Page navigation end -->
 
 <div class="container-fluid">
     <div id="pageContent" class="row">
-        <div class="col-lg-3 col-lg-push-9">
+        <div class="col-lg-3 col-lg-push-9 collapse in" id="filterPanel">
             <div id="filter">
                 <form class="form-horizontal" role="form">
                     <div class="form-group">
@@ -125,7 +131,7 @@
             </div>
         </div>
         <div class="col-lg-9 col-lg-pull-3">
-            <div id="triggers">
+            <div id="triggers" class="fade">
                 <table class="table table-hover table-condensed">
                     <thead>
                         <tr>
