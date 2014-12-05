@@ -1,0 +1,119 @@
+<div class="navbar navbar-default navbar-fixed-top navbar-page">
+    <div id="pageNavigation" class="container-fluid">
+        <div class="row">
+        <div class="col-lg-8 col-sm-6 col-xs-10">
+            <select id="hostGroupSelect" class="navbar-btn selectpicker show-tick" title="Host group" data-style="btn-primary" data-width="49%" disabled>
+            </select>
+            <select id="hostSelect" class="navbar-btn selectpicker" title="Host" data-live-search="true" multiple data-selected-text-format="count" data-style="btn-primary" data-width="49%" disabled>
+            </select>
+        </div>
+        <div class="col-lg-4 col-sm-6 col-xs-2">
+            <div class="pull-right">
+            <button type="button" class="btn btn-default navbar-btn hidden-xs">
+                CSV
+            </button>
+            <button type="button" class="btn btn-default navbar-btn">
+                <span class="glyphicon glyphicon-filter"></span>
+            </button>
+            </div>
+        </div>
+        </div>
+    </div><!--/.navbar-->
+</div><!-- Page navigation end -->
+
+<div class="container-fluid">
+    <div id="pageContent" class="row">
+        <div class="col-lg-3 col-lg-push-9">
+            <div id="filter">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="filterRelatedObjects" class="col-xs-6 control-label">Related objects</label>
+                        <div class="col-xs-6">
+                            <select class="selectpicker form-control" id="filterRelatedObjects" multiple>
+                                <option value="0">Trigger</option>
+                                <option value="1">Discovered host</option>
+                                <option value="2">Discovered service</option>
+                                <option value="3">Auto-registered host</option>
+                                <option value="4">Item</option>
+                                <option value="5">LLD rule</option>
+                            </select>
+                        </div>
+                    </div>
+a
+                    <div class="form-group">
+                        <div class='col-xs-6'>
+                            <div class="input-group date datetimepicker" id="filterLastChangeSince">
+                                <input type='text' class="form-control" data="datePicktime" data-date-pickTime="false"/>
+                            </div>
+                        </div>
+                        <div class='col-xs-6'>
+                            <div class='input-group date datetimepicker' id='filterLastChangeTill' data-date-use-current="false">
+                                <span class="input-group-addon datepickerbutton">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                                <input type='text' class="form-control" data="datePicktime" data-date-pickTime="false"/>
+                                <span class="input-group-addon datetimepicker-clear hidden-xs">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="filterByName" class="col-xs-6 control-label">Filter by name</label>
+                        <div class="col-xs-6">
+                            <div class="input-group" id="filterByName">
+                                <input class="form-control" type="text" />
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button"><span class="glyphicon glyphicon-filter"></span></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-offset-6 col-xs-6">
+                            <div class="checkbox">
+                                <label>
+                                    <input id="filterShowDetails" type="checkbox" /> Show details
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-offset-6 col-xs-6">
+                            <div class="checkbox">
+                                <label>
+                                    <input id="filterMaintenance" type="checkbox" /> Show only hosts in maintenance
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-offset-6 col-xs-4">
+                            <button class="btn btn-default btn-block" id="filterReset">Reset</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-9 col-lg-pull-3">
+            <div id="triggers">
+                <table class="table table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th abbr="severity">Severity</th>
+                            <th abbr="value">Status</th>
+                            <th abbr="lastchange">Last change</th>
+                            <th abbr="age">Age</th>
+                            <th abbr="hosts">Host</th>
+                            <th abbr="description">Name</th>
+                            <th abbr="comments">Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div><!-- Page content end -->
+</div><!-- Page content end -->
+
