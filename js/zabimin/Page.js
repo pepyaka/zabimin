@@ -365,19 +365,16 @@ var Page = (function () {
 
     Triggers.init = function(hashArgs) {
         hostSelector.init(function(hosts, hostGroups) {
-            console.log('hostSelector init: ', hosts, hostGroups)
             data.hosts = hosts;
             data.hostGroups = hostGroups;
             hostSelector.set(hashArgs);
             setTriggersReqParams(hashArgs)
         });
         hostSelector.done(function(selected) {
-            console.log('hostSelector callback: ', selected)
             Util.setHash(selected);
         });
 
         filter.init(function(filterArgs) {
-            console.log('filterArgs callback: ', filterArgs)
             Util.setHash(filterArgs);
         });
         filter.set(hashArgs);
@@ -473,7 +470,6 @@ var Page = (function () {
         createStatusTable(reqParams);
     }
     function createStatusTable(reqParams) {
-        console.log(reqParams)
         var thead = [];
         var tbody = [];
         var rowDataMap = {
@@ -551,6 +547,12 @@ var Page = (function () {
     var filter = {
         init: function(changeHashArgs) {
             filter.callback = changeHashArgs;
+            $('#filterEventType')
+                .on('change', function() {
+                    changeHashArgs({
+                        source: $(this).val() || null
+                    });
+                })
         },
         set: function(hashArgs) {
             var filterArgs = {};
@@ -572,19 +574,16 @@ var Page = (function () {
 
     Events.init = function(hashArgs) {
         hostSelector.init(function(hosts, hostGroups) {
-            console.log('hostSelector init: ', hosts, hostGroups)
             data.hosts = hosts;
             data.hostGroups = hostGroups;
             hostSelector.set(hashArgs);
-            setTriggersReqParams(hashArgs)
+            setEventsReqParams(hashArgs)
         });
         hostSelector.done(function(selected) {
-            console.log('hostSelector callback: ', selected)
             Util.setHash(selected);
         });
 
         filter.init(function(filterArgs) {
-            console.log('filterArgs callback: ', filterArgs)
             Util.setHash(filterArgs);
         });
         filter.set(hashArgs);
@@ -592,86 +591,24 @@ var Page = (function () {
     Events.hashChange = function(hashArgs) {
         filter.set(hashArgs);
         hostSelector.set(hashArgs);
-        setTriggersReqParams(hashArgs); 
+        setEventsReqParams(hashArgs); 
     }
     
-    function convertSelectedHostData(selectedHostData) {
-        triggerGetReqParams.hostids = [];
-        $.each(selectedHostData.hosts, function(i, host) {
-            if (host.selected) {
-                triggerGetReqParams.hostids.push(host.hostid)
-            }
-        });
-        if (triggerGetReqParams.hostids.length === 0) {
-            delete triggerGetReqParams.hostids
-        }
-        triggerGetReqParams.groupids = [];
-        $.each(selectedHostData.hostGroups, function(i, hostGroup) {
-            if (hostGroup.selected) {
-                triggerGetReqParams.groupids.push(hostGroup.groupid)
-            }
-        });
-        if (triggerGetReqParams.groupids.length === 0) {
-            delete triggerGetReqParams.groupids
-        }
-    }
-    function setTriggersReqParams(args) {
+    function setEventsReqParams(args) {
         var reqParams = {
             //filter: {
             //    'value': 1
             //},
-            only_true: true,
-            skipDependent: true,
+            //only_true: true,
+            //skipDependent: true,
             //active: true,
-            monitored: true
+            //monitored: true
             //search: {description: 'ping'}
+            limit: 10,
+            selectRelatedObject: 'extend'
         };
         var map = {
-            triggerStatus: function(v) {
-                if (v[0] == 'Problem') {
-                    reqParams.filter = {value: 1};
-                }
-                if (v[0] == 'Any') {
-                    delete reqParams.only_true;
-                }
-            },
-            acknowledgeStatus: function(v) {
-                var map = {
-                    Acknowledged: 'withAcknowledgedEvents',
-                    Unacknowledged: 'withUnacknowledgedEvents',
-                    LastUnacknowledged: 'withLastEventUnacknowledged'
-                };
-                reqParams[map[v[0]]] = true;
-            },
-            events: function(v) {
-            },
-            minSeverity: function(v) {
-                var severity = {
-                    'Not classified': 0,
-                    'Information': 1,
-                    'Warning': 2,
-                    'Average': 3,
-                    'High': 4,
-                    'Disaster': 5
-                };
-                reqParams.min_severity = severity[v[0]];
-            },
-            lastChangeSince: function(v) {
-                var timestamp = new Date(v[0]).getTime() / 1000;
-                reqParams.lastChangeSince = timestamp;
-            },
-            lastChangeTill: function(v) {
-                var timestamp = new Date(v[0]).getTime() / 1000;
-                reqParams.lastChangeTill = timestamp;
-            },
-            byName: function(v) {
-                reqParams.search = {description: v[0]};
-            },
-            showDetails: function(v) {
-                reqParams.expandExpression = !!v[0];
-            },
-            maintenance: function(v) {
-                reqParams.maintenance = !!v[0];
+            eventid: function(v) {
             },
             host: function(v) {
                 reqParams.hostids = [];
@@ -692,75 +629,96 @@ var Page = (function () {
                         }
                     });
                 });
+            },
+            objectid: function(v) {
+            },
+            object: function(v) {
+            },
+            acknowledged: function(v) {
+            },
+            eventid_from: function(v) {
+            },
+            eventid_till: function(v) {
+            },
+            source: function(v) {
+                reqParams.source = +v
+            },
+            time_from: function(v) {
+            },
+            time_till: function(v) {
+            },
+            value: function(v) {
             }
         }
         $.each(args, function(k, v) {
-            map[k] && map[k](v);
+            map[k] ? map[k](v) : reqParams[k] = v[0];
         });
         createStatusTable(reqParams);
     }
     function createStatusTable(reqParams) {
-        console.log(reqParams)
         var thead = [];
-        var tbody = [];
-        var rowDataMap = {
-            lastchange: function(rowData, unixtime) {
+        var dataMap = {
+            clock: function(unixtime, row) {
                 var d = moment(unixtime * 1000);
-                rowData.lastchange = d.format('lll')
-                rowData.age = d.fromNow()
+                row.clock = d.format('lll')
+                row.age = d.fromNow()
             },
-            hosts: function(rowData, hostsArray) {
-                rowData.hosts = hostsArray[0].host
+            hosts: function(hosts, row) {
+                var hostNames = [];
+                $.each(hosts, function(i, host) {
+                    hostNames.push(host.host)
+                });
+                row.host = hostNames.join(', ');
             },
-            priority: function(rowData, priority) {
-                rowData.priority = [
-                    'info',
-                    'info',
-                    'warning',
-                    'warning',
-                    'danger',
-                    'danger'][priority];
-                rowData.severity = [
-                    'Not classified',
-                    'Information',
-                    'Warning',
-                    'Average',
-                    'High',
-                    'Disaster'
-                ][priority];
+            source: function(src, row) {
+                row.type = apiMap.event.source[src];
             },
-            value: function(rowData, val) {
-                rowData.value = [
-                    '<span class="text-success">OK</span>',
-                    '<span class="text-danger">Problem</span>'
-                ][val];
+            priority: function(v) {
+            },
+            value: function(v, row, e) {
+                row.value = apiMap.event.value[e.source][v];
             }
         };
-        $('#triggers th').each(function() {
+        var htmlMap = {
+            value: function(th, row) {
+                var color = {
+                    OK: '<span class="text-success">OK</span>',
+                    Problem: '<span class="text-danger">Problem</span>'
+                }
+                return color[row[th]]
+            }
+        };
+        var eventGet = Zapi('event.get', reqParams)
+
+        $('#events th').each(function() {
             thead.push(this.abbr)
         })
-        //Util.zapi([req], function(zapiResponse) {
-        var triggerGet = Zapi('trigger.get', reqParams)
-        triggerGet.done(function(zapiResponse) {
-            $.each(zapiResponse.result, function(i, trigger) {
+        eventGet.done(function(zapiResponse) {
+            console.log('event.get', reqParams, zapiResponse.result)
+            var data = [];
+            $.each(zapiResponse.result, function(i, event) {
+                var row = {};
+                $.each(event, function(e, v) {
+                    dataMap[e] ? dataMap[e](v, row, event) : row[e] = v;
+                })
+                data.push(row);
+            });
+            createTable(data);
+        });
+        function createTable(data) {
+            var tbody = [];
+            $.each(data, function(i, row) {
                 var tr = [];
-                var rowData = {};
-                $.each(trigger, function(k, v) {
-                    if (rowDataMap[k]) {
-                        rowDataMap[k](rowData, v)
-                    } else {
-                        rowData[k] = v
-                    }
-                })
                 $.each(thead, function(i, th) {
-                    tr.push('<td>' + rowData[th] + '</td>')
-                })
-                tbody.push('<tr class="'+rowData.priority+'">'+tr.join('')+'</tr>')
-            })
-            $('#triggers tbody')
+                    var cell = htmlMap[th] ? htmlMap[th](th, row) : row[th]
+                    tr.push('<td>' + cell + '</td>')
+                });
+                tbody.push('<tr>'+tr.join('')+'</tr>')
+            });
+            $('#events tbody')
                 .empty()
                 .append(tbody.join(''))
-        });
+        };
     }
     
     Monitoring.Events = Events;

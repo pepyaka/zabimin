@@ -31,7 +31,13 @@ var Zapi = (function() {
         },
         event: {
             get: {
-                output: 'extend'
+                output: 'extend',
+                selectHosts: 'extend',
+                //selectRelatedObject: 'extend',
+                //select_alerts: 'extend',
+                //select_acknowledges: 'extend'
+                sortfield: 'clock',
+                sortorder: 'DESC'
             }
         }
     };
@@ -128,3 +134,27 @@ var Zapi = (function() {
     zapi.id = id;
     return zapi
 })();
+
+var apiMap = {
+    event: {
+        object: [
+            ['Trigger'],
+            [, 'Discovered Host', 'Discovered service'],
+            [,,, 'Auto-registred host'],
+            ['Trigger',,,, 'Item', 'LLD rule']
+        ],
+        source: [
+            'Trigger',
+            'Discovery rule',
+            'Auto registration',
+            'Internal event'
+        ],
+        value: [
+            ['OK', 'Problem'],
+            ['Up', 'Down', 'Discovered', 'Lost'],
+            ,
+            ['Normal', 'Unknown']
+        ]
+    }
+};
+Object.freeze(apiMap)//change apiMap to read-only
