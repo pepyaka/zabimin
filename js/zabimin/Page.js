@@ -549,10 +549,12 @@ var Page = (function () {
             filter.callback = changeHashArgs;
             $('#filterEventType')
                 .on('change', function() {
+                    var v = $(this).val().split('.');
                     changeHashArgs({
-                        source: $(this).val() || null
+                        source: +v[0] || null,
+                        object: +v[1] || null
                     });
-                })
+                });
         },
         set: function(hashArgs) {
             var filterArgs = {};
@@ -632,17 +634,17 @@ var Page = (function () {
             },
             objectid: function(v) {
             },
-            object: function(v) {
-            },
+            //object: function(v) {
+            //},
             acknowledged: function(v) {
             },
             eventid_from: function(v) {
             },
             eventid_till: function(v) {
             },
-            source: function(v) {
-                reqParams.source = +v
-            },
+            //source: function(v) {
+            //    reqParams.source = +v
+            //},
             time_from: function(v) {
             },
             time_till: function(v) {
@@ -677,6 +679,11 @@ var Page = (function () {
             },
             value: function(v, row, e) {
                 row.value = apiMap.event.value[e.source][v];
+            },
+            relatedObject: function(ro, row, e) {
+            },
+            log: function() {
+                console.log(row)
             }
         };
         var htmlMap = {
@@ -701,6 +708,7 @@ var Page = (function () {
                 $.each(event, function(e, v) {
                     dataMap[e] ? dataMap[e](v, row, event) : row[e] = v;
                 })
+                dataMap.log()
                 data.push(row);
             });
             createTable(data);

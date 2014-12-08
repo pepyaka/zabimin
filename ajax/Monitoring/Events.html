@@ -31,12 +31,24 @@
                             Event type
                         </label>
                         <div class="col-xs-6">
-                            <select class="selectpicker form-control" id="filterEventType">
-                                <option value="0">Trigger</option>
-                                <option value="1">Discovery rule</option>
-                                <option value="2">Auto registration</option>
-                                <option value="3">Internal event</option>
+                            <select class="selectpicker form-control" id="filterEventType" aria-describedby="filterEventTypeHelp">
+                                <optgroup label="Trigger">
+                                    <option value="0.0">Trigger</option>
+                                </optgroup>
+                                <optgroup label="Discovery rule">
+                                    <option value="1.1">Discovered host</option>
+                                    <option value="1.2">Discovered service</option>
+                                </optgroup>
+                                <optgroup label="Auto registration">
+                                    <option value="2.3">Auto-registred host</option>
+                                </optgroup>
+                                <optgroup label="Internal event">
+                                    <option value="3.0">Trigger</option>
+                                    <option value="3.4">Item</option>
+                                    <option value="3.5">LLD rule</option>
+                                </optgroup>
                             </select>
+                            <span id="filterEventTypeHelp" class="help-block">Type of object that is related to the event</span>
                         </div>
                     </div>
                     <div class="panel panel-default">
@@ -100,7 +112,6 @@
                     <thead>
                         <tr>
                             <th abbr="clock">Time</th>
-                            <th abbr="type">Event type</th>
                             <th abbr="host">Host</th>
                             <th abbr="description">Description</th>
                             <th abbr="value">Status</th>
