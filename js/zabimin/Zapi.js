@@ -154,7 +154,8 @@ var apiMap = {
             ['Up', 'Down', 'Discovered', 'Lost'],
             ,
             ['Normal', 'Unknown']
-        ]
+        ],
+        acknowledged: ['No', 'Yes']
     }
 };
 Object.freeze(apiMap)//change apiMap to read-only

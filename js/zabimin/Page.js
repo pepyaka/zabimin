@@ -607,7 +607,8 @@ var Page = (function () {
             //monitored: true
             //search: {description: 'ping'}
             limit: 10,
-            selectRelatedObject: 'extend'
+            selectRelatedObject: 'extend',
+            expandExpression: true
         };
         var map = {
             eventid: function(v) {
@@ -660,30 +661,43 @@ var Page = (function () {
     function createStatusTable(reqParams) {
         var thead = [];
         var dataMap = {
-            clock: function(unixtime, row) {
+            clock: function(unixtime) {
                 var d = moment(unixtime * 1000);
-                row.clock = d.format('lll')
-                row.age = d.fromNow()
+                return {
+                    clock: d.format('lll'),
+                    age: d.fromNow()
+                }
             },
             hosts: function(hosts, row) {
                 var hostNames = [];
                 $.each(hosts, function(i, host) {
                     hostNames.push(host.host)
                 });
-                row.host = hostNames.join(', ');
+                return {
+                    host: hostNames.join(', ')
+                }
             },
-            source: function(src, row) {
-                row.type = apiMap.event.source[src];
+            source: function(src) {
+                return {
+                    type: apiMap.event.source[src]
+                }
             },
             priority: function(v) {
             },
-            value: function(v, row, e) {
-                row.value = apiMap.event.value[e.source][v];
+            value: function(v, e) {
+                return {
+                    value: apiMap.event.value[e.source][v]
+                }
             },
-            relatedObject: function(ro, row, e) {
+            relatedObject: function(ro, e) {
+                return {
+                    description: ro.description
+                }
             },
-            log: function() {
-                console.log(row)
+            acknowledged: function(ack) {
+                return {
+                    acknowledged: apiMap.event.acknowledged[ack]
+                }
             }
         };
         var htmlMap = {
@@ -706,9 +720,8 @@ var Page = (function () {
             $.each(zapiResponse.result, function(i, event) {
                 var row = {};
                 $.each(event, function(e, v) {
-                    dataMap[e] ? dataMap[e](v, row, event) : row[e] = v;
+                    dataMap[e] ? $.extend(row, dataMap[e](v, event)) : row[e] = v;
                 })
-                dataMap.log()
                 data.push(row);
             });
             createTable(data);
