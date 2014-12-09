@@ -224,12 +224,14 @@ var Page = (function () {
             $.each(zapiResponse.result, function(i, host) {
                 hosts.push({
                     host: host.host,
-                    name: host.name
+                    name: host.name,
+                    id: host.hostid
                 });
                 $.each(host.groups, function(i, group) {
-                    hostGroups.push({
-                        name: group.name
-                    });
+                    hostGroups[group.groupid] = {
+                        name: group.name,
+                        id: group.groupid
+                    };
                 });
                 $.each(host.interfaces, function(i, iface) {
                     ip.push({
@@ -237,7 +239,8 @@ var Page = (function () {
                         type: apiMap.hostinterface.type[iface.type]
                     })
                 });
-            })
+            });
+            hostGroups = hostGroups.filter(Boolean);
             $('#globalSearch input').prop('disabled', false);
             initMultidataTypeahead(hosts, hostGroups, ip);
         };
@@ -328,7 +331,7 @@ var Page = (function () {
         function createStatusTable(zapiResponse) {
 console.log(zapiResponse)
             var dataMap = {
-                hosts: function(hosts, row) {
+                hosts: function(hosts) {
                     var hostNames = [];
                     $.each(hosts, function(i, host) {
                         hostNames.push(host.name)
@@ -342,6 +345,11 @@ console.log(zapiResponse)
                     return {
                         lastchange: d.format('lll'),
                         age: d.fromNow()
+                    }
+                },
+                lastEvent: function(v, e) {
+                    return {
+                        ack: apiMap.event.acknowledged[v.acknowledged]
                     }
                 },
                 //source: function(src) {
@@ -368,24 +376,20 @@ console.log(zapiResponse)
                 //    }
                 //}
             };
-            var htmlMap = {
-                value: function(th, row) {
-                    var color = {
-                        'OK': '<td class="success">OK</td>',
-                        'Problem': '<td class="danger">Problem</td>'
-                    }
-                    return color[row[th]]
+            var tdMap = {
+                description: function(row) {
+                    var td = [
+                        '<td>' + row.description + '</td>',
+                        '<td class="info">' + row.description + '</td>',
+                        '<td class="warning">' + row.description + '</td>',
+                        '<td class="warning text-danger">' + row.description + '</td>',
+                        '<td class="danger">' + row.description + '</td>',
+                        '<td class="danger text-danger">' + row.description + '</td>'
+                    ];
+                    return td[row.priority]
                 },
-                severity: function(th, row) {
-                    var cl = {
-                        'Not classified': '<td>Not classified</td>',
-                        'Information': '<td class="info">Information</td>',
-                        'Warning': '<td class="warning">Warning</td>',
-                        'Average': '<td class="warning text-danger">Average</td>',
-                        'High': '<td class="danger">High</td>',
-                        'Disaster': '<td class="danger text-danger">Disaster</td>'
-                    };
-                    return cl[row[th]]
+                host: function(row) {
+                    return '<td><a href="#!Inventory/Hosts&host=' + row.host + '">' + row.host + '</a></td>'
                 }
             };
 
@@ -405,24 +409,27 @@ console.log(zapiResponse)
             function createTable(data) {
                 var thead = [];
                 var tbody = [];
-                $('#lastIssues th').each(function() {
-                    thead.push(this.abbr)
-                })
-                $.each(data, function(i, row) {
-                    var tr = [];
-                    $.each(thead, function(i, th) {
-                        if (htmlMap[th]) {
-                            tr.push(htmlMap[th](th, row));
-                        } else {
-                            tr.push('<td>' + row[th] + '</td>');
-                        }
+                if (data.length > 0) {
+                    $('#lastIssues th').each(function() {
+                        thead.push(this.abbr)
+                    })
+                    $.each(data, function(i, row) {
+                        var tr = [];
+                        $.each(thead, function(i, th) {
+                            if (tdMap[th]) {
+                                tr.push(tdMap[th](row));
+                            } else {
+                                tr.push('<td>' + row[th] + '</td>');
+                            }
+                        });
+                        tbody.push('<tr>'+tr.join('')+'</tr>')
                     });
-                    tbody.push('<tr>'+tr.join('')+'</tr>')
-                });
-                $('#lastIssues tbody')
-                    .empty()
-                    .append(tbody.join(''))
-                $('#lastIssues .panel-body').show();
+                    $('#lastIssues tbody')
+                        .empty()
+                        .append(tbody.join(''))
+                    $('#lastIssues panel-body').hide();
+                    $('#lastIssues table').show();
+                }
             };
         }
     };

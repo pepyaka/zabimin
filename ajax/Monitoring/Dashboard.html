@@ -21,7 +21,7 @@
     <div id="pageContent" class="row">
         <div class="hidden-xs hidden-sm hidden-md col-lg-3">
             <div id="favorite">
-                <div id="popularGraphs" class="panel panel-default">
+                <div id="popularGraphs" class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">Popular graphs</h3>
                     </div>
@@ -32,7 +32,7 @@
                         <a href="#!Monitoring/Graphs">Graphs</a>
                     </div>
                 </div>
-                <div id="popularScreens" class="panel panel-default">
+                <div id="popularScreens" class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">Popular screens</h3>
                     </div>
@@ -43,7 +43,7 @@
                         <a href="#!Monitoring/Screens">Screens</a>
                     </div>
                 </div>
-                <div id="favoriteMaps" class="panel panel-default">
+                <div id="favoriteMaps" class="panel panel-info">
                     <div class="panel-heading">
                         <h3 class="panel-title">Popular maps</h3>
                     </div>
@@ -58,54 +58,72 @@
         </div>
         <div class="col-lg-6">
             <div id="eventPanels">
-                <div id="lastIssues" class="panel panel-default">
+                <div id="lastIssues" class="panel panel-info">
                     <div class="panel-heading">
                         Last 20 issues
                     </div>
-                    <div class="panel-body" hidden>
-                        <table class="table table-hover table-condensed table-striped">
-                            <thead>
-                                <tr>
-                                    <th abbr="host">Host</th>
-                                    <th abbr="description">Issue</th>
-                                    <th abbr="lastchange">Last change</th>
-                                    <th abbr="age">Age</th>
-                                    <th abbr="url">Info</th>
-                                    <th abbr="ack">Ack</th>
-                                    <th abbr="actions">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                    <div class="panel-body">
+                        <div class="text-center">No events found.</div>
                     </div>
+                    <table class="table table-hover table-condensed table-striped" hidden>
+                        <thead>
+                            <tr>
+                                <th abbr="host">Host</th>
+                                <th abbr="description">Issue</th>
+                                <th abbr="lastchange">Last change</th>
+                                <th abbr="age">Age</th>
+                                <th abbr="url">Info</th>
+                                <th abbr="ack">Ack</th>
+                                <th abbr="actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
-                <div id="overallStatus" class="panel panel-default">
+                <div id="overallStatus" class="panel panel-info">
                     <div class="panel-heading">
                         Overall status
                     </div>
-                    <table class="table">
+                    <div class="panel-body">
+                        <div class="text-center">All hosts without problems.</div>
+                    </div>
+                    <table class="table table-hover table-condensed table-striped" hidden>
+                        <thead>
+                            <tr>
+                                <th abbr="hostgroup">Host group</th>
+                                <th abbr="0">Not classified</th>
+                                <th abbr="1">Info</th>
+                                <th abbr="2">Warning</th>
+                                <th abbr="3">Average</th>
+                                <th abbr="4">High</th>
+                                <th abbr="5">Disaster</th>
+                                <th abbr="total">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
         <div class="col-lg-3">
             <div id="statusPanels">
-                <div id="discoveryStatus" class="panel panel-default">
+                <div id="discoveryStatus" class="panel panel-info">
                     <div class="panel-heading">
                         Discovery status
                     </div>
                     <table class="table">
                     </table>
                 </div>
-                <div id="webMonitoring" class="panel panel-default">
+                <div id="webMonitoring" class="panel panel-info">
                     <div class="panel-heading">
                         Web monitoring
                     </div>
                     <table class="table">
                     </table>
                 </div>
-                <div id="zabbixStatus" class="panel panel-default">
+                <div id="zabbixStatus" class="panel panel-info">
                     <div class="panel-heading">
                         Zabbix status
                     </div>
