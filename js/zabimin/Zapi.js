@@ -156,6 +156,24 @@ var apiMap = {
             ['Normal', 'Unknown']
         ],
         acknowledged: ['No', 'Yes']
+    },
+    trigger: {
+        priority: [
+            'Not classified',
+            'Information',
+            'Warning',
+            'Average',
+            'High',
+            'Disaster'
+        ]
+    },
+    hostinterface: {
+        type: [
+            'Agent',
+            'SNMP',
+            'IPMI',
+            'JMX'
+        ]
     }
 };
 Object.freeze(apiMap)//change apiMap to read-only

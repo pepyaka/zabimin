@@ -203,10 +203,229 @@ var Page = (function () {
 // Monitoring/Dashboard page
 (function(Monitoring) {
     var Dashboard = {}; // Object for public methods
-    var hash = {};
+
     Dashboard.init = function(hash) {
+        initGlobalSearch();
+        showLastIssues();
+    }
+    Dashboard.hashchange = function(hash) {
         console.log(JSON.stringify(hash))
     }
+
+    function initGlobalSearch() {
+        var hostGet = Zapi('host.get', {selectInterfaces: 'extend'});
+
+        hostGet.done(createGlobalSearchDatums);
+
+        function createGlobalSearchDatums(zapiResponse) {
+            var hosts = [];
+            var hostGroups = [];
+            var ip = [];
+            $.each(zapiResponse.result, function(i, host) {
+                hosts.push({
+                    host: host.host,
+                    name: host.name
+                });
+                $.each(host.groups, function(i, group) {
+                    hostGroups.push({
+                        name: group.name
+                    });
+                });
+                $.each(host.interfaces, function(i, iface) {
+                    ip.push({
+                        ip: iface.ip,
+                        type: apiMap.hostinterface.type[iface.type]
+                    })
+                });
+            })
+            $('#globalSearch input').prop('disabled', false);
+            initMultidataTypeahead(hosts, hostGroups, ip);
+        };
+        function initMultidataTypeahead(hosts, hostGroups, ip) {
+            var hostsEngine = new Bloodhound({
+              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('host'),
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              local: hosts
+            });
+            var hostGroupsEngine = new Bloodhound({
+              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              local: hostGroups
+            });
+            var ipEngine = new Bloodhound({
+              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('ip'),
+              queryTokenizer: Bloodhound.tokenizers.whitespace,
+              local: ip
+            });
+             
+            hostsEngine.initialize();         
+            hostGroupsEngine.initialize();         
+            ipEngine.initialize();         
+            $('#globalSearch .typeahead')
+                .typeahead({
+                    highlight: true,
+                }, {
+                    name: 'hosts',
+                    displayKey: 'host',
+                    source: hostsEngine.ttAdapter(),
+                    templates: {
+                        header: '<span class="typeahead-multidata-group">Hosts</span>'
+                    }
+                }, {
+                    name: 'hostGroups',
+                    displayKey: 'name',
+                    source: hostGroupsEngine.ttAdapter(),
+                    templates: {
+                        header: '<span class="typeahead-multidata-group">Host groups</span>'
+                    }
+                }, {
+                    name: 'ip',
+                    displayKey: 'ip',
+                    source: ipEngine.ttAdapter(),
+                    templates: {
+                        header: '<span class="typeahead-multidata-group">ip</span>'
+                    }
+                })
+                .on('typeahead:selected', function(e, selObj, selGr) {
+                    console.log(selObj, selGr)
+                });
+        };
+    };
+    function showLastIssues() {
+        var req = {
+            monitored: 1,
+            filter: {
+                value: 1
+            },
+            skipDependent: 1,
+            output: [
+                'triggerid',
+                'state',
+                'error',
+                'url',
+                'expression',
+                'description',
+                'priority',
+                'lastchange'
+            ],
+            selectHosts: [
+                'hostid',
+                'name'
+            ],
+            selectLastEvent: [
+                'eventid',
+                'acknowledged',
+                'objectid',
+                'clock',
+                'ns'
+            ],
+            limit: 20
+        };
+        var triggerGet = Zapi('trigger.get', req);
+
+        triggerGet.done(createStatusTable);
+
+        function createStatusTable(zapiResponse) {
+console.log(zapiResponse)
+            var dataMap = {
+                hosts: function(hosts, row) {
+                    var hostNames = [];
+                    $.each(hosts, function(i, host) {
+                        hostNames.push(host.name)
+                    });
+                    return {
+                        host: hostNames.join(', ')
+                    }
+                },
+                lastchange: function(unixtime) {
+                    var d = moment(unixtime * 1000);
+                    return {
+                        lastchange: d.format('lll'),
+                        age: d.fromNow()
+                    }
+                },
+                //source: function(src) {
+                //    return {
+                //        type: apiMap.event.source[src]
+                //    }
+                //},
+                //priority: function(v) {
+                //},
+                //value: function(v, e) {
+                //    return {
+                //        value: apiMap.event.value[e.source][v]
+                //    }
+                //},
+                //relatedObject: function(ro, e) {
+                //    return {
+                //        description: ro.description,
+                //        severity: apiMap.trigger.priority[ro.priority]
+                //    }
+                //},
+                //acknowledged: function(ack) {
+                //    return {
+                //        acknowledged: apiMap.event.acknowledged[ack]
+                //    }
+                //}
+            };
+            var htmlMap = {
+                value: function(th, row) {
+                    var color = {
+                        'OK': '<td class="success">OK</td>',
+                        'Problem': '<td class="danger">Problem</td>'
+                    }
+                    return color[row[th]]
+                },
+                severity: function(th, row) {
+                    var cl = {
+                        'Not classified': '<td>Not classified</td>',
+                        'Information': '<td class="info">Information</td>',
+                        'Warning': '<td class="warning">Warning</td>',
+                        'Average': '<td class="warning text-danger">Average</td>',
+                        'High': '<td class="danger">High</td>',
+                        'Disaster': '<td class="danger text-danger">Disaster</td>'
+                    };
+                    return cl[row[th]]
+                }
+            };
+
+            createTableData(zapiResponse.result);
+
+            function createTableData(zapiResult) {
+                var data = [];
+                $.each(zapiResult, function(i, event) {
+                    var row = {};
+                    $.each(event, function(e, v) {
+                        dataMap[e] ? $.extend(row, dataMap[e](v, event)) : row[e] = v;
+                    })
+                    data.push(row);
+                });
+                createTable(data);
+            };
+            function createTable(data) {
+                var thead = [];
+                var tbody = [];
+                $('#lastIssues th').each(function() {
+                    thead.push(this.abbr)
+                })
+                $.each(data, function(i, row) {
+                    var tr = [];
+                    $.each(thead, function(i, th) {
+                        if (htmlMap[th]) {
+                            tr.push(htmlMap[th](th, row));
+                        } else {
+                            tr.push('<td>' + row[th] + '</td>');
+                        }
+                    });
+                    tbody.push('<tr>'+tr.join('')+'</tr>')
+                });
+                $('#lastIssues tbody')
+                    .empty()
+                    .append(tbody.join(''))
+                $('#lastIssues .panel-body').show();
+            };
+        }
+    };
 
     Monitoring.Dashboard = Dashboard
     return Monitoring
@@ -216,7 +435,7 @@ var Page = (function () {
 (function(Monitoring) {
     var Triggers = {}; // Object for public methods
     var data = {};// work data
-    var hash = {}; // Each page has own arguments
+    //var hash = {}; // Each page has own arguments
     var hostSelector = Page.nav.hostSelector; // Shorthands
     var filter = {
         init: function(changeHashArgs) {
@@ -691,7 +910,8 @@ var Page = (function () {
             },
             relatedObject: function(ro, e) {
                 return {
-                    description: ro.description
+                    description: ro.description,
+                    severity: apiMap.trigger.priority[ro.priority]
                 }
             },
             acknowledged: function(ack) {
@@ -703,10 +923,21 @@ var Page = (function () {
         var htmlMap = {
             value: function(th, row) {
                 var color = {
-                    OK: '<span class="text-success">OK</span>',
-                    Problem: '<span class="text-danger">Problem</span>'
+                    'OK': '<td class="success">OK</td>',
+                    'Problem': '<td class="danger">Problem</td>'
                 }
                 return color[row[th]]
+            },
+            severity: function(th, row) {
+                var cl = {
+                    'Not classified': '<td>Not classified</td>',
+                    'Information': '<td class="info">Information</td>',
+                    'Warning': '<td class="warning">Warning</td>',
+                    'Average': '<td class="warning text-danger">Average</td>',
+                    'High': '<td class="danger">High</td>',
+                    'Disaster': '<td class="danger text-danger">Disaster</td>'
+                };
+                return cl[row[th]]
             }
         };
         var eventGet = Zapi('event.get', reqParams)
@@ -731,8 +962,11 @@ var Page = (function () {
             $.each(data, function(i, row) {
                 var tr = [];
                 $.each(thead, function(i, th) {
-                    var cell = htmlMap[th] ? htmlMap[th](th, row) : row[th]
-                    tr.push('<td>' + cell + '</td>')
+                    if (htmlMap[th]) {
+                        tr.push(htmlMap[th](th, row));
+                    } else {
+                        tr.push('<td>' + row[th] + '</td>');
+                    }
                 });
                 tbody.push('<tr>'+tr.join('')+'</tr>')
             });

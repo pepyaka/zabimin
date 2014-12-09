@@ -97,6 +97,11 @@ main {
     }
 }
 */
+.typeahead-multidata-group {
+    font-size: 12px;
+    font-weight: bold;
+    padding-left: 10px;
+}
 .graph {
     height: 600px;
 }

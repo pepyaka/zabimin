@@ -1,0 +1,118 @@
+<div class="navbar navbar-default navbar-fixed-top navbar-page">
+    <div id="pageNavigation" class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6">
+                <form class="navbar-form" role="search">
+                    <div id="globalSearch">
+                        <input type="text" class="typeahead form-control" placeholder="Search" disabled>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-6 col-sm-6 col-xs-2">
+                <button type="button" class="btn btn-default navbar-btn pull-right" data-toggle="collapse" data-target="#filterPanel">
+                    <span class="glyphicon glyphicon-wrench"></span>
+                </button>
+            </div>
+        </div>
+    </div><!--/.navbar-->
+</div><!-- Page navigation end -->
+
+<div class="container-fluid">
+    <div id="pageContent" class="row">
+        <div class="hidden-xs hidden-sm hidden-md col-lg-3">
+            <div id="favorite">
+                <div id="popularGraphs" class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Popular graphs</h3>
+                    </div>
+                    <div class="panel-body">
+                        No graphs yet
+                    </div>
+                    <div class="panel-footer">
+                        <a href="#!Monitoring/Graphs">Graphs</a>
+                    </div>
+                </div>
+                <div id="popularScreens" class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Popular screens</h3>
+                    </div>
+                    <div class="panel-body">
+                        No screens yet
+                    </div>
+                    <div class="panel-footer">
+                        <a href="#!Monitoring/Screens">Screens</a>
+                    </div>
+                </div>
+                <div id="favoriteMaps" class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Popular maps</h3>
+                    </div>
+                    <div class="panel-body">
+                        No maps yet
+                    </div>
+                    <div class="panel-footer">
+                        <a href="#!Monitoring/Maps">Maps</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div id="eventPanels">
+                <div id="lastIssues" class="panel panel-default">
+                    <div class="panel-heading">
+                        Last 20 issues
+                    </div>
+                    <div class="panel-body" hidden>
+                        <table class="table table-hover table-condensed table-striped">
+                            <thead>
+                                <tr>
+                                    <th abbr="host">Host</th>
+                                    <th abbr="description">Issue</th>
+                                    <th abbr="lastchange">Last change</th>
+                                    <th abbr="age">Age</th>
+                                    <th abbr="url">Info</th>
+                                    <th abbr="ack">Ack</th>
+                                    <th abbr="actions">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="overallStatus" class="panel panel-default">
+                    <div class="panel-heading">
+                        Overall status
+                    </div>
+                    <table class="table">
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div id="statusPanels">
+                <div id="discoveryStatus" class="panel panel-default">
+                    <div class="panel-heading">
+                        Discovery status
+                    </div>
+                    <table class="table">
+                    </table>
+                </div>
+                <div id="webMonitoring" class="panel panel-default">
+                    <div class="panel-heading">
+                        Web monitoring
+                    </div>
+                    <table class="table">
+                    </table>
+                </div>
+                <div id="zabbixStatus" class="panel panel-default">
+                    <div class="panel-heading">
+                        Zabbix status
+                    </div>
+                    <table class="table">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
