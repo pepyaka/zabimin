@@ -26,7 +26,7 @@ var Page = (function () {
             // load page
             var jqxhr = $.ajax({
                 mimeType: 'text/html; charset=utf-8', // ! Need set mimeType only when run from local file
-                url: 'ajax/' + hash.page + '.html',
+                url: 'html/' + hash.page + '.html',
                 type: 'GET',
                 dataType: "html"
             });
@@ -427,7 +427,7 @@ console.log(zapiResponse)
                     $('#lastIssues tbody')
                         .empty()
                         .append(tbody.join(''))
-                    $('#lastIssues panel-body').hide();
+                    $('#lastIssues .panel-body').hide();
                     $('#lastIssues table').show();
                 }
             };
