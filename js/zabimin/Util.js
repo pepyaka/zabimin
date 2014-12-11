@@ -1,10 +1,7 @@
-"use strict";
+// This is common utilites used both in zabimin navbar and ajax pages
+define(function() {
+    "use strict";
 
-/*****************************************************************************/
-/* This is common utilites used both in zabimin navbar and ajax pages
-/*****************************************************************************/
-
-var Util = (function() {
     // Zabbix API with multi request support
     var zapi = function(zapiReqs, allReqSuccessful, eitherOneHasError) {
         var ajaxReqs = [], zapiData = [];
@@ -90,7 +87,7 @@ var Util = (function() {
     // util to set page arguments, for interpage navigation use links
     var setHash = function(newArgs) {
         // new hash will merged with old
-        var hash = Util.parseHash();
+        var hash = parseHash();
         var newHash = ['#!' + hash.page];
         // can't use jQuery.extend(), because need to delete keys by null value
         $.each(newArgs, function(k, v) {
@@ -164,4 +161,4 @@ var Util = (function() {
         parseHash: parseHash,
         createMetricPrefix: createMetricPrefix
     }
-})();
+});

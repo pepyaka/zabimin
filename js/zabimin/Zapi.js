@@ -1,7 +1,48 @@
-"use strict";
+define(['config'], function(zabimin) {
+    "use strict";
 
-var Zapi = (function() {
     var id = 0;
+    var apiMap = {
+        event: {
+            object: [
+                ['Trigger'],
+                [, 'Discovered Host', 'Discovered service'],
+                [,,, 'Auto-registred host'],
+                ['Trigger',,,, 'Item', 'LLD rule']
+            ],
+            source: [
+                'Trigger',
+                'Discovery rule',
+                'Auto registration',
+                'Internal event'
+            ],
+            value: [
+                ['OK', 'Problem'],
+                ['Up', 'Down', 'Discovered', 'Lost'],
+                ,
+                ['Normal', 'Unknown']
+            ],
+            acknowledged: ['No', 'Yes']
+        },
+        trigger: {
+            priority: [
+                'Not classified',
+                'Information',
+                'Warning',
+                'Average',
+                'High',
+                'Disaster'
+            ]
+        },
+        hostinterface: {
+            type: [
+                'Agent',
+                'SNMP',
+                'IPMI',
+                'JMX'
+            ]
+        }
+    };
     var defaults = {
         user: {
             login: {
@@ -39,20 +80,6 @@ var Zapi = (function() {
                 sortfield: 'clock',
                 sortorder: 'DESC'
             }
-        }
-    };
-    var settings = {
-        url: zabimin.api.url,
-        type: "POST",
-        contentType: 'application/json-rpc',
-        dataType: 'json',
-        cache: false,
-        processData: false,
-    };
-    var loginSettings = {
-        async: false,
-        success: function(loginData) {
-            $.extend(localStorage, loginData.result);
         }
     };
     //// Zabbix API with multi request support
@@ -113,6 +140,20 @@ var Zapi = (function() {
             jsonrpc: "2.0",
             method: method
         };
+        var settings = {
+            url: zabimin.api.url,
+            type: "POST",
+            contentType: 'application/json-rpc',
+            dataType: 'json',
+            cache: false,
+            processData: false,
+        };
+        var loginSettings = {
+            async: false,
+            success: function(loginData) {
+                $.extend(localStorage, loginData.result);
+            }
+        };
         var m = method.split('.', 2)
         var defaultParams = defaults[m[0]] && defaults[m[0]][m[1]] || {}
         req.params = $.extend({}, defaultParams, params)
@@ -132,48 +173,6 @@ var Zapi = (function() {
     };
     
     zapi.id = id;
+    zapi.map = apiMap;
     return zapi
-})();
-
-var apiMap = {
-    event: {
-        object: [
-            ['Trigger'],
-            [, 'Discovered Host', 'Discovered service'],
-            [,,, 'Auto-registred host'],
-            ['Trigger',,,, 'Item', 'LLD rule']
-        ],
-        source: [
-            'Trigger',
-            'Discovery rule',
-            'Auto registration',
-            'Internal event'
-        ],
-        value: [
-            ['OK', 'Problem'],
-            ['Up', 'Down', 'Discovered', 'Lost'],
-            ,
-            ['Normal', 'Unknown']
-        ],
-        acknowledged: ['No', 'Yes']
-    },
-    trigger: {
-        priority: [
-            'Not classified',
-            'Information',
-            'Warning',
-            'Average',
-            'High',
-            'Disaster'
-        ]
-    },
-    hostinterface: {
-        type: [
-            'Agent',
-            'SNMP',
-            'IPMI',
-            'JMX'
-        ]
-    }
-};
-Object.freeze(apiMap)//change apiMap to read-only
+});
