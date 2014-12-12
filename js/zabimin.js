@@ -7,9 +7,12 @@ require.config({
         'jquery': ['//code.jquery.com/jquery-2.1.1.min', 'lib/jquery.min'],
         'moment': ['//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment-with-locales.min'],
         'typeahead': ['//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min'],
+        'datatables': ['//cdn.datatables.net/1.10.4/js/jquery.dataTables.min'],
+        'datatables.bootstrap': ['//cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap'],
         'bootstrap': ['//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min', 'libs/bootstrap.min'],
         'bootstrap-select': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min'],
         'bootstrap-datetimepicker': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/js/bootstrap-datetimepicker.min'],
+        'bootstrap-bootbox': ['//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min'],
         'jquery.jqplot': ['//cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot'],
         'jqplot.dateAxisRenderer': ['//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.dateAxisRenderer'],
         'jqplot.cursor': ['//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.cursor'],
@@ -24,9 +27,12 @@ require.config({
         'css': ['/css'],
     },
     shim: {
+        'datatables': ['jquery'],
+        'datatables.bootstrap': ['datatables'],
         'bootstrap': ['jquery'],
         'bootstrap-select': ['bootstrap'],
         'bootstrap-datetimepicker': ['bootstrap'],
+        'bootstrap-bootbox': ['bootstrap'],
         'jquery.spin': ['spin'],
     },
     config: {
@@ -37,5 +43,4 @@ require.config({
 });
 
 require(['main'], function() {
-        console.log("Main loaded :)");    
 });

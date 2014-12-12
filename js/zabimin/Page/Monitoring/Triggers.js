@@ -1,6 +1,5 @@
 // Monitoring/Triggers page
-define(['Page','Zapi', 'Util', 'Page/nav', 'moment'], function(Page, Zapi, Util, nav, moment) {
-    var Triggers = {}; // Object for public methods
+define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'datatables.bootstrap'], function(Page, Zapi, Util, nav, moment) {
     var data = {};// work data
     //var hash = {}; // Each page has own arguments
     var hostSelector = nav.hostSelector; // Shorthands
@@ -179,8 +178,9 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment'], function(Page, Zapi, Util,
             only_true: true,
             skipDependent: true,
             //active: true,
-            monitored: true
+            monitored: true,
             //search: {description: 'ping'}
+            selectLastEvent: true
         };
         var map = {
             triggerStatus: function(v) {
@@ -258,7 +258,7 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment'], function(Page, Zapi, Util,
     function createStatusTable(reqParams) {
         var thead = [];
         var tbody = [];
-        var rowDataMap = {
+        var dataMap = {
             lastchange: function(rowData, unixtime) {
                 var d = moment(unixtime * 1000);
                 rowData.lastchange = d.format('lll')
@@ -292,33 +292,59 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment'], function(Page, Zapi, Util,
             }
         };
         var triggerGet = Zapi('trigger.get', reqParams)
-        $('#triggers th').each(function() {
-            thead.push(this.abbr)
-        })
-        $('#triggers')
-            .fadeTo('fast', 0.2)
         triggerGet.done(function(zapiResponse) {
-            $.each(zapiResponse.result, function(i, trigger) {
-                var tr = [];
-                var rowData = {};
-                $.each(trigger, function(k, v) {
-                    if (rowDataMap[k]) {
-                        rowDataMap[k](rowData, v)
-                    } else {
-                        rowData[k] = v
-                    }
-                })
-                $.each(thead, function(i, th) {
-                    tr.push('<td>' + rowData[th] + '</td>')
-                })
-                tbody.push('<tr class="'+rowData.priority+'">'+tr.join('')+'</tr>')
-            })
-            $('#triggers tbody')
-                .empty()
-                .append(tbody.join(''))
             $('#triggers')
-                .fadeTo('fast', 1)
+            .DataTable({
+                data: zapiResponse.result,
+                columns: [
+                    {
+                        title: 'Severity', data: 'priority'
+                    }, {
+                        title: 'Status',
+                        data: 'value'
+                    }, { 
+                        title: 'Info',
+                        data: 'url'
+                    }, { title: 'Last change', data: 'lastchange' },
+                    { title: 'Age', data: 'lastchange' },
+                    { 
+                        title: 'Acknowledged',
+                        data: 'lastEvent.acknowledged',
+                        "render": function ( data, type, full, meta ) {
+                            return 'd:' + data + ' t:' +type +' f:'+full+' m:'+meta;
+                    } },
+                    { title: 'Host', data: 'hosts[0].host' },
+                    { title: 'Name', data: 'description' },
+                    { title: 'Description', data: 'comments' }
+                ]
+            })
+            $('#triggers')
+            .fadeTo('fast', 1)
         });
+        //$('#triggers')
+        //    .fadeTo('fast', 0.2)
+        //triggerGet.done(function(zapiResponse) {
+        //    $.each(zapiResponse.result, function(i, trigger) {
+        //        var tr = [];
+        //        var rowData = {};
+        //        $.each(trigger, function(k, v) {
+        //            if (dataMap[k]) {
+        //                dataMap[k](rowData, v)
+        //            } else {
+        //                rowData[k] = v
+        //            }
+        //        })
+        //        $.each(thead, function(i, th) {
+        //            tr.push('<td>' + rowData[th] + '</td>')
+        //        })
+        //        tbody.push('<tr class="'+rowData.priority+'">'+tr.join('')+'</tr>')
+        //    })
+        //    $('#triggers tbody')
+        //        .empty()
+        //        .append(tbody.join(''))
+        //    $('#triggers')
+        //        .fadeTo('fast', 1)
+        //});
     }
     
     return {
