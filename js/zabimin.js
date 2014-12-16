@@ -13,6 +13,7 @@ require.config({
         'bootstrap-select': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select.min'],
         'bootstrap-datetimepicker': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/js/bootstrap-datetimepicker.min'],
         'bootstrap-bootbox': ['//cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min'],
+        'bootstrap-table': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.5.0/bootstrap-table.min'],
         'jquery.jqplot': ['//cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot'],
         'jqplot.dateAxisRenderer': ['//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.dateAxisRenderer'],
         'jqplot.cursor': ['//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.cursor'],

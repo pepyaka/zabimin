@@ -4,7 +4,7 @@ define(['Util', 'bootstrap-select', 'bootstrap-datetimepicker'], function(Util) 
     var current;
     //  Function for load content from url and put in $('#ajaxPage') block
     var load = function () {
-        var hash = Util.parseHash();
+        var hash = Util.hash();
         // Check if we have same page    
         var action = (hash.page === current) ? 'update' : 'init';
         // Dashboard on empty page

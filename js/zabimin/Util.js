@@ -57,9 +57,9 @@ define(function() {
             }
         );
     }
-    // Main navigation function
-    var parseHash = function() {
-        var page;
+    // hash navigation (return current)
+    var hash = function(newArgs) {
+        var page = '';
         var args = {};
         // we need to remove leading hashbang, split pairs by '&' and split arg, val by '='
         var hash = location.hash.replace(/^#!/, "").split('&');
@@ -68,41 +68,34 @@ define(function() {
             if (hash.length > 1) {
                 $.each(hash.splice(1), function(i, arg) {
                     var a = arg.split("=", 2);
-                    var key = a[0];
-                    var values = a[1].split(',');
                     // only if url arg had value
-                    if (key && values[0]) {
-                        args[key] = values
+                    if (a[0] && a[1]) {
+                        args[a[0]] = a[1].split(',');
                     }
                 });
             }
         }
-        console.log("Util.parseHash", page, args)
+        // new hash will merged with old
+        var newHash = ['#!' + page];
+        if ($.isPlainObject(newArgs) && !$.isEmptyObject(newArgs)) {
+            // can't use jQuery.extend(), because need to delete keys by null value
+            $.each(newArgs, function(k, v) {
+                if (v === null) {
+                    delete args[k];
+                } else {
+                    args[k] = v;
+                }
+            });
+        }
+        $.each(args, function(k, v) {
+            var value = $.isArray(v) ? v.join(',') : v;
+            newHash.push(k + '=' + value);
+        });
+        location.hash = newHash.join('&')
         return {
             page: page,
             args: args
         }
-    }
-    
-    // util to set page arguments, for interpage navigation use links
-    var setHash = function(newArgs) {
-        // new hash will merged with old
-        var hash = parseHash();
-        var newHash = ['#!' + hash.page];
-        // can't use jQuery.extend(), because need to delete keys by null value
-        $.each(newArgs, function(k, v) {
-            if (v === null) {
-                delete hash.args[k];
-            } else {
-                hash.args[k] = v;
-            }
-        });
-        $.each(hash.args, function(k, v) {
-            var value = $.isArray(v) ? v.join(',') : v;
-            newHash.push(k + '=' + value);
-        });
-        console.log("Util.setHash", newHash)
-        location.hash = newHash.join('&')
     };
     // format numbers view
     var createMetricPrefix = function(value, units) {
@@ -156,9 +149,8 @@ define(function() {
     }
 
     return {
-        zapi: zapi,
-        setHash: setHash,
-        parseHash: parseHash,
+        //zapi: zapi,
+        hash: hash,
         createMetricPrefix: createMetricPrefix
     }
 });

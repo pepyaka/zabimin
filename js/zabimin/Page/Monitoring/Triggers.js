@@ -156,11 +156,11 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'datatables.bootstrap'], fu
             setTriggersReqParams(hashArgs)
         });
         hostSelector.done(function(selected) {
-            Util.setHash(selected);
+            Util.hash(selected);
         });
 
         filter.init(function(filterArgs) {
-            Util.setHash(filterArgs);
+            Util.hash(filterArgs);
         });
         filter.set(hashArgs);
     };
@@ -298,24 +298,80 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'datatables.bootstrap'], fu
                 data: zapiResponse.result,
                 columns: [
                     {
-                        title: 'Severity', data: 'priority'
+                        title: 'Severity',
+                        data: 'priority',
+                        render: function(data, type, row) {
+                            var map = {
+                                filter: Zapi.map.trigger.priority[data],
+                                display: Zapi.map.trigger.priority[data]
+                            }
+                            return map[type] || data
+                        },
+                        createdCell: function (td, cellData, rowData, row, col) {
+                            var color = [
+                                'bg-default text-default',
+                                'bg-info text-default',
+                                'bg-warning text-default',
+                                'bg-warning text-warning',
+                                'bg-danger text-warning',
+                                'bg-danger text-danger'
+                            ];
+                            $(td).addClass(color[cellData])
+                        }
                     }, {
                         title: 'Status',
-                        data: 'value'
+                        data: 'value',
+                        render: function(data, type, row) {
+                            var map = {
+                                filter: Zapi.map.trigger.value[data],
+                                display: [
+                                    '<span class="text-success">OK</span>',
+                                    '<span class="text-danger">Problem</span>'
+                                ][data]
+                            }
+                            return map[type] || data
+                        }
                     }, { 
                         title: 'Info',
-                        data: 'url'
-                    }, { title: 'Last change', data: 'lastchange' },
-                    { title: 'Age', data: 'lastchange' },
-                    { 
+                        data: 'comments',
+                        render: function(data, type, row) {
+                            return '<a href=""><span class="glyphicon glyphicon-info-sign"></span></a>'
+                        }
+                    }, {
+                        title: 'Last change',
+                        data: 'lastchange',
+                        render: function(data, type, row) {
+                            var d = moment(data, 'X');
+                            var map = {
+                                filter: d.format('lll'),
+                                display: d.format('lll')
+                            };
+                            return map[type] || data
+                        }
+                    }, {
+                        title: 'Age',
+                        data: 'lastchange',
+                        render: function(data, type, row) {
+                            var d = moment(data, 'X')
+                            var map = {
+                                filter: d.fromNow(),
+                                display: d.fromNow()
+                            }
+                            return map[type] || data
+                        }
+                    }, { 
                         title: 'Acknowledged',
                         data: 'lastEvent.acknowledged',
-                        "render": function ( data, type, full, meta ) {
-                            return 'd:' + data + ' t:' +type +' f:'+full+' m:'+meta;
-                    } },
-                    { title: 'Host', data: 'hosts[0].host' },
-                    { title: 'Name', data: 'description' },
-                    { title: 'Description', data: 'comments' }
+                    }, {
+                        title: 'Host',
+                        data: 'hosts[0].host'
+                    }, {
+                        title: 'Name',
+                        data: 'description'
+                    }, {
+                        title: 'Description',
+                        data: 'comments'
+                    }
                 ]
             })
             $('#triggers')

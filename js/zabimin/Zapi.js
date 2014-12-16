@@ -32,6 +32,10 @@ define(['config'], function(zabimin) {
                 'Average',
                 'High',
                 'Disaster'
+            ],
+            value: [
+                'OK',
+                'Problem'
             ]
         },
         hostinterface: {

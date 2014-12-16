@@ -1,5 +1,5 @@
 // Monitoring/Events
-define(['Zapi', 'Util', 'Page/nav', 'moment'], function(Zapi, Util, nav, moment) {
+define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Zapi, Util, nav, moment) {
     "use strict";
 
     var data = {};
@@ -42,11 +42,11 @@ define(['Zapi', 'Util', 'Page/nav', 'moment'], function(Zapi, Util, nav, moment)
             setEventsReqParams(hashArgs)
         });
         hostSelector.done(function(selected) {
-            Util.setHash(selected);
+            Util.hash(selected);
         });
 
         filter.init(function(filterArgs) {
-            Util.setHash(filterArgs);
+            Util.hash(filterArgs);
         });
         filter.set(hashArgs);
     }
@@ -68,6 +68,7 @@ define(['Zapi', 'Util', 'Page/nav', 'moment'], function(Zapi, Util, nav, moment)
             //search: {description: 'ping'}
             limit: 10,
             selectRelatedObject: 'extend',
+            selectHosts: ['host'],
             expandExpression: true
         };
         var map = {
@@ -119,102 +120,134 @@ define(['Zapi', 'Util', 'Page/nav', 'moment'], function(Zapi, Util, nav, moment)
         createStatusTable(reqParams);
     }
     function createStatusTable(reqParams) {
-        var thead = [];
-        var dataMap = {
-            clock: function(unixtime) {
-                var d = moment(unixtime * 1000);
-                return {
-                    clock: d.format('lll'),
-                    age: d.fromNow()
+        var map = {
+            html: { //This map to set <td> classes or css
+                status: function(value) {
+                    return {
+                        classes: {
+                            'OK': 'text-success',
+                            'Problem': 'text-danger'
+                        }[value]
+                    }
+                },
+                severity: function(value) {
+                    return {
+                        classes: {
+                            'Not classified': '',
+                            'Information': 'info',
+                            'Warning': 'warning',
+                            'Average': 'warning text-danger',
+                            'High': 'danger',
+                            'Disaster': 'danger text-danger'
+                        }[value]
+                    }
                 }
+                    
             },
-            hosts: function(hosts, row) {
-                var hostNames = [];
-                $.each(hosts, function(i, host) {
-                    hostNames.push(host.host)
-                });
-                return {
-                    host: hostNames.join(', ')
-                }
-            },
-            source: function(src) {
-                return {
-                    type: Zapi.map.event.source[src]
-                }
-            },
-            priority: function(v) {
-            },
-            value: function(v, e) {
-                return {
-                    value: Zapi.map.event.value[e.source][v]
-                }
-            },
-            relatedObject: function(ro, e) {
-                return {
-                    description: ro.description,
-                    severity: Zapi.map.trigger.priority[ro.priority]
-                }
-            },
-            acknowledged: function(ack) {
-                return {
-                    acknowledged: Zapi.map.event.acknowledged[ack]
+            data: { //This is cell map (also html inside)
+                clock: function(unixtime) {
+                    var d = moment(unixtime, 'X');
+                    return d.format('lll')
+                },
+                host: function(hosts) {
+                    var hostNames = [];
+                    $.each(hosts, function(i, host) {
+                        hostNames.push(host.host)
+                    });
+                    return hostNames.join(', ')
+                },
+                description: function(relateObject) {
+                    return relateObject.description
+                },
+                status: function(value) {
+                    return Zapi.map.trigger.value[value]
+                },
+                severity: function(relatedObject) {
+                    return Zapi.map.trigger.priority[relatedObject.priority]
+                },
+                ack: function(value) {
+                    var ack;
+                    if (+value) {
+                        ack = [
+                            '<button type="button" class="btn btn-xs btn-success">',
+                            'Yes ',
+                            '<span class="badge">',
+                            4,
+                            '</span>',
+                            '</button>'
+                        ].join('');
+                    } else {
+                        ack = '<button type="button" class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="left" title="Tooltip on left">No</button>'
+                    }
+                    return ack
                 }
             }
         };
-        var htmlMap = {
-            value: function(th, row) {
-                var color = {
-                    'OK': '<td class="success">OK</td>',
-                    'Problem': '<td class="danger">Problem</td>'
+        var columns = [{
+                field: 'clock',
+                title: 'Time',
+                sortable: true,
+                formatter: map.data.clock
+            }, {
+                field: 'hosts',
+                title: 'Host',
+                sortable: true,
+                formatter: map.data.host
+            }, {
+                field: 'relatedObject',
+                title: 'Description',
+                formatter: map.data.description
+            }, {
+                field: 'value',
+                title: 'Status',
+                sortable: true,
+                formatter: map.data.status,
+                cellStyle: map.html.status
+            }, {
+                field: 'relatedObject',
+                title: 'Severity',
+                sortable: true,
+                formatter: map.data.severity,
+                cellStyle: map.html.severity
+            }, {
+                field: 'age',
+                title: 'Duration',
+                sortable: true
+            }, {
+                field: 'acknowledged',
+                title: 'Ack',
+                align: 'center',
+                //valign: 'middle',
+                formatter: map.data.ack,
+                events: {
+                    'click button': function (e, value, row, index) {
+                        console.log($(this), value, row, index);
+                        $(this).tooltip()
+                        
+                    }
                 }
-                return color[row[th]]
-            },
-            severity: function(th, row) {
-                var cl = {
-                    'Not classified': '<td>Not classified</td>',
-                    'Information': '<td class="info">Information</td>',
-                    'Warning': '<td class="warning">Warning</td>',
-                    'Average': '<td class="warning text-danger">Average</td>',
-                    'High': '<td class="danger">High</td>',
-                    'Disaster': '<td class="danger text-danger">Disaster</td>'
-                };
-                return cl[row[th]]
-            }
-        };
+            }, {
+                field: 'eventid',
+                title: 'Actions'
+        }];
         var eventGet = Zapi('event.get', reqParams)
 
-        $('#events th').each(function() {
-            thead.push(this.abbr)
-        })
         eventGet.done(function(zapiResponse) {
             console.log('event.get', reqParams, zapiResponse.result)
-            var data = [];
-            $.each(zapiResponse.result, function(i, event) {
-                var row = {};
-                $.each(event, function(e, v) {
-                    dataMap[e] ? $.extend(row, dataMap[e](v, event)) : row[e] = v;
-                })
-                data.push(row);
+            $('#triggerEvent')
+                .bootstrapTable({
+                    data: zapiResponse.result,
+                    search: true,
+                    pagination: true,
+                    //showRefresh: true,
+                    showToggle: true,
+                    showColumns: true,
+                    columns: columns
+            //})
+            //.on('all.bs.table', function (e, name, args) {
+            //    console.log('Event:', name, ', data:', args);
             });
-            createTable(data);
         });
-        function createTable(data) {
-            var tbody = [];
-            $.each(data, function(i, row) {
-                var tr = [];
-                $.each(thead, function(i, th) {
-                    if (htmlMap[th]) {
-                        tr.push(htmlMap[th](th, row));
-                    } else {
-                        tr.push('<td>' + row[th] + '</td>');
-                    }
-                });
-                tbody.push('<tr>'+tr.join('')+'</tr>')
-            });
-            $('#events tbody')
-                .empty()
-                .append(tbody.join(''))
-        };
     }
     
     return {
