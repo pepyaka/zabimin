@@ -4,11 +4,17 @@ define(['Util', 'bootstrap-select', 'bootstrap-datetimepicker'], function(Util) 
     var current;
     //  Function for load content from url and put in $('#ajaxPage') block
     var load = function () {
+        var action;
         var hash = Util.hash();
-        // Check if we have same page    
-        var action = (hash.page === current) ? 'update' : 'init';
         // Dashboard on empty page
         hash.page = hash.page || 'Monitoring/Dashboard';
+        // Check if we have same page    
+        if (hash.page === current) {
+            action = 'update';
+        } else {
+            action = 'init';
+            current = hash.page;
+        };
         //load html firstly for events binding
         require(['text!html/' + hash.page + '.html'],
             function(html) {
@@ -29,7 +35,8 @@ define(['Util', 'bootstrap-select', 'bootstrap-datetimepicker'], function(Util) 
             .spin('off')
             .html(data);
         // Load classes for ajax pages
-        $('.selectpicker').selectpicker()
+        // selectors on every page must look nicely first. need to fix
+        //$('.selectpicker').selectpicker()
         $('.datetimepicker').datetimepicker({
             useCurrent: false,
             language: localStorage.lang

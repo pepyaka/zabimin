@@ -131,7 +131,7 @@ define(['Zapi'], function(Zapi) {
             });
     }
 
-    // Common part of Module pattern
-    nav.hostSelector = hostSelector
-    return nav
+    return {
+        hostSelector: hostSelector
+    }
 });

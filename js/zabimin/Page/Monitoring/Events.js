@@ -1,5 +1,5 @@
 // Monitoring/Events
-define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Zapi, Util, nav, moment) {
+define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-bootbox', 'bootstrap-table'], function(Zapi, Util, nav, moment, bootbox) {
     "use strict";
 
     var data = {};
@@ -66,7 +66,7 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Zapi,
             //active: true,
             //monitored: true
             //search: {description: 'ping'}
-            limit: 10,
+            limit: 100,
             selectRelatedObject: 'extend',
             selectHosts: ['host'],
             expandExpression: true
@@ -94,8 +94,9 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Zapi,
                     });
                 });
             },
-            objectid: function(v) {
-            },
+            //objectid: function(v) {
+            //    reqParams.groupids = [];
+            //},
             //object: function(v) {
             //},
             acknowledged: function(v) {
@@ -120,6 +121,7 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Zapi,
         createStatusTable(reqParams);
     }
     function createStatusTable(reqParams) {
+        var duration = [];
         var map = {
             html: { //This map to set <td> classes or css
                 status: function(value) {
@@ -177,9 +179,20 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Zapi,
                             '</button>'
                         ].join('');
                     } else {
-                        ack = '<button type="button" class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="left" title="Tooltip on left">No</button>'
+                        ack = '<button type="button" class="btn btn-xs btn-warning" data-toggle="popover" title="Popover">No</button>'
                     }
                     return ack
+                },
+                duration: function(v, row) {
+                    var d;
+                    if (duration[row.objectid]) {
+                        d = moment.duration(duration[row.objectid] - v, 's').humanize();
+                        duration[row.objectid] = v;
+                    } else {
+                        d = moment(v, 'X').fromNow();
+                        duration[row.objectid] = v;
+                    }
+                    return d
                 }
             }
         };
@@ -210,9 +223,10 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Zapi,
                 formatter: map.data.severity,
                 cellStyle: map.html.severity
             }, {
-                field: 'age',
+                field: 'clock',
                 title: 'Duration',
-                sortable: true
+                sortable: true,
+                formatter: map.data.duration
             }, {
                 field: 'acknowledged',
                 title: 'Ack',
@@ -222,12 +236,118 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Zapi,
                 events: {
                     'click button': function (e, value, row, index) {
                         console.log($(this), value, row, index);
-                        $(this).tooltip()
+bootbox.dialog({
+  /**
+   * @required String|Element
+   */
+  message: "I am a custom dialog",
+  
+  /**
+   * @optional String|Element
+   * adds a header to the dialog and places this text in an h4
+   */
+  title: "Custom title",
+  
+  /**
+   * @optional Function
+   * allows the user to dismisss the dialog by hitting ESC, which
+   * will invoke this function
+   */
+  onEscape: function() {},
+  
+  /**
+   * @optional Boolean
+   * @default: true
+   * whether the dialog should be shown immediately
+   */
+  show: true,
+  
+  /**
+   * @optional Boolean
+   * @default: true
+   * whether the dialog should be have a backdrop or not
+   */
+  backdrop: true,
+  
+  /**
+   * @optional Boolean
+   * @default: true
+   * show a close button
+   */
+  closeButton: true,
+  
+  /**
+   * @optional Boolean
+   * @default: true
+   * animate the dialog in and out (not supported in < IE 10)
+   */
+  animate: true,
+  
+  /**
+   * @optional String
+   * @default: null
+   * an additional class to apply to the dialog wrapper
+   */
+  className: "my-modal",
+  
+  /**
+   * @optional Object
+   * @default: {}
+   * any buttons shown in the dialog's footer
+   */
+  buttons: {
+    
+    // For each key inside the buttons object...
+    
+    /**
+     * @required Object|Function
+     * 
+     * this first usage will ignore the `success` key
+     * provided and take all button options from the given object
+     */
+    success: {   
+      /**
+       * @required String
+       * this button's label
+       */
+      label: "Success!",
+      
+      /**
+       * @optional String
+       * an additional class to apply to the button
+       */
+      className: "btn-success",
+      
+      /**
+       * @optional Function
+       * the callback to invoke when this button is clicked
+       */
+      callback: function() {}
+    },
+    
+    /**
+     * this usage demonstrates that if no label property is
+     * supplied in the object, the key is used instead
+     */
+    "Danger!": {
+      className: "btn-danger",
+      callback: function() {}
+    },
+    
+    /**
+     * lastly, if the value supplied is a function, the options
+     * are assumed to be the short form of label -> callback
+     * this is the most condensed way of providing useful buttons
+     * but doesn't allow for any configuration
+     */
+    "Another label": function() {}
+  }
+});
                         
                     }
                 }
             }, {
-                field: 'eventid',
+                field: 'objectid',
                 title: 'Actions'
         }];
         var eventGet = Zapi('event.get', reqParams)
@@ -244,8 +364,8 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Zapi,
                     showColumns: true,
                     columns: columns
             //})
-            //.on('all.bs.table', function (e, name, args) {
-            //    console.log('Event:', name, ', data:', args);
+            //.on('click', function (e, name, args) {
+            //    console.log(e, name, args);
             });
         });
     }
