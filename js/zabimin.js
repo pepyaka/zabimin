@@ -24,8 +24,8 @@ require.config({
         'spin': ['//cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.1/spin.min'],
         'jquery.spin': ['//cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.1/jquery.spin.min'],
         // Separate paths for html,css, etc.
-        'html': ['/html'],
-        'css': ['/css'],
+        'html': ['../../html'],
+        'css': ['../../css'],
     },
     shim: {
         'datatables': ['jquery'],
