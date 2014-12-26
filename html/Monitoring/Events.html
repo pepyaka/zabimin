@@ -1,6 +1,9 @@
-<div class="navbar navbar-default navbar-fixed-top navbar-page">
-    <div id="pageNavigation" class="container-fluid">
-        <div class="row">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-3 col-lg-push-9 col-scroll">
+            <div id="filter">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
             <div class="col-lg-8 col-sm-6 col-xs-10">
                 <select id="hostGroupSelect" class="navbar-btn selectpicker show-tick" title="Host group" data-style="btn-primary" data-width="49%" disabled>
                 </select>
@@ -17,21 +20,13 @@
                 </button>
                 </div>
             </div>
-        </div>
-    </div><!--/.navbar-->
-</div><!-- Page navigation end -->
-
-<div class="container-fluid">
-    <div id="pageContent" class="row">
-        <div class="col-lg-3 col-lg-push-9">
-            <div id="filter">
-                <form class="form-horizontal" role="form">
+                    </div>
                     <div class="form-group">
                         <label class="col-xs-6 control-label">
                             Event type
                         </label>
                         <div class="col-xs-6">
-                            <select class="selectpicker form-control" id="filterEventType" aria-describedby="filterEventTypeHelp">
+                            <select class="selectpicker form-control" id="filterEventType" data-style="btn-primary" aria-describedby="filterEventTypeHelp">
                                 <optgroup label="Trigger">
                                     <option value="0.0">Trigger</option>
                                 </optgroup>
@@ -49,6 +44,18 @@
                                 </optgroup>
                             </select>
                             <span id="filterEventTypeHelp" class="help-block">Type of object that is related to the event</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class='col-xs-12'>
+                            <div id="timeRange" class="input-group">
+                                <input type='text' class="form-control"/>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div class="panel panel-default">
@@ -87,29 +94,54 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="filterTrigger" class="col-xs-2 control-label">
+                    <div id="filterTrigger" class="form-group">
+                        <label class="col-xs-3 control-label">
                             Trigger
                         </label>
-                        <div class="col-xs-10">
-                            <div class="input-group" id="filterTrigger">
-                                <input class="form-control" type="text" aria-describedby="filterTriggerHelp"/>
-                                <span class="input-group-btn">
-                                    <button class="btn btn-default" type="button">
-                                        Select
-                                    </button>
-                                </span>
+                        <div class="col-xs-9">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalFilterTrigger" disabled="disabled">
+                                    Select
+                                </button>
+                                <button id="filterTriggerReset" type="button" class="btn btn-default">
+                                    Reset
+                                </button>
                             </div>
-                            <span id="filterTriggerHelp" class="help-block">Events only for this trigger</span>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-        <div class="col-lg-9 col-lg-pull-3">
+        <div class="col-lg-9 col-lg-pull-3 col-scroll">
             <table id="triggerEvent" class="table table-hover table-condensed table-striped">
             </table>
         </div>
-    </div><!-- Page content end -->
+    </div>
 </div><!-- Page content end -->
 
+<!-- Modal -->
+<div class="modal fade" id="modalFilterTrigger" tabindex="-1" role="dialog" aria-labelledby="modalFilterTriggerLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="modalFilterTriggerLabel">Modal title</h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+            <div class="col-sm-3 col-modal-scroll">
+                <ul id="filterTriggerHostGroupList" class="nav nav-pills nav-stacked">
+                    <li class="active" data-hostids="" data-groupid="0"><a href="#">All host groups</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-9 col-modal-scroll">
+                <div id="filterTriggerHostList" class="panel-group">
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>

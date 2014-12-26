@@ -1,8 +1,23 @@
 body {
     padding-top: 70px;
+    overflow-y: hidden;
 }
+.col-scroll {
+    height: calc(100vh - 50px);
+    overflow-y: auto;
+    padding-top: 20px;
+    margin-top: -20px;
+}
+.col-modal-scroll {
+    height: calc(82vh - 80px);
+    overflow-y: auto;
+    padding-bottom: 15px;
+    padding-top: 15px;
+    margin-bottom: -15px;
+    margin-top: -15px;
+}
+/*
 main, aside {
-    /*height: 100vh;*/
     overflow-y: auto;
 }
 @media (max-width: 1199px) {
@@ -17,12 +32,12 @@ main, aside {
 @media (min-width: 1200px) {
     .navbar-main {
         right: 38%;
-        /*border-bottom-right-radius: 4px;*/
     }
     .navbar-page {
         left: 62%;
     }
 }
+*/
 /*
 #wrapper {
     min-height: 100%;
@@ -121,4 +136,46 @@ main {
 }
 .error-actions .btn {
     margin-right:10px;
+}
+.popover{
+    max-width: none;
+}
+.popover-content .nav {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/********************************** spinner *********************************/
+@keyframes spinner {
+    to {transform: rotate(360deg);}
+}
+@-webkit-keyframes spinner {
+    to {-webkit-transform: rotate(360deg);}
+}
+.spinner {
+    min-width: 50px;
+    min-height: 50px;
+}
+.spinner:before {
+    content: 'Loading…';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin-top: -16px;
+    margin-left: -16px;
+}
+.spinner:not(:required):before {
+    content: '';
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, .3);
+    border-top-color: rgba(0, 0, 0, .6);
+    animation: spinner .6s linear infinite;
+    -webkit-animation: spinner .6s linear infinite;
+}
+/********************************** spinner *********************************/
+
+.col-width-auto {
+    width: auto;
 }

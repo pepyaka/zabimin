@@ -1,4 +1,4 @@
-define(['Zapi'], function(Zapi) {
+define(['Zapi', 'bootstrap-select'], function(Zapi) {
     var nav = {};
     var hostSelector = {};//Object for public methods
     var hosts;
@@ -9,11 +9,9 @@ define(['Zapi'], function(Zapi) {
         var hostGet = Zapi('host.get');
         // set selectors to disabled before ajax request
         $('#hostGroupSelect')
-            .prop('disabled', true)
-            .selectpicker('refresh');
+            .selectpicker();
         $('#hostSelect')
-            .prop('disabled', true)
-            .selectpicker('refresh');
+            .selectpicker();
         
         hostGet.done(function(zapiResponse) {
             hosts = zapiResponse.result;

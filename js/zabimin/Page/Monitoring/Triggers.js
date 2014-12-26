@@ -1,5 +1,5 @@
 // Monitoring/Triggers page
-define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'datatables.bootstrap'], function(Page, Zapi, Util, nav, moment) {
+define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Page, Zapi, Util, nav, moment) {
     var data = {};// work data
     //var hash = {}; // Each page has own arguments
     var hostSelector = nav.hostSelector; // Shorthands
@@ -175,12 +175,14 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'datatables.bootstrap'], fu
             //filter: {
             //    'value': 1
             //},
+            output: 'extend',
             only_true: true,
             skipDependent: true,
             //active: true,
             monitored: true,
             //search: {description: 'ping'}
-            selectLastEvent: true
+            selectLastEvent: true,
+            selectHosts: ['host']
         };
         var map = {
             triggerStatus: function(v) {
@@ -256,151 +258,143 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'datatables.bootstrap'], fu
         createStatusTable(reqParams);
     }
     function createStatusTable(reqParams) {
-        var thead = [];
-        var tbody = [];
-        var dataMap = {
-            lastchange: function(rowData, unixtime) {
-                var d = moment(unixtime * 1000);
-                rowData.lastchange = d.format('lll')
-                rowData.age = d.fromNow()
+        var map = {
+            html: { //This map to set <td> classes or css
+                status: function(value) {
+                    return {
+                        classes: {
+                            'OK': 'text-success',
+                            'Problem': 'text-danger'
+                        }[value]
+                    }
+                },
+                severity: function(value) {
+                    return {
+                        classes: {
+                            'Not classified': '',
+                            'Information': 'info',
+                            'Warning': 'warning',
+                            'Average': 'warning text-danger',
+                            'High': 'danger',
+                            'Disaster': 'danger text-danger'
+                        }[value]
+                    }
+                }
+
             },
-            hosts: function(rowData, hostsArray) {
-                rowData.hosts = hostsArray[0].host
-            },
-            priority: function(rowData, priority) {
-                rowData.priority = [
-                    'info',
-                    'info',
-                    'warning',
-                    'warning',
-                    'danger',
-                    'danger'][priority];
-                rowData.severity = [
-                    'Not classified',
-                    'Information',
-                    'Warning',
-                    'Average',
-                    'High',
-                    'Disaster'
-                ][priority];
-            },
-            value: function(rowData, val) {
-                rowData.value = [
-                    '<span class="text-success">OK</span>',
-                    '<span class="text-danger">Problem</span>'
-                ][val];
+            data: { //This is cell map (also html inside)
+                clock: function(unixtime) {
+                    var d = moment(unixtime, 'X');
+                    return d.format('lll')
+                },
+                age: function(unixtime) {
+                    var d = moment(unixtime, 'X');
+                    return d.fromNow('lll')
+                },
+                host: function(hosts) {
+                    var hostNames = [];
+                    $.each(hosts, function(i, host) {
+                        hostNames.push(host.host)
+                    });
+                    return hostNames.join(', ')
+                },
+                description: function(relateObject) {
+                    return relateObject.description
+                },
+                status: function(value) {
+                    return Zapi.map.trigger.value[value]
+                },
+                severity: function(priority) {
+                    return Zapi.map.trigger.priority[priority]
+                },
+                ack: function(value) {
+                    var ack;
+                    if (+value) {
+                        ack = [
+                            '<button type="button" class="btn btn-xs btn-success">',
+                            'Yes ',
+                            '<span class="badge">',
+                            4,
+                            '</span>',
+                            '</button>'
+                        ].join('');
+                    } else {
+                        ack = '<button type="button" class="btn btn-xs btn-warning" data-toggle="popover" title="Popover">No</button>'
+                    }
+                    return ack
+                }
             }
         };
+        var columns = [{
+                field: 'priority',
+                title: 'Severity',
+                sortable: true,
+                cellStyle: map.html.severity,
+                formatter: map.data.severity
+            }, {
+                field: 'value',
+                title: 'Status',
+                sortable: true,
+                formatter: map.data.status,
+                cellStyle: map.html.status
+            }, {
+                field: 'error',
+                title: 'Info',
+                //formatter: map.data.description
+            }, {
+                field: 'lastchange',
+                title: 'Last change',
+                sortable: true,
+                formatter: map.data.clock
+            }, {
+                field: 'lastchange',
+                title: 'Age',
+                formatter: map.data.age
+            }, {
+                field: 'acknowledged',
+                title: 'Acknowledged',
+                //sortable: true,
+                //formatter: map.data.duration
+            }, {
+                field: 'hosts',
+                title: 'host',
+                sortable: true,
+                formatter: map.data.host
+                //valign: 'middle',
+                //formatter: map.data.ack,
+                //events: {
+                //    'click button': function (e, value, row, index) {
+                //        console.log($(this), value, row, index);
+                //    }
+                //}
+            }, {
+                field: 'description',
+                title: 'Name'
+            }, {
+                field: 'triggerid',
+                title: 'Description'
+        }];
         var triggerGet = Zapi('trigger.get', reqParams)
         triggerGet.done(function(zapiResponse) {
+            console.log(zapiResponse.result)
             $('#triggers')
-            .DataTable({
-                data: zapiResponse.result,
-                columns: [
-                    {
-                        title: 'Severity',
-                        data: 'priority',
-                        render: function(data, type, row) {
-                            var map = {
-                                filter: Zapi.map.trigger.priority[data],
-                                display: Zapi.map.trigger.priority[data]
-                            }
-                            return map[type] || data
-                        },
-                        createdCell: function (td, cellData, rowData, row, col) {
-                            var color = [
-                                'bg-default text-default',
-                                'bg-info text-default',
-                                'bg-warning text-default',
-                                'bg-warning text-warning',
-                                'bg-danger text-warning',
-                                'bg-danger text-danger'
-                            ];
-                            $(td).addClass(color[cellData])
-                        }
-                    }, {
-                        title: 'Status',
-                        data: 'value',
-                        render: function(data, type, row) {
-                            var map = {
-                                filter: Zapi.map.trigger.value[data],
-                                display: [
-                                    '<span class="text-success">OK</span>',
-                                    '<span class="text-danger">Problem</span>'
-                                ][data]
-                            }
-                            return map[type] || data
-                        }
-                    }, { 
-                        title: 'Info',
-                        data: 'comments',
-                        render: function(data, type, row) {
-                            return '<a href=""><span class="glyphicon glyphicon-info-sign"></span></a>'
-                        }
-                    }, {
-                        title: 'Last change',
-                        data: 'lastchange',
-                        render: function(data, type, row) {
-                            var d = moment(data, 'X');
-                            var map = {
-                                filter: d.format('lll'),
-                                display: d.format('lll')
-                            };
-                            return map[type] || data
-                        }
-                    }, {
-                        title: 'Age',
-                        data: 'lastchange',
-                        render: function(data, type, row) {
-                            var d = moment(data, 'X')
-                            var map = {
-                                filter: d.fromNow(),
-                                display: d.fromNow()
-                            }
-                            return map[type] || data
-                        }
-                    }, { 
-                        title: 'Acknowledged',
-                        data: 'lastEvent.acknowledged',
-                    }, {
-                        title: 'Host',
-                        data: 'hosts[0].host'
-                    }, {
-                        title: 'Name',
-                        data: 'description'
-                    }, {
-                        title: 'Description',
-                        data: 'comments'
-                    }
-                ]
-            })
-            $('#triggers')
-            .fadeTo('fast', 1)
+                .bootstrapTable('destroy')
+                .bootstrapTable({
+                    data: zapiResponse.result,
+                    search: true,
+                    pagination: true,
+                    //showRefresh: true,
+                    showToggle: true,
+                    //showColumns: true,
+                    columns: columns
+                })
+                //.on('click', function (e, name, args) {
+                //    console.log(e, name, args);
+                //})
+                .prop('disabled', false)
+                .fadeTo('fast', 1)
+
         });
-        //$('#triggers')
-        //    .fadeTo('fast', 0.2)
-        //triggerGet.done(function(zapiResponse) {
-        //    $.each(zapiResponse.result, function(i, trigger) {
-        //        var tr = [];
-        //        var rowData = {};
-        //        $.each(trigger, function(k, v) {
-        //            if (dataMap[k]) {
-        //                dataMap[k](rowData, v)
-        //            } else {
-        //                rowData[k] = v
-        //            }
-        //        })
-        //        $.each(thead, function(i, th) {
-        //            tr.push('<td>' + rowData[th] + '</td>')
-        //        })
-        //        tbody.push('<tr class="'+rowData.priority+'">'+tr.join('')+'</tr>')
-        //    })
-        //    $('#triggers tbody')
-        //        .empty()
-        //        .append(tbody.join(''))
-        //    $('#triggers')
-        //        .fadeTo('fast', 1)
-        //});
     }
     
     return {

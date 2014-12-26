@@ -57,16 +57,16 @@ define(['config'], function(zabimin) {
         },
         host: {
             get: {
-                output: 'extend',
-                selectGroups: 'extend',
-                selectGraphs: 'extend',
+                output: ['host'],
+                selectGroups: ['name'],
+                //selectGraphs: 'extend',
                 sortfield: 'name'
             }
         },
         trigger: {
             get: {
-                output: 'extend',
-                selectHosts: 'extend',
+                output: ['description'],
+                //selectHosts: 'extend',
                 sortfield: 'lastchange',
                 sortorder: 'DESC',
                 expandComment: true,

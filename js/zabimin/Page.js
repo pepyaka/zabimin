@@ -1,26 +1,30 @@
-define(['Util', 'bootstrap-select', 'bootstrap-datetimepicker'], function(Util) {
+define(['Util', 'bootstrap-datetimepicker'], function(Util) {
     "use strict";
 
     var current;
     //  Function for load content from url and put in $('#ajaxPage') block
     var load = function () {
-        var action;
         var hash = Util.hash();
         // Dashboard on empty page
         hash.page = hash.page || 'Monitoring/Dashboard';
-        // Check if we have same page    
-        if (hash.page === current) {
-            action = 'update';
-        } else {
-            action = 'init';
-            current = hash.page;
-        };
         //load html firstly for events binding
         require(['text!html/' + hash.page + '.html'],
             function(html) {
-                anyPageInit(html)
                 require(['Page/' + hash.page], function(page) {
-                    page[action] && page[action](hash.args);
+                    // Check if we have same page    
+                    if (hash.page === current) {
+                        page.update && page.update(hash.args);
+                    } else {
+                        current = hash.page;
+                        $('#ajaxPage')
+                            .spin('off')
+                            .html(html);
+                        $('.datetimepicker').datetimepicker({
+                            useCurrent: false,
+                            language: localStorage.lang
+                        })
+                        page.init && page.init(hash.args);
+                    };
                 });
             },
             function(err) {
@@ -29,18 +33,6 @@ define(['Util', 'bootstrap-select', 'bootstrap-datetimepicker'], function(Util) 
                 });
             }
         );
-    };
-    function anyPageInit(data) {
-        $('#ajaxPage')
-            .spin('off')
-            .html(data);
-        // Load classes for ajax pages
-        // selectors on every page must look nicely first. need to fix
-        //$('.selectpicker').selectpicker()
-        $('.datetimepicker').datetimepicker({
-            useCurrent: false,
-            language: localStorage.lang
-        })
     };
 
     return {

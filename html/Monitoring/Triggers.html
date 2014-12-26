@@ -1,26 +1,21 @@
-<div class="navbar navbar-default navbar-fixed-top navbar-page">
-    <div id="pageNavigation" class="container-fluid">
-        <div class="row">
-            <div class="col-lg-8 col-sm-6 col-xs-10">
-                <select id="hostGroupSelect" class="navbar-btn selectpicker show-tick" title="Host group" data-style="btn-primary" data-width="49%" disabled>
-                </select>
-                <select id="hostSelect" class="navbar-btn selectpicker" title="Host" data-live-search="true" multiple data-selected-text-format="count" data-style="btn-primary" data-width="49%" disabled>
-                </select>
-            </div>
-            <div class="col-lg-4 col-sm-6 col-xs-2">
-                <button type="button" class="btn btn-default navbar-btn pull-right" data-toggle="collapse" data-target="#filterPanel">
-                    <span class="glyphicon glyphicon-filter"></span>
-                </button>
-            </div>
-        </div>
-    </div><!--/.navbar-->
-</div><!-- Page navigation end -->
-
 <div class="container-fluid">
     <div id="pageContent" class="row">
-        <div class="col-lg-3 col-lg-push-9 collapse in" id="filterPanel">
+        <div class="col-lg-3 col-lg-push-9 col-scroll collapse in" id="filterPanel">
             <div id="filter">
                 <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <div class="col-lg-8 col-sm-6 col-xs-10">
+                            <select id="hostGroupSelect" class="navbar-btn selectpicker show-tick" title="Host group" data-style="btn-primary" data-width="49%" disabled>
+                            </select>
+                            <select id="hostSelect" class="navbar-btn selectpicker" title="Host" data-live-search="true" multiple data-selected-text-format="count" data-style="btn-primary" data-width="49%" disabled>
+                            </select>
+                        </div>
+                        <div class="col-lg-4 col-sm-6 col-xs-2">
+                            <button type="button" class="btn btn-default navbar-btn pull-right" data-toggle="collapse" data-target="#filterPanel">
+                                <span class="glyphicon glyphicon-filter"></span>
+                            </button>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="filterTriggerStatus" class="col-xs-6 control-label">Trigger status</label>
                         <div class="col-xs-6">
@@ -130,8 +125,8 @@
                 </form>
             </div>
         </div>
-        <div class="col-lg-9 col-lg-pull-3">
-            <table id="triggers" class="fade table table-striped table-condensed table-hover table-bordered dt-responsive" cellspacing="0" width="100%">
+        <div class="col-lg-9 col-lg-pull-3 col-scroll">
+            <table id="triggers" class="fade table table-striped table-condensed table-hover">
             </table>
         </div>
     </div><!-- Page content end -->

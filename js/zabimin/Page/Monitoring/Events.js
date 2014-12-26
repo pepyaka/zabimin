@@ -1,11 +1,26 @@
 // Monitoring/Events
-define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-bootbox', 'bootstrap-table'], function(Zapi, Util, nav, moment, bootbox) {
+define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-select', 'js/lib/daterangepicker.js', 'js/lib/bootstrap-modal-popover.js'], function(Zapi, Util, nav, moment) {
     "use strict";
 
     var data = {};
     var hostSelector = nav.hostSelector; // Shorthands
     var filter = {
         init: function(changeHashArgs) {
+            var now = new Date();
+            var daterangepickerOpts = {
+                format: 'lll',
+                timePicker: true,
+                timePicker12Hour: false,
+                maxDate: now,
+                ranges: {
+                    'Last Hour': [moment().subtract(1, 'hour'), now],
+                    'Last Day': [moment().subtract(1, 'day'), now],
+                    'Last Week': [moment().subtract(1, 'week'), now],
+                    'Last Month': [moment().subtract(1, 'month'), now],
+                    'Last Year': [moment().subtract(1, 'year'), now]
+                },
+                opens: 'left'
+            };
             filter.callback = changeHashArgs;
             $('#filterEventType')
                 .on('change', function() {
@@ -13,6 +28,29 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-bootbox', 'bootstrap-ta
                     changeHashArgs({
                         source: +v[0] || null,
                         object: +v[1] || null
+                    });
+                });
+            $('#timeRange input')
+                .daterangepicker(daterangepickerOpts, function(start, end) {
+                    changeHashArgs({
+                        time_from: parseInt(start/1000),
+                        time_till: parseInt(end/1000)
+                    });
+                });
+            $('#timeRange button')
+                .on('click', function() {
+                    $('#timeRange input')
+                        .val('')
+                    changeHashArgs({
+                        time_from: null,
+                        time_till: null
+                    });
+                });
+            createTriggerModal(changeHashArgs);
+            $('#filterTriggerReset')
+                .on('click', function() {
+                    changeHashArgs({
+                        objectids: null
                     });
                 });
         },
@@ -35,6 +73,9 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-bootbox', 'bootstrap-ta
     };
 
     var init = function(hashArgs) {
+        $('#filterTriggerGroupSelect').selectpicker();
+        $('#filterTriggerHostSelect').selectpicker();
+        $('#filterTriggerSelect').selectpicker();
         hostSelector.init(function(hosts, hostGroups) {
             data.hosts = hosts;
             data.hostGroups = hostGroups;
@@ -56,6 +97,123 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-bootbox', 'bootstrap-ta
         setEventsReqParams(hashArgs); 
     }
     
+    function createTriggerModal(changeHashArgs) {
+        var reqParams = {
+            selectTriggers: ['description','priority','state','status']
+        };
+        var severityClass = [
+            '',
+            'info',
+            'warning',
+            'warning text-danger',
+            'danger',
+            'danger text-danger'
+        ];
+        var stateStatusClass = [
+            ['Enabled','Disabled'],
+            ['Unknown','Unknown'],
+        ];
+            
+        var hostGet = Zapi('host.get', reqParams);
+        hostGet.done(function(zapiResponse) {
+            var hostGroups = [];
+            var hostGroupList = [];
+            var hostList = [];
+            var hosts = zapiResponse.result;
+
+            $.each(hosts, function(i, host) {
+                $.each(host.groups, function(i, hostGroup) {
+                    if (hostGroups[hostGroup.groupid]) {
+                        hostGroups[hostGroup.groupid].hosts.push(host.hostid)
+                    } else {
+                        hostGroups[hostGroup.groupid] = hostGroup
+                        hostGroups[hostGroup.groupid].hosts = [];
+                    }
+                });
+            });
+            hostGroups = hostGroups.filter(Boolean);
+            hostGroups.sort(function(a, b) {
+                return a.name > b.name ? 1 : -1
+            });
+
+            $.each(hostGroups, function(i, hostGroup) {
+                hostGroupList.push(
+                    '<li data-hostids="'+hostGroup.hosts+'" data-groupid="'+hostGroup.groupid+'">',
+                        '<a href="#">'+hostGroup.name+'</a>',
+                    '</li>'
+                )
+            });
+            $('#filterTriggerHostGroupList')
+                .append(hostGroupList.join(''))
+                .on('click', 'li', function(e) {
+                    e.preventDefault()
+                    var $group = $(this);
+                    var hostids = $group.data('hostids').split(',').map(Number);
+                    $group.addClass('active')
+                    $group.siblings('li')
+                        .removeClass('active')
+                    if ($group.data('groupid') == 0) {
+                        $('#filterTriggerHostList .panel')
+                            .show()
+                    } else {
+                        $('#filterTriggerHostList .panel')
+                            .hide()
+                            .each(function() {
+                                var $host = $(this);
+                                if ($.inArray($host.data('hostid'), hostids) > -1) {
+                                    $host.show()
+                                }
+                            });
+                    }
+                });
+
+            $.each(hosts, function(i, host) {
+                var triggerList = [];
+                $.each(host.triggers, function(i, trigger) {
+                    triggerList.push(
+                            '<tr data-triggerid="'+trigger.triggerid+'">',
+                                '<td><a href="#">'+trigger.description+'</a></td>',
+                                '<td class="'+severityClass[trigger.priority]+'">'+Zapi.map.trigger.priority[trigger.priority]+'</td>',
+                                '<td>'+stateStatusClass[trigger.state][trigger.status]+'</td>',
+                            '</tr>'
+                    );
+                });
+                hostList.push(
+                    '<div class="panel panel-default" data-hostid="'+host.hostid+'">',
+                        '<div class="panel-heading">',
+                            '<h4 class="panel-title">',
+                                '<a data-toggle="collapse" href="#triggersHostid_'+host.hostid+'">',
+                                    host.host,
+                                '</a>',
+                            '</h4>',
+                        '</div>',
+                        '<div id="triggersHostid_'+host.hostid+'" class="panel-collapse collapse">',
+                            '<table class="table table-hover table-condensed">',
+                                '<thead>',
+                                    '<tr><th>Name</th><th>Severity</th><th>Status</th></tr>',
+                                '</thead>',
+                                '<tbody>',
+                                    triggerList.join(''),
+                                '</tbody>',
+                            '</table>',
+                        '</div>',
+                    '</div>'
+                );
+            });
+            $('#filterTriggerHostList')
+                .append(hostList.join(''))
+                .on('click', 'tr a', function(e) {
+                    e.preventDefault()
+                    $('#modalFilterTrigger').modal('hide');
+                    changeHashArgs({
+                        objectids: $(this).parents('tr').data('triggerid')
+                    })
+                });
+
+            $("#filterTrigger button")
+                .prop('disabled', false)
+        });
+    }
     function setEventsReqParams(args) {
         var reqParams = {
             //filter: {
@@ -72,8 +230,8 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-bootbox', 'bootstrap-ta
             expandExpression: true
         };
         var map = {
-            eventid: function(v) {
-            },
+            //eventid: function(v) {
+            //},
             host: function(v) {
                 reqParams.hostids = [];
                 $.each(v, function(i, hostname) {
@@ -99,21 +257,21 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-bootbox', 'bootstrap-ta
             //},
             //object: function(v) {
             //},
-            acknowledged: function(v) {
-            },
-            eventid_from: function(v) {
-            },
-            eventid_till: function(v) {
-            },
+            //acknowledged: function(v) {
+            //},
+            //eventid_from: function(v) {
+            //},
+            //eventid_till: function(v) {
+            //},
             //source: function(v) {
             //    reqParams.source = +v
             //},
-            time_from: function(v) {
-            },
-            time_till: function(v) {
-            },
-            value: function(v) {
-            }
+            //time_from: function(v) {
+            //},
+            //time_till: function(v) {
+            //},
+            //value: function(v) {
+            //}
         }
         $.each(args, function(k, v) {
             map[k] ? map[k](v) : reqParams[k] = v[0];
@@ -236,114 +394,6 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-bootbox', 'bootstrap-ta
                 events: {
                     'click button': function (e, value, row, index) {
                         console.log($(this), value, row, index);
-bootbox.dialog({
-  /**
-   * @required String|Element
-   */
-  message: "I am a custom dialog",
-  
-  /**
-   * @optional String|Element
-   * adds a header to the dialog and places this text in an h4
-   */
-  title: "Custom title",
-  
-  /**
-   * @optional Function
-   * allows the user to dismisss the dialog by hitting ESC, which
-   * will invoke this function
-   */
-  onEscape: function() {},
-  
-  /**
-   * @optional Boolean
-   * @default: true
-   * whether the dialog should be shown immediately
-   */
-  show: true,
-  
-  /**
-   * @optional Boolean
-   * @default: true
-   * whether the dialog should be have a backdrop or not
-   */
-  backdrop: true,
-  
-  /**
-   * @optional Boolean
-   * @default: true
-   * show a close button
-   */
-  closeButton: true,
-  
-  /**
-   * @optional Boolean
-   * @default: true
-   * animate the dialog in and out (not supported in < IE 10)
-   */
-  animate: true,
-  
-  /**
-   * @optional String
-   * @default: null
-   * an additional class to apply to the dialog wrapper
-   */
-  className: "my-modal",
-  
-  /**
-   * @optional Object
-   * @default: {}
-   * any buttons shown in the dialog's footer
-   */
-  buttons: {
-    
-    // For each key inside the buttons object...
-    
-    /**
-     * @required Object|Function
-     * 
-     * this first usage will ignore the `success` key
-     * provided and take all button options from the given object
-     */
-    success: {   
-      /**
-       * @required String
-       * this button's label
-       */
-      label: "Success!",
-      
-      /**
-       * @optional String
-       * an additional class to apply to the button
-       */
-      className: "btn-success",
-      
-      /**
-       * @optional Function
-       * the callback to invoke when this button is clicked
-       */
-      callback: function() {}
-    },
-    
-    /**
-     * this usage demonstrates that if no label property is
-     * supplied in the object, the key is used instead
-     */
-    "Danger!": {
-      className: "btn-danger",
-      callback: function() {}
-    },
-    
-    /**
-     * lastly, if the value supplied is a function, the options
-     * are assumed to be the short form of label -> callback
-     * this is the most condensed way of providing useful buttons
-     * but doesn't allow for any configuration
-     */
-    "Another label": function() {}
-  }
-});
-                        
                     }
                 }
             }, {
@@ -351,22 +401,28 @@ bootbox.dialog({
                 title: 'Actions'
         }];
         var eventGet = Zapi('event.get', reqParams)
+        $('#triggerEvent')
+            .prop('disabled', true)
+            .fadeTo('fast', 0.3)
 
         eventGet.done(function(zapiResponse) {
             console.log('event.get', reqParams, zapiResponse.result)
             $('#triggerEvent')
+                .bootstrapTable('destroy')
                 .bootstrapTable({
                     data: zapiResponse.result,
                     search: true,
                     pagination: true,
                     //showRefresh: true,
                     showToggle: true,
-                    showColumns: true,
+                    //showColumns: true,
                     columns: columns
-            //})
-            //.on('click', function (e, name, args) {
-            //    console.log(e, name, args);
-            });
+                })
+                //.on('click', function (e, name, args) {
+                //    console.log(e, name, args);
+                //})
+                .prop('disabled', false)
+                .fadeTo('fast', 1)
         });
     }
     
