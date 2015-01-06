@@ -46,3 +46,9 @@ require.config({
 
 require(['main'], function() {
 });
+
+// Hack for moment js 
+define(['moment'], function(moment) {
+    moment.locale('ru');
+    return moment;
+});

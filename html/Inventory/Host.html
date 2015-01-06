@@ -1,0 +1,113 @@
+<div class="container-fluid">
+    <div id="pageContent" class="row">
+        <div class="col-lg-offset-1 col-lg-3 col-xs-6">
+            <div id="hostInfo">
+                <dl class="dl-horizontal">
+                    <dt>Host name</dt>
+                    <dd id="hostName">
+                    </dd>
+                    <dt>Visible name</dt>
+                    <dd id="visibleName">
+                    </dd>
+                </dl>
+                <dl class="dl-horizontal">
+                    <dt>Groups</dt>
+                    <dd id="hostGroups">
+                        <ul id="hostGroupsList" class="list-unstyled">
+                        </ul>
+                    </dd>
+                    <dt>Applications</dt>
+                    <dd id="hostApplications">
+                        <a href="#hostApplicationsList" class="badge" data-toggle="collapse"></a>
+                        <ul id="hostApplicationsList" class="list-unstyled collapse">
+                        </ul>
+                    </dd>
+                    <dt>Discovery rules</dt>
+                    <dd id="hostDiscoveryRules">
+                        <a href="#hostDiscoveryRulesList" class="badge" data-toggle="collapse"></a>
+                        <ul id="hostDiscoveryRulesList" class="list-inline collapse">
+                        </ul>
+                    </dd>
+                    <dt>Graphs</dt>
+                    <dd id="hostGraphs">
+                        <a href="#hostGraphsList" class="badge" data-toggle="collapse"></a>
+                        <ul id="hostGraphsList" class="list-inline collapse">
+                        </ul>
+                    </dd>
+                    <dt>Web</dt>
+                    <dd id="hostWeb">
+                        <a href="#hostWebList" class="badge" data-toggle="collapse"></a>
+                        <ul id="hostWebList" class="list-inline collapse">
+                        </ul>
+                    </dd>
+                    <dt>Items</dt>
+                    <dd id="hostItems">
+                        <a href="#hostItemsList" class="badge" data-toggle="collapse"></a>
+                        <ul id="hostItemsList" class="list-unstyled collapse">
+                        </ul>
+                    </dd>
+                    <dt>Macros</dt>
+                    <dd id="hostMacros">
+                        <a href="#hostMacrosList" class="badge" data-toggle="collapse"></a>
+                        <dl id="hostMacrosList" class="collapse">
+                        </dl>
+                    </dd>
+                    <dt>Screens</dt>
+                    <dd id="hostScreens">
+                        <a href="#hostScreensList" class="badge" data-toggle="collapse"></a>
+                        <ul id="hostScreensList" class="list-inline collapse">
+                        </ul>
+                    </dd>
+                    <dt>Triggers</dt>
+                    <dd id="hostTriggers">
+                        <a href="#hostTriggersList" class="badge" data-toggle="collapse"></a>
+                        <ul id="hostTriggersList" class="list-inline collapse ellipsis">
+                        </ul>
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        <div class="col-lg-7 col-xs-6">
+            <dl class="dl-horizontal">
+                <dt>Interfaces</dt>
+                <dd>
+                <table id="hostInterfaces" class="table table-condensed">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>IP Address</th>
+                            <th>DNS Name</th>
+                            <th>Connect to</th>
+                            <th>Port</th>
+                            <th>Default</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                </dd>
+            </dl>
+            <dl id="hostInventory" class="dl-horizontal">
+            </dl>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalFilterTriggerLabel"></h4>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+

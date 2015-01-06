@@ -1,5 +1,5 @@
 // Monitoring/Dashboard
-define(['Zapi', 'moment', 'typeahead'], function(Zapi, moment) {
+define(['Zapi', 'moment', 'typeahead', 'bootstrap-table'], function(zapi, moment) {
     "use strict";
 
     var init = function(hash) {
@@ -11,7 +11,7 @@ define(['Zapi', 'moment', 'typeahead'], function(Zapi, moment) {
     }
 
     function initGlobalSearch() {
-        var hostGet = Zapi('host.get', {selectInterfaces: 'extend'});
+        var hostGet = zapi.req('host.get', {selectInterfaces: 'extend'});
 
         hostGet.done(createGlobalSearchDatums);
 
@@ -34,7 +34,7 @@ define(['Zapi', 'moment', 'typeahead'], function(Zapi, moment) {
                 $.each(host.interfaces, function(i, iface) {
                     ip.push({
                         ip: iface.ip,
-                        type: Zapi.map.hostinterface.type[iface.type]
+                        type: zapi.map('Host interface', 'type', iface.type)
                     })
                 });
             });
@@ -111,7 +111,7 @@ define(['Zapi', 'moment', 'typeahead'], function(Zapi, moment) {
             ],
             selectHosts: [
                 'hostid',
-                'name'
+                'host'
             ],
             selectLastEvent: [
                 'eventid',
@@ -122,114 +122,109 @@ define(['Zapi', 'moment', 'typeahead'], function(Zapi, moment) {
             ],
             limit: 20
         };
-        var triggerGet = Zapi('trigger.get', req);
+        var triggerGet = zapi.req('trigger.get', req);
 
-        triggerGet.done(createStatusTable);
+        triggerGet.done(function(zapiResponse) {
+            var map = {
+                cellStyle: { //This map to set <td> classes or css
+                    severity: function(value, row) {
+                        return {
+                            classes: [
+                                '',
+                                'info',
+                                'warning',
+                                'warning text-danger',
+                                'danger',
+                                'danger text-danger'
+                            ][row.priority]
+                        }
+                    }
 
-        function createStatusTable(zapiResponse) {
-console.log(zapiResponse)
-            var dataMap = {
-                hosts: function(hosts) {
-                    var hostNames = [];
-                    $.each(hosts, function(i, host) {
-                        hostNames.push(host.name)
-                    });
-                    return {
-                        host: hostNames.join(', ')
+                },
+                formatter: { //This is cell map (also html inside)
+                    host: function(hosts) {
+                        return '<a href="#!Inventory/Host&host='+hosts[0].host+'">'+hosts[0].host+'</a>'
+                    },
+                    lastChange: function(unixtime) {
+                        var d = moment(unixtime, 'X');
+                        return d.format('lll')
+                    },
+                    age: function(unixtime) {
+                        var d = moment(unixtime, 'X');
+                        return d.fromNow()
+                    },
+                    ack: function(value) {
+                        var ack;
+                        if (+value.acknowledged) {
+                            ack = [
+                                '<button type="button" class="btn btn-xs btn-success">',
+                                'Yes ',
+                                '<span class="badge">',
+                                4,
+                                '</span>',
+                                '</button>'
+                            ].join('');
+                        } else {
+                            ack = '<button type="button" class="btn btn-xs btn-warning" data-toggle="modal" data-target="#modalAckEditor">No</button>'
+                        }
+                        return ack
+                    },
+                    info: function(error) {
+                        if (error) {
+                            return '<span class="glyphicon glyphicon-exclamation-sign" data-toggle="tooltip" title="'+error+'"></span>'
+                        }
                     }
-                },
-                lastchange: function(unixtime) {
-                    var d = moment(unixtime * 1000);
-                    return {
-                        lastchange: d.format('lll'),
-                        age: d.fromNow()
-                    }
-                },
-                lastEvent: function(v, e) {
-                    return {
-                        ack: Zapi.map.event.acknowledged[v.acknowledged]
-                    }
-                },
-                //source: function(src) {
-                //    return {
-                //        type: Zapi.map.event.source[src]
-                //    }
-                //},
-                //priority: function(v) {
-                //},
-                //value: function(v, e) {
-                //    return {
-                //        value: Zapi.map.event.value[e.source][v]
-                //    }
-                //},
-                //relatedObject: function(ro, e) {
-                //    return {
-                //        description: ro.description,
-                //        severity: Zapi.map.trigger.priority[ro.priority]
-                //    }
-                //},
-                //acknowledged: function(ack) {
-                //    return {
-                //        acknowledged: Zapi.map.event.acknowledged[ack]
-                //    }
-                //}
-            };
-            var tdMap = {
-                description: function(row) {
-                    var td = [
-                        '<td>' + row.description + '</td>',
-                        '<td class="info">' + row.description + '</td>',
-                        '<td class="warning">' + row.description + '</td>',
-                        '<td class="warning text-danger">' + row.description + '</td>',
-                        '<td class="danger">' + row.description + '</td>',
-                        '<td class="danger text-danger">' + row.description + '</td>'
-                    ];
-                    return td[row.priority]
-                },
-                host: function(row) {
-                    return '<td><a href="#!Inventory/Hosts&host=' + row.host + '">' + row.host + '</a></td>'
                 }
             };
-
-            createTableData(zapiResponse.result);
-
-            function createTableData(zapiResult) {
-                var data = [];
-                $.each(zapiResult, function(i, event) {
-                    var row = {};
-                    $.each(event, function(e, v) {
-                        dataMap[e] ? $.extend(row, dataMap[e](v, event)) : row[e] = v;
-                    })
-                    data.push(row);
-                });
-                createTable(data);
-            };
-            function createTable(data) {
-                var thead = [];
-                var tbody = [];
-                if (data.length > 0) {
-                    $('#lastIssues th').each(function() {
-                        thead.push(this.abbr)
-                    })
-                    $.each(data, function(i, row) {
-                        var tr = [];
-                        $.each(thead, function(i, th) {
-                            if (tdMap[th]) {
-                                tr.push(tdMap[th](row));
-                            } else {
-                                tr.push('<td>' + row[th] + '</td>');
-                            }
-                        });
-                        tbody.push('<tr>'+tr.join('')+'</tr>')
-                    });
-                    $('#lastIssues tbody')
-                        .empty()
-                        .append(tbody.join(''))
-                    $('#lastIssues .panel-body').hide();
-                    $('#lastIssues table').show();
-                }
-            };
-        }
+            var columns = [{
+                    field: 'hosts',
+                    title: 'Host',
+                    sortable: true,
+                    formatter: map.formatter.host
+                }, {
+                    field: 'description',
+                    title: 'Issue',
+                    sortable: true,
+                    cellStyle: map.cellStyle.severity
+                }, {
+                    field: 'lastchange',
+                    title: 'Last change',
+                    sortable: true,
+                    formatter: map.formatter.lastChange
+                }, {
+                    field: 'lastchange',
+                    title: 'Age',
+                    sortable: true,
+                    formatter: map.formatter.age
+                }, {
+                    field: 'error',
+                    title: 'Info',
+                    align: 'center',
+                    valign: 'middle',
+                    formatter: map.formatter.info
+                }, {
+                    field: 'lastEvent',
+                    title: 'ack',
+                    formatter: map.formatter.ack
+                }, {
+                    field: 'triggerid',
+                    title: 'Actions'
+            }];
+            $('#lastIssues table')
+                .bootstrapTable('destroy')
+                .bootstrapTable({
+                    data: zapiResponse.result,
+                    //search: true,
+                    //pagination: true,
+                    //showRefresh: true,
+                    //showToggle: true,
+                    //showColumns: true,
+                    columns: columns
+                })
+                .prop('disabled', false)
+                .fadeTo('fast', 1)
+            $('[data-toggle="tooltip"]').tooltip()
+        });
     };
 
     return {

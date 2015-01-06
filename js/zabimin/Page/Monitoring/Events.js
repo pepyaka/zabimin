@@ -1,5 +1,5 @@
 // Monitoring/Events
-define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-select', 'js/lib/daterangepicker.js', 'js/lib/bootstrap-modal-popover.js'], function(Zapi, Util, nav, moment) {
+define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-select', 'js/lib/daterangepicker.js'], function(zapi, Util, nav, moment) {
     "use strict";
 
     var data = {};
@@ -114,7 +114,7 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
             ['Unknown','Unknown'],
         ];
             
-        var hostGet = Zapi('host.get', reqParams);
+        var hostGet = zapi.req('host.get', reqParams);
         hostGet.done(function(zapiResponse) {
             var hostGroups = [];
             var hostGroupList = [];
@@ -173,7 +173,7 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
                     triggerList.push(
                             '<tr data-triggerid="'+trigger.triggerid+'">',
                                 '<td><a href="#">'+trigger.description+'</a></td>',
-                                '<td class="'+severityClass[trigger.priority]+'">'+Zapi.map.trigger.priority[trigger.priority]+'</td>',
+                                '<td class="'+severityClass[trigger.priority]+'">'+zapi.map('trigger', 'priority', trigger.priority)+'</td>',
                                 '<td>'+stateStatusClass[trigger.state][trigger.status]+'</td>',
                             '</tr>'
                     );
@@ -320,10 +320,10 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
                     return relateObject.description
                 },
                 status: function(value) {
-                    return Zapi.map.trigger.value[value]
+                    return zapi.map('Trigger', 'value', value).value
                 },
                 severity: function(relatedObject) {
-                    return Zapi.map.trigger.priority[relatedObject.priority]
+                    return zapi.map('Trigger', 'priority', relatedObject.priority).value
                 },
                 ack: function(value) {
                     var ack;
@@ -400,7 +400,7 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
                 field: 'objectid',
                 title: 'Actions'
         }];
-        var eventGet = Zapi('event.get', reqParams)
+        var eventGet = zapi.req('event.get', reqParams)
         $('#triggerEvent')
             .prop('disabled', true)
             .fadeTo('fast', 0.3)

@@ -41,29 +41,13 @@
             <div id="eventPanels">
                 <div id="lastIssues" class="panel panel-primary">
                     <div class="panel-heading">
-        <button type="button" class="btn btn-default btn-xs pull-right">
-            <span class="glyphicon glyphicon-chevron-up">
-            </span>
-        </button>
+                        <button type="button" class="btn btn-default btn-xs pull-right">
+                            <span class="glyphicon glyphicon-chevron-up">
+                            </span>
+                        </button>
                         Last 20 issues
                     </div>
-                    <div class="panel-body">
-                        <div class="text-center">No events found.</div>
-                    </div>
                     <table class="table table-hover table-condensed table-striped" hidden>
-                        <thead>
-                            <tr>
-                                <th abbr="host">Host</th>
-                                <th abbr="description">Issue</th>
-                                <th abbr="lastchange">Last change</th>
-                                <th abbr="age">Age</th>
-                                <th abbr="url">Info</th>
-                                <th abbr="ack">Ack</th>
-                                <th abbr="actions">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
                     </table>
                 </div>
                 <div id="overallStatus" class="panel panel-primary">
@@ -119,3 +103,22 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalAckEditor" tabindex="-1" role="dialog" aria-labelledby="modalAckEditorLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modalFilterTriggerLabel">Acknowledge alarm</h4>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+

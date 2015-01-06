@@ -1,1 +1,0 @@
-../../../dist/BootstrapModalPopover/src/bootstrap-modal-popover.js

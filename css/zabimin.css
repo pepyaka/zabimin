@@ -1,12 +1,16 @@
 body {
     padding-top: 70px;
-    overflow-y: hidden;
 }
-.col-scroll {
-    height: calc(100vh - 50px);
-    overflow-y: auto;
-    padding-top: 20px;
-    margin-top: -20px;
+@media (min-width: 992px) {
+    body {
+        overflow-y: hidden;
+    }
+    #ajaxPage,.col-scroll {
+        height: calc(100vh - 50px);
+        overflow-y: auto;
+        padding-top: 20px;
+        margin-top: -20px;
+    }
 }
 .col-modal-scroll {
     height: calc(82vh - 80px);
@@ -16,6 +20,13 @@ body {
     margin-bottom: -15px;
     margin-top: -15px;
 }
+.ellipsis {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
 /*
 main, aside {
     overflow-y: auto;
