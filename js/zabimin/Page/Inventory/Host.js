@@ -84,62 +84,98 @@ console.log(req, zapiResponse.result)
                 .append(host.name)
 
             $.each(host.groups, function(i, group) {
-                groupList.push('<li><a href="#!Inventory/Hosts&group='+group.name+'">'+group.name+'</a></li>');
+                groupList.push(
+                    '<li class="ellipsis">',
+                        '<a href="#!Inventory/Hosts&group='+group.name+'">',
+                            group.name,
+                        '</a>',
+                    '</li>'
+                );
             });
             $('#hostGroups .badge')
                 .empty()
-                .append(groupList.length);
+                .append(host.groups.length);
             $('#hostGroups ul')
                 .empty()
                 .append(groupList.join(''));
 
             $.each(host.applications, function(i, app) {
-                appList.push('<li><a href="#!Monitoring/Latest&host='+host.host+'&application='+app.name+'">'+app.name+'</a></li>');
+                appList.push(
+                    '<li class="ellipsis">',
+                        '<a href="#!Monitoring/Latest&host='+host.host+'&application='+app.name+'">',
+                            app.name,
+                        '</a>',
+                    '</li>'
+                );
             });
             $('#hostApplications .badge')
                 .empty()
-                .append(appList.length);
+                .append(host.applications.length);
             $('#hostApplications ul')
                 .empty()
                 .append(appList.join(''));
 
             $.each(host.discoveries, function(i, d) {
-                dRuleList.push('<li><a href="#!Monitoring/Latest&host='+host.host+'&discoveries='+d.name+'">'+d.name+'</a></li>');
+                dRuleList.push(
+                    '<li class="ellipsis">',
+                        '<a href="#!Monitoring/Latest&host='+host.host+'&discoveries='+d.name+'">',
+                            d.name,
+                        '</a>',
+                    '</li>'
+                );
             });
             $('#hostDiscoveryRules .badge')
                 .empty()
-                .append(dRuleList.length);
+                .append(host.discoveries.length);
             $('#hostDiscoveryRules ul')
                 .empty()
                 .append(dRuleList.join(''));
 
             $.each(host.graphs, function(i, graph) {
-                graphList.push('<li><a href="#!Monitoring/Graph&host='+host.host+'&graphid='+graph.graphid+'">'+graph.name+'</a></li>');
+                graphList.push(
+                    '<li class="ellipsis">',
+                        '<a href="#!Monitoring/Graph&host='+host.host+'&graphid='+graph.graphid+'">',
+                            graph.name,
+                        '</a>',
+                    '</li>'
+                );
             });
             $('#hostGraphs .badge')
                 .empty()
-                .append(graphList.length);
+                .append(host.graphs.length);
             $('#hostGraphs ul')
                 .empty()
                 .append(graphList.join(''));
 
             $.each(host.httpTests, function(i, web) {
-                webList.push('<li><a href="#!Monitoring/Graph&host='+host.host+'&web='+web.name+'">'+web.name+'</a></li>');
+                webList.push(
+                    '<li class="ellipsis">',
+                        '<a href="#!Monitoring/Graph&host='+host.host+'&web='+web.name+'">',
+                            web.name,
+                        '</a>',
+                    '</li>'
+                );
             });
             $('#hostWeb .badge')
                 .empty()
-                .append(webList.length);
+                .append(host.httpTests.length);
             $('#hostWeb ul')
                 .empty()
                 .append(webList.join(''));
             
             //Items
             $.each(host.items, function(i, item) {
-                itemsList.push('<li><a href="#!Monitoring/Latest/Item&itemid='+item.itemid+'" class="text-nowrap">'+item.name+'</a></li>');
+                itemsList.push(
+                    '<li class="ellipsis">',
+                        '<a href="#!Monitoring/Latest/Item&itemid='+item.itemid+'" class="text-nowrap">',
+                            item.name,
+                        '</a>',
+                    '</li>'
+                );
             });
             $('#hostItems .badge')
                 .empty()
-                .append(itemsList.length);
+                .append(host.items.length);
             $('#hostItems ul')
                 .empty()
                 .append(itemsList.join(''));
@@ -159,7 +195,13 @@ console.log(req, zapiResponse.result)
                 .append(macrosList.join(''));
 
             $.each(host.screens, function(i, s) {
-                screenList.push('<li><a href="#!Monitoring/Screen&screenid='+s.screenid+'">'+s.name+'</a></li>');
+                screenList.push(
+                    '<li class="ellipsis">',
+                        '<a href="#!Monitoring/Screen&screenid='+s.screenid+'">',
+                            s.name,
+                        '</a>',
+                    '</li>'
+                );
             });
             $('#hostScreens .badge')
                 .empty()
@@ -169,7 +211,13 @@ console.log(req, zapiResponse.result)
                 .append(screenList.join(''));
 
             $.each(host.triggers, function(i, t) {
-                triggerList.push('<li><a href="#!Monitoring/Triggers&triggerid='+t.triggerid+'" class="text-nowrap">'+t.description+'</a></li>');
+                triggerList.push(
+                    '<li class="ellipsis">',
+                        '<a href="#!Monitoring/Triggers&triggerids='+t.triggerid+'" title="'+t.description+'">',
+                            t.description,
+                        '</a>',
+                    '</li>'
+                );
             });
             $('#hostTriggers .badge')
                 .empty()

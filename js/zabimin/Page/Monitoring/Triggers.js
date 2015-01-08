@@ -1,5 +1,5 @@
 // Monitoring/Triggers page
-define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Page, Zapi, Util, nav, moment) {
+define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Page, zapi, Util, nav, moment) {
     var data = {};// work data
     //var hash = {}; // Each page has own arguments
     var hostSelector = nav.hostSelector; // Shorthands
@@ -253,7 +253,7 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], functio
             }
         }
         $.each(args, function(k, v) {
-            map[k] && map[k](v);
+            map[k] ? map[k](v) : reqParams[k] = v;
         });
         createStatusTable(reqParams);
     }
@@ -302,10 +302,10 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], functio
                     return relateObject.description
                 },
                 status: function(value) {
-                    return Zapi.map.trigger.value[value]
+                    return zapi.map('Trigger', 'value', value).value
                 },
                 severity: function(priority) {
-                    return Zapi.map.trigger.priority[priority]
+                    return zapi.map('Trigger', 'priority', priority).value
                 },
                 ack: function(value) {
                     var ack;
@@ -374,9 +374,9 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], functio
                 field: 'triggerid',
                 title: 'Description'
         }];
-        var triggerGet = Zapi('trigger.get', reqParams)
+        var triggerGet = zapi.req('trigger.get', reqParams)
         triggerGet.done(function(zapiResponse) {
-            console.log(zapiResponse.result)
+console.log(zapiResponse.result)
             $('#triggers')
                 .bootstrapTable('destroy')
                 .bootstrapTable({

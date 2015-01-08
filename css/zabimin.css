@@ -21,9 +21,10 @@ body {
     margin-top: -15px;
 }
 .ellipsis {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 
