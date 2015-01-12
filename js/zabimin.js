@@ -4,7 +4,7 @@ require.config({
         //RequireJS plugins
         'text': ['//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text'],
         //Common libs
-        'jquery': ['//code.jquery.com/jquery-2.1.1.min', 'lib/jquery.min'],
+        'jquery': ['//code.jquery.com/jquery-2.1.1', 'lib/jquery.min'],
         'moment': ['//cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment-with-locales.min'],
         'typeahead': ['//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min'],
         'datatables': ['//cdn.datatables.net/1.10.4/js/jquery.dataTables.min'],
@@ -22,8 +22,6 @@ require.config({
         'jqplot.enhancedLegendRenderer': ['//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.enhancedLegendRenderer'],
         'amcharts': ['//cdnjs.cloudflare.com/ajax/libs/amcharts/3.10.0/amcharts'],
         'serial': ['//cdnjs.cloudflare.com/ajax/libs/amcharts/3.10.0/serial'],
-        'spin': ['//cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.1/spin.min'],
-        'jquery.spin': ['//cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.1/jquery.spin.min'],
         // Separate paths for html,css, etc.
         'html': ['../../html'],
         'css': ['../../css'],
@@ -35,7 +33,6 @@ require.config({
         'bootstrap-select': ['bootstrap'],
         'bootstrap-datetimepicker': ['bootstrap'],
         'bootstrap-bootbox': ['bootstrap'],
-        'jquery.spin': ['spin'],
     },
     config: {
         moment: {

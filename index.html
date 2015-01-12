@@ -130,33 +130,33 @@
     </div>
 </div>
 
-<div id="ajaxPage">
+<div id="ajaxPage" class="spinner">
 </div>
 
 <!-- modal windows -->
-<div class="modal fade" id="modalLogin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-          <h4 class="modal-title">Log-in</h4>
+<div class="modal fade" id="modalLogin" tabindex="-1" role="dialog" aria-labelledby="Login dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Login</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="exampleInputEmail1">Username</label>
+                    <input class="form-control" id="modalLoginUser" type="text">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1">Password</label>
+                    <input class="form-control" id="modalLoginPassword" type="password">
+                </div>
+                <div class="alert alert-danger hidden" role="alert"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="modalLoginAsGuestBtn" class="btn btn-default">Login as Guest</button>
+                <button type="button" id="modalLoginBtn" class="btn btn-primary">Login</button>
+            </div>
         </div>
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="exampleInputEmail1">Username</label>
-            <input class="form-control" id="modalLoginUser" placeholder="Guest" type="text">
-          </div>
-          <div class="form-group">
-            <label for="exampleInputPassword1">Password</label>
-            <input class="form-control" id="exampleInputPassword1" placeholder="Password" type="password">
-          </div>
-          <p class="text-right"><a href="#">Forgot password?</a></p>
-        </div>
-        <div class="modal-footer">
-          <a href="#" data-dismiss="modal" class="btn">Close</a>
-          <a href="#" class="btn btn-primary">Log-in</a>
-        </div>
-      </div>
     </div>
 </div>
 

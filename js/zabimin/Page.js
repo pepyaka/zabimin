@@ -17,7 +17,7 @@ define(['Util', 'bootstrap-datetimepicker'], function(Util) {
                     } else {
                         current = hash.page;
                         $('#ajaxPage')
-                            .spin('off')
+                            .removeClass('spinner')
                             .html(html);
                         $('.datetimepicker').datetimepicker({
                             useCurrent: false,

@@ -226,7 +226,7 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
             //search: {description: 'ping'}
             limit: 100,
             selectRelatedObject: 'extend',
-            selectHosts: ['host'],
+            selectHosts: ['host', 'name'],
             expandExpression: true
         };
         var map = {
@@ -281,7 +281,7 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
     function createStatusTable(reqParams) {
         var duration = [];
         var map = {
-            html: { //This map to set <td> classes or css
+            cellStyle: { //This map to set <td> classes or css
                 status: function(value) {
                     return {
                         classes: {
@@ -304,17 +304,14 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
                 }
                     
             },
-            data: { //This is cell map (also html inside)
+            formatter: { //This is cell map (also html inside)
                 clock: function(unixtime) {
                     var d = moment(unixtime, 'X');
                     return d.format('lll')
                 },
                 host: function(hosts) {
-                    var hostNames = [];
-                    $.each(hosts, function(i, host) {
-                        hostNames.push(host.host)
-                    });
-                    return hostNames.join(', ')
+                    var hostname = hosts[0].name
+                    return '<a href="#!Inventory/Host&host='+hostname+'">'+hostname+'</a>'
                 },
                 description: function(relateObject) {
                     return relateObject.description
@@ -358,39 +355,39 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
                 field: 'clock',
                 title: 'Time',
                 sortable: true,
-                formatter: map.data.clock
+                formatter: map.formatter.clock
             }, {
                 field: 'hosts',
                 title: 'Host',
                 sortable: true,
-                formatter: map.data.host
+                formatter: map.formatter.host
             }, {
                 field: 'relatedObject',
                 title: 'Description',
-                formatter: map.data.description
+                formatter: map.formatter.description
             }, {
                 field: 'value',
                 title: 'Status',
                 sortable: true,
-                formatter: map.data.status,
-                cellStyle: map.html.status
+                formatter: map.formatter.status,
+                cellStyle: map.cellStyle.status
             }, {
                 field: 'relatedObject',
                 title: 'Severity',
                 sortable: true,
-                formatter: map.data.severity,
-                cellStyle: map.html.severity
+                formatter: map.formatter.severity,
+                cellStyle: map.cellStyle.severity
             }, {
                 field: 'clock',
                 title: 'Duration',
                 sortable: true,
-                formatter: map.data.duration
+                formatter: map.formatter.duration
             }, {
                 field: 'acknowledged',
                 title: 'Ack',
                 align: 'center',
                 //valign: 'middle',
-                formatter: map.data.ack,
+                formatter: map.formatter.ack,
                 events: {
                     'click button': function (e, value, row, index) {
                         console.log($(this), value, row, index);

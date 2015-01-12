@@ -83,6 +83,7 @@ console.log(req, zapiResponse.result)
                 .empty()
                 .append(host.name)
 
+            //Host groups
             $.each(host.groups, function(i, group) {
                 groupList.push(
                     '<li class="ellipsis">',
@@ -99,6 +100,7 @@ console.log(req, zapiResponse.result)
                 .empty()
                 .append(groupList.join(''));
 
+            //Applications
             $.each(host.applications, function(i, app) {
                 appList.push(
                     '<li class="ellipsis">',
@@ -110,14 +112,13 @@ console.log(req, zapiResponse.result)
             });
             $('#hostApplications .badge')
                 .empty()
-                .append(host.applications.length);
-            $('#hostApplications ul')
-                .empty()
-                .append(appList.join(''));
+                .append(host.applications.length)
+                .data('content', '<ul class="list-unstyled">' + appList.join('') + '</ul>');
 
+            //Discovery rules
             $.each(host.discoveries, function(i, d) {
                 dRuleList.push(
-                    '<li class="ellipsis">',
+                    '<li>',
                         '<a href="#!Monitoring/Latest&host='+host.host+'&discoveries='+d.name+'">',
                             d.name,
                         '</a>',
@@ -126,11 +127,10 @@ console.log(req, zapiResponse.result)
             });
             $('#hostDiscoveryRules .badge')
                 .empty()
-                .append(host.discoveries.length);
-            $('#hostDiscoveryRules ul')
-                .empty()
-                .append(dRuleList.join(''));
+                .append(host.discoveries.length)
+                .data('content', '<ul class="list-unstyled">' + dRuleList.join('') + '</ul>');
 
+            //Graphs
             $.each(host.graphs, function(i, graph) {
                 graphList.push(
                     '<li class="ellipsis">',
@@ -142,11 +142,10 @@ console.log(req, zapiResponse.result)
             });
             $('#hostGraphs .badge')
                 .empty()
-                .append(host.graphs.length);
-            $('#hostGraphs ul')
-                .empty()
-                .append(graphList.join(''));
+                .append(host.graphs.length)
+                .data('content', '<ul class="list-unstyled">' + graphList.join('') + '</ul>');
 
+            //Web
             $.each(host.httpTests, function(i, web) {
                 webList.push(
                     '<li class="ellipsis">',
@@ -158,16 +157,14 @@ console.log(req, zapiResponse.result)
             });
             $('#hostWeb .badge')
                 .empty()
-                .append(host.httpTests.length);
-            $('#hostWeb ul')
-                .empty()
-                .append(webList.join(''));
+                .append(host.httpTests.length)
+                .data('content', '<ul class="list-unstyled">' + webList.join('') + '</ul>');
             
             //Items
             $.each(host.items, function(i, item) {
                 itemsList.push(
-                    '<li class="ellipsis">',
-                        '<a href="#!Monitoring/Latest/Item&itemid='+item.itemid+'" class="text-nowrap">',
+                    '<li class="text-nowrap">',
+                        '<a href="#!Monitoring/Latest/Item&itemid='+item.itemid+'">',
                             item.name,
                         '</a>',
                     '</li>'
@@ -175,10 +172,8 @@ console.log(req, zapiResponse.result)
             });
             $('#hostItems .badge')
                 .empty()
-                .append(host.items.length);
-            $('#hostItems ul')
-                .empty()
-                .append(itemsList.join(''));
+                .append(host.items.length)
+                .data('content', '<ul class="list-unstyled">' + itemsList.join('') + '</ul>');
 
             //Macros
             $.each(host.macros, function(i, m) {
@@ -189,11 +184,10 @@ console.log(req, zapiResponse.result)
             });
             $('#hostMacros .badge')
                 .empty()
-                .append(host.macros.length);
-            $('#hostMacros dl')
-                .empty()
-                .append(macrosList.join(''));
+                .append(host.macros.length)
+                .data('content', '<dl>' + macrosList.join('') + '</dl>');
 
+            //Screens
             $.each(host.screens, function(i, s) {
                 screenList.push(
                     '<li class="ellipsis">',
@@ -205,14 +199,13 @@ console.log(req, zapiResponse.result)
             });
             $('#hostScreens .badge')
                 .empty()
-                .append(host.screens.length);
-            $('#hostScreens ul')
-                .empty()
-                .append(screenList.join(''));
+                .append(host.screens.length)
+                .data('content', '<ul class="list-unstyled">' + screenList.join('') + '</ul>');
 
+            //Triggers
             $.each(host.triggers, function(i, t) {
                 triggerList.push(
-                    '<li class="ellipsis">',
+                    '<li class="text-nowrap">',
                         '<a href="#!Monitoring/Triggers&triggerids='+t.triggerid+'" title="'+t.description+'">',
                             t.description,
                         '</a>',
@@ -221,10 +214,9 @@ console.log(req, zapiResponse.result)
             });
             $('#hostTriggers .badge')
                 .empty()
-                .append(host.triggers.length);
-            $('#hostTriggers ul')
-                .empty()
-                .append(triggerList.join(''));
+                .append(host.triggers.length)
+                .data('content', '<ul class="list-unstyled">' + triggerList.join('') + '</ul>')
+            
             //discoveries: function(discoveries) {
             //    var d = [];
             //    $.each(discoveries, function(i, discover) {
@@ -268,6 +260,13 @@ console.log(req, zapiResponse.result)
             });
             $('#hostInventory')
                 .append(invList.join(''));
+
+            // Common actions
+            $('#hostInfo [data-toggle="popover"]')
+                .popover({
+                    html: true,
+                    viewport: '#hostInfo',
+                });
             
         });
     }
