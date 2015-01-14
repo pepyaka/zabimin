@@ -47,7 +47,7 @@ define(['config', 'moment'], function(zabimin, moment) {
                 ]
             }
         },
-        Trigger: {
+        'Trigger': {
             priority: {
                 type: 'integer',
                 name: 'Severity',
@@ -384,6 +384,12 @@ define(['config', 'moment'], function(zabimin, moment) {
                 sortfield: 'name'
             }
         },
+        hostgroup: {
+            get: {
+                output: ['name'],
+                sortfield: 'name'
+            }
+        },
         trigger: {
             get: {
                 output: ['description'],
@@ -446,7 +452,14 @@ define(['config', 'moment'], function(zabimin, moment) {
             async: false,
             success: function(loginData) {
                 $.extend(localStorage, loginData.result);
-            }
+            },
+    xhrFields: {
+      onprogress: function (e) {
+        if (e.lengthComputable) {
+          deferred.notify(parseInt(e.loaded / e.total * 100), 10);  // notify as a factor of the event object
+        }
+      }
+    }
         };
         // Apply defaults to all methods
         var m = method.split('.', 2)
@@ -467,7 +480,9 @@ define(['config', 'moment'], function(zabimin, moment) {
         }
         req.id = id;
         settings.data = JSON.stringify(req);
-        return $.ajax(settings)
+        return $.ajax(settings).progress(function (event) {
+                console.log(event);
+            })
     };
     
     return {

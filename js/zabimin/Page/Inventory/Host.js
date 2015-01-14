@@ -87,7 +87,7 @@ console.log(req, zapiResponse.result)
             $.each(host.groups, function(i, group) {
                 groupList.push(
                     '<li class="ellipsis">',
-                        '<a href="#!Inventory/Hosts&group='+group.name+'">',
+                        '<a href="#!Inventory/Hosts&hostgroup='+group.name+'">',
                             group.name,
                         '</a>',
                     '</li>'
