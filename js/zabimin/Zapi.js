@@ -3,7 +3,7 @@ define(['config', 'moment'], function(zabimin, moment) {
 
     var id = 0;
     var methodObjs = {
-        event: {
+        'Event': {
             object: {
                 type: 'integer',
                 name: 'Event object',
@@ -19,7 +19,7 @@ define(['config', 'moment'], function(zabimin, moment) {
                 type: '',
                 name: '',
                 description: '',
-                value: [
+                values: [
                     'Trigger',
                     'Discovery rule',
                     'Auto registration',
@@ -30,7 +30,7 @@ define(['config', 'moment'], function(zabimin, moment) {
                 type: '',
                 name: '',
                 description: '',
-                value: [
+                values: [
                     ['OK', 'Problem'],
                     ['Up', 'Down', 'Discovered', 'Lost'],
                     [],
@@ -41,11 +41,165 @@ define(['config', 'moment'], function(zabimin, moment) {
                 type: '',
                 name: '',
                 description: '',
-                value: [
+                values: [
                     'No',
                     'Yes'
                 ]
             }
+        },
+        'Item': {
+            //itemid  string  (readonly) ID of the item.
+            //delay 
+            //(required)  integer Update interval of the item in seconds.
+            //hostid 
+            //(required)  string  ID of the host that the item belongs to.
+            //interfaceid 
+            //(required)  string  ID of the item's host interface. Used only for host items. 
+            //
+            //Optional for Zabbix agent (active), Zabbix internal, Zabbix trapper, Zabbix aggregate, database monitor and calculated items.
+            //key_ 
+            //(required)  string  Item key.
+            //name 
+            //(required)  string  Name of the item.
+            type: {
+                type: 'integer',
+                name: 'Item type',
+                description: 'Type of the item. ',
+                values: [
+                    'Zabbix agent', 
+                    'SNMPv1 agent', 
+                    'Zabbix trapper', 
+                    'simple check', 
+                    'SNMPv2 agent', 
+                    'Zabbix internal', 
+                    'SNMPv3 agent', 
+                    'Zabbix agent (active)', 
+                    'Zabbix aggregate', 
+                    'web item', 
+                    'external check', 
+                    'database monitor', 
+                    'IPMI agent', 
+                    'SSH agent', 
+                    'TELNET agent', 
+                    'calculated', 
+                    'JMX agent', 
+                    'SNMP trap'
+                ]
+            },
+            //value_type 
+            //(required)  integer Type of information of the item. 
+            //
+            //Possible values: 
+            //0 - numeric float; 
+            //1 - character; 
+            //2 - log; 
+            //3 - numeric unsigned; 
+            //4 - text.
+            //authtype    integer SSH authentication method. Used only by SSH agent items. 
+            //
+            //Possible values: 
+            //0 - (default) password; 
+            //1 - public key.
+            //data_type   integer Data type of the item. 
+            //
+            //Possible values: 
+            //0 - (default) decimal; 
+            //1 - octal; 
+            //2 - hexadecimal; 
+            //3 - boolean.
+            //delay_flex  string  Flexible intervals as a serialized string. 
+            //
+            //Each serialized flexible interval consists of an update interval and a time period separated by a forward slash. Multiple intervals are separated by a colon.
+            //delta   integer Value that will be stored. 
+            //
+            //Possible values: 
+            //0 - (default) as is; 
+            //1 - Delta, speed per second; 
+            //2 - Delta, simple change.
+            //description string  Description of the item.
+            //error   string  (readonly) Error text if there are problems updating the item.
+            //flags   integer (readonly) Origin of the item. 
+            //
+            //Possible values: 
+            //0 - a plain item; 
+            //4 - a discovered item.
+            //formula integer/float   Custom multiplier. 
+            //
+            //Default: 1.
+            //history integer Number of days to keep item's history data. 
+            //
+            //Default: 90.
+            //inventory_link  integer ID of the host inventory field that is populated by the item. 
+            //
+            //Refer to the host inventory page for a list of supported host inventory fields and their IDs. 
+            //
+            //Default: 0.
+            //ipmi_sensor string  IPMI sensor. Used only by IPMI items.
+            //lastclock   timestamp   (readonly) Time when the item was last updated. 
+            //
+            //This property will only return a value for the period configured in ZBX_HISTORY_PERIOD.
+            //lastns  integer (readonly) Nanoseconds when the item was last updated. 
+            //
+            //This property will only return a value for the period configured in ZBX_HISTORY_PERIOD.
+            //lastvalue   string  (readonly) Last value of the item. 
+            //
+            //This property will only return a value for the period configured in ZBX_HISTORY_PERIOD.
+            //logtimefmt  string  Format of the time in log entries. Used only by log items.
+            //mtime   timestamp   Time when the monitored log file was last updated. Used only by log items.
+            //multiplier  integer Whether to use a custom multiplier.
+            //params  string  Additional parameters depending on the type of the item: 
+            //- executed script for SSH and Telnet items; 
+            //- SQL query for database monitor items; 
+            //- formula for calculated items.
+            //password    string  Password for authentication. Used by simple check, SSH, Telnet, database monitor and JMX items.
+            //port    string  Port monitored by the item. Used only by SNMP items.
+            //prevvalue   string  (readonly) Previous value of the item. 
+            //
+            //This property will only return a value for the period configured in ZBX_HISTORY_PERIOD.
+            //privatekey  string  Name of the private key file.
+            //publickey   string  Name of the public key file.
+            //snmp_community  string  SNMP community. Used only by SNMPv1 and SNMPv2 items.
+            //snmp_oid    string  SNMP OID.
+            //snmpv3_authpassphrase   string  SNMPv3 auth passphrase. Used only by SNMPv3 items.
+            //snmpv3_authprotocol integer SNMPv3 authentication protocol. Used only by SNMPv3 items. 
+            //
+            //Possible values: 
+            //0 - (default) MD5; 
+            //1 - SHA.
+            //snmpv3_contextname  string  SNMPv3 context name. Used only by SNMPv3 items.
+            //snmpv3_privpassphrase   string  SNMPv3 priv passphrase. Used only by SNMPv3 items.
+            //snmpv3_privprotocol integer SNMPv3 privacy protocol. Used only by SNMPv3 items. 
+            //
+            //Possible values: 
+            //0 - (default) DES; 
+            //1 - AES.
+            //snmpv3_securitylevel    integer SNMPv3 security level. Used only by SNMPv3 items. 
+            //
+            //Possible values: 
+            //0 - noAuthNoPriv; 
+            //1 - authNoPriv; 
+            //2 - authPriv.
+            //snmpv3_securityname string  SNMPv3 security name. Used only by SNMPv3 items.
+            //state   integer (readonly) State of the item. 
+            //
+            //Possible values: 
+            //0 - (default) normal; 
+            //1 - not supported.
+            //status  integer Status of the item. 
+            //
+            //Possible values: 
+            //0 - (default) enabled item; 
+            //1 - disabled item.
+            //templateid  string  (readonly) ID of the parent template item.
+            //trapper_hosts   string  Allowed hosts. Used only by trapper items.
+            //trends  integer Number of days to keep item's trends data. 
+            //
+            //Default: 365.
+            //units   string  Value units.
+            //username    string  Username for authentication. Used by simple check, SSH, Telnet, database monitor and JMX items. 
+            //
+            //Required by SSH and Telnet items.
+            //valuemapid  string  ID of the associated value map.
         },
         'Trigger': {
             priority: {
@@ -70,14 +224,6 @@ define(['config', 'moment'], function(zabimin, moment) {
                     'Problem'
                 ]
             }
-        },
-        hostinterface: {
-            type: [
-                'Agent',
-                'SNMP',
-                'IPMI',
-                'JMX'
-            ]
         },
         'Host interface': {
             interfaceid: {
@@ -326,6 +472,127 @@ define(['config', 'moment'], function(zabimin, moment) {
                     //}
                 }
             }
+        },
+        'Graph': {
+            //graphid string  (readonly) ID of the graph.
+            //height 
+            //(required)  integer Height of the graph in pixels.
+            //name 
+            //(required)  string  Name of the graph
+            //width 
+            //(required)  integer Width of the graph in pixels.
+            //flags   integer (readonly) Origin of the graph. 
+            //
+            //Possible values are: 
+            //0 - (default) a plain graph; 
+            //4 - a discovered graph.
+            graphtype: {
+                type: 'integer',
+                name: 'Graph type',
+                description: 'Graph\'s layout type',
+                values: [
+                    'normal',
+                    'stacked', 
+                    'pie', 
+                    'exploded'
+                ]
+            },
+            //percent_left    float   Left percentile. 
+            //
+            //Default: 0.
+            //percent_right   float   Right percentile. 
+            //
+            //Default: 0.
+            //show_3d integer Whether to show pie and exploded graphs in 3D. 
+            //
+            //Possible values: 
+            //0 - (default) show in 2D; 
+            //1 - show in 3D.
+            //show_legend integer Whether to show the legend on the graph. 
+            //
+            //Possible values: 
+            //0 - hide; 
+            //1 - (default) show.
+            //show_work_period    integer Whether to show the working time on the graph. 
+            //
+            //Possible values: 
+            //0 - hide; 
+            //1 - (default) show.
+            //templateid  string  (readonly) ID of the parent template graph.
+            //yaxismax    float   The fixed maximum value for the Y axis.
+            //
+            //Default: 100.
+            //yaxismin    float   The fixed minimum value for the Y axis.
+            //
+            //Default: 0.
+            //ymax_itemid string  ID of the item that is used as the maximum value for the Y axis.
+            ymax_type: {
+                type: 'integer',
+                name: 'Y axis max value type',
+                description: 'Maximum value calculation method for the Y axis',
+                values: [
+                    'calculated',
+                    'fixed',
+                    'item'
+                ]
+            },
+            //ymin_itemid string  ID of the item that is used as the minimum value for the Y axis.
+            ymin_type: {
+                type: 'integer',
+                name: 'Y axis min value type',
+                description: 'Minimum value calculation method for the Y axis',
+                values: [
+                    'calculated',
+                    'fixed',
+                    'item'
+                ]
+            }
+        },
+        'Graph item': {
+            //gitemid string  (readonly) ID of the graph item.
+            //color 
+            //(required)  string  Graph item's draw color as a hexadecimal color code.
+            //itemid 
+            //(required)  string  ID of the item.
+            //calc_fnc    integer Value of the item that will be displayed. 
+            //
+            //Possible values: 
+            //1 - minimum value; 
+            //2 - (default) average value; 
+            //4 - maximum value; 
+            //7 - all values; 
+            //9 - last value, used only by pie and exploded graphs.
+            drawtype: {
+                type: 'integer',
+                name: 'Graph style',
+                descritpion: 'Draw style of the graph item',
+                values: [
+                    'line',
+                    'filled region',
+                    'bold line',
+                    'dot',
+                    'dashed line',
+                    'gradient line'
+                ]
+            },
+            //graphid string  ID of the graph that the graph item belongs to.
+            //sortorder   integer Position of the item in the graph. 
+            //
+            //Default: 0.
+            //type    integer Type of graph item. 
+            //
+            //Possible values: 
+            //0 - (default) simple; 
+            //2 - graph sum, used only by pie and exploded graphs.
+            yaxisside: {
+                type: 'integer',
+                name: 'Graph item side',
+                description: 'Side of the graph where the graph item\'s Y scale will be drawn',
+                values: [
+                    'left',
+                    'right'
+                ]
+            }
         }
     };
     var propTypes = {
@@ -357,8 +624,8 @@ define(['config', 'moment'], function(zabimin, moment) {
         array: function(val) {//  An ordered sequence of values, that is, a plain array.
             return val
         },
-        object: function(val) {// An associative array.
-            return val
+        object: function(val, methodObj, param) {// An associative array.
+            return methodObjs[methodObj][param].values[val] || val
         },
         query: function(val) {//  A value which defines, what data should be returned. 
                               //  Can be defined as an array of property names to return only specific properties, or as one of the predefined values: 
@@ -379,7 +646,7 @@ define(['config', 'moment'], function(zabimin, moment) {
         },
         host: {
             get: {
-                output: ['host'],
+                output: ['name'],
                 selectGroups: ['name'],
                 sortfield: 'name'
             }
@@ -388,6 +655,11 @@ define(['config', 'moment'], function(zabimin, moment) {
             get: {
                 output: ['name'],
                 sortfield: 'name'
+            }
+        },
+        history: {
+            get: {
+                hostids: 0
             }
         },
         trigger: {

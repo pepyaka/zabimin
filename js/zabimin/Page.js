@@ -1,10 +1,10 @@
-define(['Util', 'bootstrap-datetimepicker'], function(Util) {
+define(['Util'], function(util) {
     "use strict";
 
     var current;
     //  Function for load content from url and put in $('#ajaxPage') block
     var load = function () {
-        var hash = Util.hash();
+        var hash = util.hash();
         // Dashboard on empty page
         hash.page = hash.page || 'Monitoring/Dashboard';
         //load html firstly for events binding
@@ -19,10 +19,6 @@ define(['Util', 'bootstrap-datetimepicker'], function(Util) {
                         $('#ajaxPage')
                             .removeClass('spinner')
                             .html(html);
-                        $('.datetimepicker').datetimepicker({
-                            useCurrent: false,
-                            language: localStorage.lang
-                        })
                         page.init && page.init(hash.args);
                     };
                 });

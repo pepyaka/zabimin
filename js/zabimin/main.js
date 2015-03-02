@@ -1,9 +1,9 @@
-define(['Page', 'Zapi', 'jquery'], function(Page, zapi) {
+define(['Page', 'Zapi', 'jquery', 'bootstrap'], function(Page, zapi) {
     'use strict';
     var login;
 
     $(document).ready(function(){
-        $('#userMenu a span').text(localStorage.name + ' ' + localStorage.surname);
+        $('#user-name').text(localStorage.name + ' ' + localStorage.surname);
         $('#modalLoginBtn')
             .on('click', function(){
                 login = zapi.req('user.login', {

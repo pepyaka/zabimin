@@ -1,246 +1,185 @@
 // Inventory/Host
 define(['Zapi', 'Util', 'moment' ], function(zapi, Util, moment) {
     "use strict";
+    var page = '#!Inventory/Host';
 
-    var pageArgs;//Permanent 
-
-    var init = function(hashArgs) {
-        pageArgs = $.extend({}, hashArgs);
-        getHostInfo();
+    var init = function(hash) {
+        getHostInfo(hash);
     }
-    var update = function(hashArgs) {
-        pageArgs = $.extend({}, hashArgs);
-        getHostInfo();
+    var update = function(hash) {
+        getHostInfo(hash);
     }
     
-    function getHostInfo() {
-        var req = {
-            params: {
-                //output: [
-                //    'host',
-                //    'name'
-                //],
-                output: 'extend',
-                search: {
-                    host: null
-                },
-                selectGroups: ['name'],
-                selectApplications: ['name'],
-                selectDiscoveries: ['name'],
-                selectGraphs: ['name'],
-                //selectDiscoveryRule: 'extend',
-                selectHttpTests: ['name'],
-                selectInterfaces: 'extend',
-                selectInventory: 'extend',
-                selectItems: ['name', 'itemid'],
-                selectMacros: ['macro', 'value'],
-                selectScreens: ['name'],
-                selectTriggers: 'extend',
+    function getHostInfo(hash) {
+        var hostGet = zapi.req('host.get', {
+            //output: [
+            //    'host',
+            //    'name'
+            //],
+            output: 'extend',
+            hostids: hash.hostid,
+            selectGroups: ['name'],
+            selectApplications: ['name'],
+            selectDiscoveries: ['name'],
+            selectGraphs: ['name'],
+            //selectDiscoveryRule: 'extend',
+            selectHttpTests: ['name'],
+            selectInterfaces: 'extend',
+            selectInventory: 'extend',
+            selectItems: ['name', 'itemid'],
+            selectMacros: ['macro', 'value'],
+            selectScreens: ['name'],
+            selectTriggers: 'extend',
+            search: {
+                name: hash.name && hash.name[0], 
+                host: hash.host && hash.host[0] 
             },
-            map: {
-                host: function(hosts) {
-                    req.params.search.host = hosts[0];
-                }
-            }
-        };
-        $.each(pageArgs, function(k, v) {
-            req.map[k] ? req.map[k](v) : req.params[k] = v;
+            limit: 1
         });
-        var map = {
-            interfaces: {
-                tr: {
-                    class: [
-                        '',
-                        'success',
-                        'info',
-                        'warning',
-                        'danger'
-                    ]
-                }
-            }
-        }
-        
-        zapi.req('host.get', req.params).done(function(zapiResponse) {
-console.log(req, zapiResponse.result)
+        hostGet.done(function(zapiResponse) {
             var host = zapiResponse.result[0];
-            var groupList = [];
-            var appList = [];
-            var dRuleList = [];
-            var graphList = [];
-            var webList = [];
-            var itemsList = [];
-            var macrosList = [];
-            var screenList = [];
-            var triggerList = [];
-            var intfList = [];
             var invList = [];
 
-            $('#hostName')
-                .empty()
-                .append(host.host)
+            $('#host-name')
+                .text(host.host)
 
-            $('#visibleName')
-                .empty()
-                .append(host.name)
+            $('#visible-name')
+                .text(host.name)
 
             //Host groups
-            $.each(host.groups, function(i, group) {
-                groupList.push(
+            var groupList = host.groups.map(function(group) {
+                return [
                     '<li class="ellipsis">',
-                        '<a href="#!Inventory/Hosts&hostgroup='+group.name+'">',
+                        '<a href="#!Inventory/Hosts&groupid='+group.groupid+'">',
                             group.name,
                         '</a>',
                     '</li>'
-                );
+                ].join('')
             });
-            $('#hostGroups .badge')
-                .empty()
-                .append(host.groups.length);
-            $('#hostGroups ul')
-                .empty()
-                .append(groupList.join(''));
+            $('#host-groups ul')
+                .html(groupList.join(''));
 
             //Applications
-            $.each(host.applications, function(i, app) {
-                appList.push(
+            var appList = host.applications.map(function(app) {
+                return [
                     '<li class="ellipsis">',
                         '<a href="#!Monitoring/Latest&host='+host.host+'&application='+app.name+'">',
                             app.name,
                         '</a>',
                     '</li>'
-                );
+                ].join('')
             });
-            $('#hostApplications .badge')
-                .empty()
-                .append(host.applications.length)
+            $('#host-applications .badge')
+                .text(host.applications.length)
                 .data('content', '<ul class="list-unstyled">' + appList.join('') + '</ul>');
 
             //Discovery rules
-            $.each(host.discoveries, function(i, d) {
-                dRuleList.push(
+            var dRuleList = host.discoveries.map(function(d) {
+                return [
                     '<li>',
                         '<a href="#!Monitoring/Latest&host='+host.host+'&discoveries='+d.name+'">',
                             d.name,
                         '</a>',
                     '</li>'
-                );
+                ].join('')
             });
-            $('#hostDiscoveryRules .badge')
-                .empty()
-                .append(host.discoveries.length)
+            $('#host-discovery-rules .badge')
+                .text(host.discoveries.length)
                 .data('content', '<ul class="list-unstyled">' + dRuleList.join('') + '</ul>');
 
             //Graphs
-            $.each(host.graphs, function(i, graph) {
-                graphList.push(
+            var graphList = host.graphs.map(function(graph) {
+                return [
                     '<li class="ellipsis">',
-                        '<a href="#!Monitoring/Graph&host='+host.host+'&graphid='+graph.graphid+'">',
+                        '<a href="#!Monitoring/Graphs&hostid='+host.hostid+'&graphid='+graph.graphid+'">',
                             graph.name,
                         '</a>',
                     '</li>'
-                );
+                ].join('')
             });
-            $('#hostGraphs .badge')
-                .empty()
-                .append(host.graphs.length)
+            $('#host-graphs .badge')
+                .text(host.graphs.length)
                 .data('content', '<ul class="list-unstyled">' + graphList.join('') + '</ul>');
 
             //Web
-            $.each(host.httpTests, function(i, web) {
-                webList.push(
-                    '<li class="ellipsis">',
-                        '<a href="#!Monitoring/Graph&host='+host.host+'&web='+web.name+'">',
-                            web.name,
-                        '</a>',
-                    '</li>'
-                );
-            });
-            $('#hostWeb .badge')
-                .empty()
-                .append(host.httpTests.length)
-                .data('content', '<ul class="list-unstyled">' + webList.join('') + '</ul>');
+            if (host.httpTests.length > 0) {
+                var webList = host.httpTests.map(function(web) {
+                    return [
+                        '<li class="text-nowrap">',
+                            '<a href="#!Monitoring/Graph&host='+host.host+'&web='+web.name+'">',
+                                web.name,
+                            '</a>',
+                        '</li>'
+                    ].join('')
+                });
+                $('#host-web .badge')
+                    .text(host.httpTests.length)
+                    .data('content', '<ul class="list-unstyled">' + webList.join('') + '</ul>');
+            } else {
+                $('#host-web .badge')
+                    .text(0)
+            }
             
             //Items
-            $.each(host.items, function(i, item) {
-                itemsList.push(
+            var itemsList = $.map(host.items, function(item) {
+                return [
                     '<li class="text-nowrap">',
-                        '<a href="#!Monitoring/Latest/Item&itemid='+item.itemid+'">',
+                        '<a href="#!Monitoring/Latest/Data&itemid='+item.itemid+'">',
                             item.name,
                         '</a>',
                     '</li>'
-                );
+                ]
             });
-            $('#hostItems .badge')
+            $('#host-items .badge')
                 .empty()
                 .append(host.items.length)
                 .data('content', '<ul class="list-unstyled">' + itemsList.join('') + '</ul>');
 
             //Macros
-            $.each(host.macros, function(i, m) {
-                macrosList.push(
+            var macrosList = host.macros.map(function(m) {
+                return [
                     '<dt>'+m.macro+'</dt>',
                     '<dd>'+m.value+'</dd>'
-                );
+                ].join('')
             });
-            $('#hostMacros .badge')
-                .empty()
-                .append(host.macros.length)
+            $('#host-macros .badge')
+                .text(host.macros.length)
                 .data('content', '<dl>' + macrosList.join('') + '</dl>');
 
             //Screens
-            $.each(host.screens, function(i, s) {
-                screenList.push(
+            var screenList = host.screens.map(function(s) {
+                return [
                     '<li class="ellipsis">',
                         '<a href="#!Monitoring/Screen&screenid='+s.screenid+'">',
                             s.name,
                         '</a>',
                     '</li>'
-                );
+                ].join('')
             });
-            $('#hostScreens .badge')
-                .empty()
-                .append(host.screens.length)
+            $('#host-screens .badge')
+                .text(host.screens.length)
                 .data('content', '<ul class="list-unstyled">' + screenList.join('') + '</ul>');
 
             //Triggers
-            $.each(host.triggers, function(i, t) {
-                triggerList.push(
+            var triggerList = host.triggers.map(function(t) {
+                return [
                     '<li class="text-nowrap">',
                         '<a href="#!Monitoring/Triggers&triggerids='+t.triggerid+'" title="'+t.description+'">',
                             t.description,
                         '</a>',
                     '</li>'
-                );
+                ].join('')
             });
-            $('#hostTriggers .badge')
-                .empty()
-                .append(host.triggers.length)
+            $('#host-triggers .badge')
+                .text(host.triggers.length)
                 .data('content', '<ul class="list-unstyled">' + triggerList.join('') + '</ul>')
             
-            //discoveries: function(discoveries) {
-            //    var d = [];
-            //    $.each(discoveries, function(i, discover) {
-            //        d.push(discover.name)
-            //    });
-            //    return '<dt>Discoveries</dt><dd>'+d.join(', ')+'</dd>'
-            //},
-            //discoveryRule: function(app) {
-            //},
-            //interfaces: function(interfaces) {
-            //    var intf = [];
-            //    $.each(interfaces, function(k, v) {
-            //        intf.push('<dt>'+k+'</dt><dd>'+v+'</dd>')
-            //    });
-            //    return intf.join('')
-            //},
-            //parentTemplates: function(app) {
-            //},
             host.interfaces.sort(function(a, b) {
                 return a.type - b.type
             });
-            $.each(host.interfaces, function(i, intf) {
-                intfList.push(
-                    '<tr class="'+map.interfaces.tr.class[intf.type]+'">',
+            var intfList = host.interfaces.map(function(intf) {
+                return [
+                    '<tr class="'+['','success','info','warning','danger'][intf.type]+'">',
                         '<td>'+zapi.map('Host interface', 'type', intf.type).value+'</td>',
                         '<td>'+intf.ip+'</td>',
                         '<td>'+intf.dns+'</td>',
@@ -248,25 +187,34 @@ console.log(req, zapiResponse.result)
                         '<td>'+intf.port+'</td>',
                         '<td>'+zapi.map('Host interface', 'main', intf.main).value+'</td>',
                     '</tr>'
-                );
+                ].join('')
             });
-            $('#hostInterfaces tbody')
-                .empty()
-                .append(intfList.join(''));
+            $('#host-interfaces tbody')
+                .html(intfList.join(''));
 
             $.each(host.inventory, function(k, dd) {
-                var hi = zapi.obj.Host.inventory.values[k]
-                hi && dd && invList.push('<dt>'+hi.description+'</dt><dd><pre>'+dd+'</pre></dd>');
+                //var hi = zapi.obj.Host.inventory.values[k]
+                var hi = zapi.map('Host', 'inventory', k).value
+                hi.description && dd && invList.push('<dt>'+hi.description+'</dt><dd><pre>'+dd+'</pre></dd>');
             });
-            $('#hostInventory')
-                .append(invList.join(''));
+            $('#host-inventory')
+                .html(invList.join(''));
 
             // Common actions
-            $('#hostInfo [data-toggle="popover"]')
+            $('#host-info [data-toggle="popover"]')
                 .popover({
                     html: true,
-                    viewport: '#hostInfo',
+                    viewport: '#host-info',
                 });
+            $('body').on('click', function (e) {
+                $('[data-toggle="popover"]').each(function () {
+                    //the 'is' for buttons that trigger popups
+                    //the 'has' for icons within a button that triggers a popup
+                    if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                        $(this).popover('hide');
+                    }
+                });
+            });
             
         });
     }

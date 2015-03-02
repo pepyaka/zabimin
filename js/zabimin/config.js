@@ -1,8 +1,8 @@
 // ZabImIn configuration file
 define({
     // Library to draw all charts
-    chartLib: 'jqplot',
+    chartLib: 'flot',
     api: {
-        url: 'http://zabbix.tez-tour.com/api_jsonrpc.php'
+        url: 'https://zabbix.teztour.com/api_jsonrpc.php'
     }
 });

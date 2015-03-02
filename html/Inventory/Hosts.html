@@ -1,19 +1,12 @@
 <div class="container-fluid">
     <div id="pageContent" class="row">
-        <div class="col-lg-3 col-lg-push-9 col-scroll collapse in" id="filterPanel">
-            <div id="filter">
-                <div class="dropdown pull-right">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="true">
-                        Host group <span class="caret"></span>
-                    </button>
-                    <ul id="hostGroupSelect" class="dropdown-menu">
-                        <li><a href="#!Inventory/Hosts">All</a></li>
-                    </ul>
-                </div>
-            </div>
+        <div class="col-lg-2 col-lg-push-10 col-scroll collapse in">
+            <ul id="group-list" class="nav nav-sm nav-pills nav-stacked">
+                <li role="navigation" data-groupid="0"><a href="#!Inventory/Hosts">All host groups</a></li>
+            </ul>
         </div>
-        <div class="col-lg-9 col-lg-pull-3 col-scroll">
-            <table id="hostsInventory" class="fade table table-striped table-condensed table-hover">
+        <div class="col-lg-10 col-lg-pull-2 col-scroll">
+            <table id="hosts-inventory" class="fade table table-striped table-condensed table-hover">
             </table>
         </div>
     </div>

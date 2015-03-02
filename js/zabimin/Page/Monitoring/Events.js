@@ -173,7 +173,7 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
                     triggerList.push(
                             '<tr data-triggerid="'+trigger.triggerid+'">',
                                 '<td><a href="#">'+trigger.description+'</a></td>',
-                                '<td class="'+severityClass[trigger.priority]+'">'+zapi.map('trigger', 'priority', trigger.priority)+'</td>',
+                                '<td class="'+severityClass[trigger.priority]+'">'+zapi.map('Trigger', 'priority', trigger.priority).value+'</td>',
                                 '<td>'+stateStatusClass[trigger.state][trigger.status]+'</td>',
                             '</tr>'
                     );

@@ -1,0 +1,47 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-md-push-9 col-scroll">
+            <form id="filter">
+                <div class="form-group">
+                    <label for="group-list">Host group</label>
+                    <select class="form-control select2" id="group-list" data-hash="groupid" multiple disabled>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="host-list">Hosts</label>
+                    <select class="form-control select2" id="host-list" data-hash="hostid" multiple disabled>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="apps-list">Application</label>
+                    <select class="form-control select2" id="apps-list" data-hash="application" disabled>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="item-filter">Item name</label>
+                    <input type="text" class="form-control" id="item-filter" data-hash="name" placeholder="Item like ...">
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input id="items-without-data" type="checkbox" data-hash="errors"> Show items without data
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input id="details" type="checkbox" data-hash="details"> Show details
+                    </label>
+                </div>
+                <button id="filter-reset" type="reset" class="btn btn-default">Reset</button>
+            </form>
+        </div>
+        <div class="col-md-9 col-md-pull-3 col-scroll">
+            <table id="items" class="table table-striped table-condensed table-hover" disabled>
+            </table>
+            <br/>
+            <div class="btn-group" role="group">
+                <a id="latest-data" href="#!Monitoring/Latest/Data" type="button" class="btn btn-default disabled">Line graphs</a>
+                <a id="latest-data-stacked" href="#!Monitoring/Latest/Data&stack=true" type="button" class="btn btn-default disabled">Stacked graphs</a>
+            </div>
+        </div>
+    </div>
+</div>
