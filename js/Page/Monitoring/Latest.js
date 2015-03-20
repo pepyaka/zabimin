@@ -41,7 +41,7 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, 
                 .prop('disabled', false)
             $('#filter-reset')
                 .on('click', function() {
-                    util.hash(null)
+                    util.hash(null, true)
                 });
         },
         update: function(hash) {
@@ -74,7 +74,7 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, 
                     } else {
                         h[t.data('hash')] = t.val();
                     }
-                    util.hash(h);
+                    util.hash(h, true);
                 });
         }
     };
@@ -178,11 +178,13 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, 
             $('#items')
                 .bootstrapTable({
                     search: true,
-                    //pagination: true,
-                    //showRefresh: true,
                     clickToSelect: true,
                     showToggle: true,
                     showColumns: true,
+                    showPaginationSwitch: true,
+                    pagination: true,
+                    pageSize: 20,
+                    pageList: [10, 20, 50, 100],
                     columns: columns
                 })
                 .css('opacity', 0.3)
@@ -248,6 +250,8 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, 
         filter.update(hash);
         itemTable.update(hash);
     };
+
+    //Page common functions
     function getHostData(getHostDataDone) {
         var hostGet = zapi.req('host.get', {
             selectGroups: ['name'],

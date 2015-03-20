@@ -1,7 +1,9 @@
 // Monitoring/Triggers page
 define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Page, zapi, Util, nav, moment) {
+    "use strict";
+
+    //Page global variables
     var data = {};// work data
-    //var hash = {}; // Each page has own arguments
     var hostSelector = nav.hostSelector; // Shorthands
     var filter = {
         init: function(changeHashArgs) {

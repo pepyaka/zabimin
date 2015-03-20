@@ -3,33 +3,28 @@ define(['moment'], function(moment) {
     "use strict";
 
     // hash navigation (return current)
-    var hash = function(newArgs) {
+    var hash = function(newArgs, change) {
         var page = '';
         var args = {};
+        var newHashStr = '';
         // we need to remove leading hashbang, split pairs by '&' and split arg, val by '='
-        var hash = location.hash.replace(/^#!/, "").split('&');
-        if (hash[0]) {
-            page = hash[0];
-            if (hash.length > 1) {
-                $.each(hash.splice(1), function(i, arg) {
-                    var a = arg.split("=", 2);
-                    // only if url arg had value
-                    if (a[0] && a[1]) {
-                        args[a[0]] = a[1].split(',');
-                    }
-                });
-            }
+        var hash = location.hash.split('&');
+        var page = hash[0].replace(/#!/, '');
+        if (hash.length > 1) {
+            $.each(hash.splice(1), function(i, arg) {
+                var a = arg.split("=", 2);
+                // only if url arg had value
+                if (a[0] && a[1]) {
+                    args[a[0]] = a[1].split(',');
+                }
+            });
         }
         // new hash will merged with old
         var newHash = ['#!' + page];
         if ($.isPlainObject(newArgs) && !$.isEmptyObject(newArgs)) {
             // can't use jQuery.extend(), because need to delete keys by null value
             $.each(newArgs, function(k, v) {
-                if (v === null) {
-                    delete args[k];
-                } else {
-                    args[k] = v;
-                }
+                v === null ? delete args[k] : args[k] = v;
             });
         }
         if (newArgs !== null) { //reset all arguments on hashArgs === null
@@ -38,10 +33,14 @@ define(['moment'], function(moment) {
                 newHash.push(k + '=' + value);
             });
         }
-        location.hash = newHash.join('&')
+        newHashStr = newHash.join('&');
+        if (change) {
+            location.hash = newHashStr;
+        }
         return {
             page: page,
-            args: args
+            args: args,
+            val: newHashStr,
         }
     };
     // format numbers view
@@ -190,13 +189,70 @@ define(['moment'], function(moment) {
             parseInt(h[2] + h[3], 16),
             parseInt(h[4] + h[5], 16)
         ]
-    }
+    };
+    var sort = function() {
+        var ip = function(ipA, ipB) {
+                var result;
+                var a = ipA.split('.');
+                var b = ipB.split('.');
+                if (a.length === b.length) {
+                    a.some(function(el, i) {
+                        var x = +el;
+                        var y = +b[i];
+                        if (x !== y) {
+                            result = x > y ? 1 : -1;
+                            return true
+                        }
+                    });
+                } else {
+                    result = 0;
+                }
+                return result
+        };
+        return {
+            ip: ip
+        }
+    }();
+    var visit = {
+        update: function(hash) {
+            var max = 1000;
+            var page = '#!' + hash.page;
+            var cur = localStorage[page] ? JSON.parse(localStorage[page]) : [];
+            cur.push(hash.args);
+            cur.splice(0, cur.length - max);
+            localStorage[page] = JSON.stringify(cur);
+        },
+        show: function(page, value) {
+            var page = '#!' + page;
+            var visits = localStorage[page] ? JSON.parse(localStorage[page]) : [];
+            var valObj = {};
+            visits.forEach(function(args) {
+                if (args[value]) {
+                    args[value].forEach(function(v) {
+                        if (valObj[v]) {
+                            valObj[v][1]++
+                        } else {
+                            valObj[v] = [v, 1];
+                        }
+                    });
+                }
+            });
+            var valArr = Object.keys(valObj).map(function(k) {
+                return valObj[k]
+            });
+            valArr.sort(function(a, b) {
+                return a[1] < b[1] ? 1 : -1
+            });
+            return valArr
+        }
+    };
 
     return {
-        //zapi: zapi,
         hash: hash,
         suffix: createMetricSuffix,
         hex2rgb: hex2rgb,
-        showUnit: showUnit
+        showUnit: showUnit,
+        sort: sort,
+        visit: visit
     }
 });

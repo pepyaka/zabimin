@@ -2,7 +2,117 @@ define(['config', 'moment'], function(zabimin, moment) {
     "use strict";
 
     var id = 0;
+    var defaults = {
+        user: {
+            login: {
+                user: 'Guest',
+                password: '',
+                userData: true
+            }
+        },
+        host: {
+            get: {
+                output: ['name'],
+                selectGroups: ['name'],
+                sortfield: 'name'
+            }
+        },
+        hostgroup: {
+            get: {
+                output: ['name'],
+                sortfield: 'name'
+            }
+        },
+        history: {
+            get: {
+                hostids: 0
+            }
+        },
+        trigger: {
+            get: {
+                output: ['description'],
+                //selectHosts: 'extend',
+                sortfield: 'lastchange',
+                sortorder: 'DESC',
+                expandComment: true,
+                expandDescription: true,
+                expandExpression: true
+            }
+        },
+        event: {
+            get: {
+                output: 'extend',
+                selectHosts: 'extend',
+                //selectRelatedObject: 'extend',
+                //select_alerts: 'extend',
+                //select_acknowledges: 'extend'
+                sortfield: 'clock',
+                sortorder: 'DESC'
+            }
+        }
+    };
     var methodObjs = {
+        'Discovery check': {
+            //dcheckid    string  (readonly) ID of the discovery check.
+            //druleid string  ID of the discovery rule that the check belongs to.
+            //key_    string  The value of this property differs depending on the type type of the check: 
+            //- key to query for Zabbix agent checks, required; 
+            //- SNMP OID for SNMPv1, SNMPv2 and SNMPv3 checks, required.
+            //ports   string  One or several port ranges to check separated by commas. Used for all checks except for ICMP. 
+            //
+            //Default: 0.
+            //snmp_community  string  SNMP community. 
+            //
+            //Required for SNMPv1 and SNMPv2 agent checks.
+            //snmpv3_authpassphrase   string  Auth passphrase used for SNMPv3 agent checks with security level set to authNoPriv or authPriv.
+            //snmpv3_authprotocol integer Authentication protocol used for SNMPv3 agent checks with security level set to authNoPriv or authPriv. 
+            //
+            //Possible values: 
+            //0 - (default) MD5; 
+            //1 - SHA.
+            //snmpv3_contextname  string  SNMPv3 context name. Used only by SNMPv3 checks.
+            //snmpv3_privpassphrase   string  Priv passphrase used for SNMPv3 agent checks with security level set to authPriv.
+            //snmpv3_privprotocol integer Privacy protocol used for SNMPv3 agent checks with security level set to authPriv. 
+            //
+            //Possible values: 
+            //0 - (default) DES; 
+            //1 - AES.
+            //snmpv3_securitylevel    string  Security level used for SNMPv3 agent checks. 
+            //
+            //Possible values: 
+            //0 - noAuthNoPriv; 
+            //1 - authNoPriv; 
+            //2 - authPriv.
+            //snmpv3_securityname string  Security name used for SNMPv3 agent checks.
+            type: {
+                type: 'integer',
+                name: 'Check type',
+                description: 'Type of check',
+                values: [
+                    'SSH',
+                    'LDAP', 
+                    'SMTP',
+                    'FTP',
+                    'HTTP', 
+                    'POP',
+                    'NNTP', 
+                    'IMAP',
+                    'TCP',
+                    'Zabbix agent',
+                    'SNMPv1 agent',
+                    'SNMPv2 agent',
+                    'ICMP ping',
+                    'SNMPv3 agent',
+                    'HTTPS',
+                    'Telnet'
+                ]
+            },
+            //uniq    integer Whether to use this check as a device uniqueness criteria. Only a single unique check can be configured for a discovery rule. Used for Zabbix agent, SNMPv1, SNMPv2 and SNMPv3 agent checks. 
+            //
+            //Possible values: 
+            //0 - (default) do not use this check as a uniqueness criteria; 
+            //1 - use this check as a uniqueness criteria.
+        },
         'Event': {
             object: {
                 type: 'integer',
@@ -345,12 +455,16 @@ define(['config', 'moment'], function(zabimin, moment) {
             //4 - admin;
             //5 - OEM.
             //ipmi_username   string  IPMI username.
-            //jmx_available   integer (readonly) Availability of JMX agent. 
-            //
-            //Possible values are:
-            //0 - (default) unknown;
-            //1 - available;
-            //2 - unavailable.
+            jmx_available: {
+                type: 'integer',
+                name: 'JMX Availability',
+                description: 'Availability of JMX agent',
+                values: [
+                    'Unknown',
+                    'Available',
+                    'Unavailable'
+                ]
+            },
             //jmx_disable_until   timestamp   (readonly) The next polling time of an unavailable JMX agent.
             //jmx_error   string  (readonly) Error text if JMX agent is unavailable.
             //jmx_errors_from timestamp   (readonly) Time when JMX agent became unavailable.
@@ -371,14 +485,17 @@ define(['config', 'moment'], function(zabimin, moment) {
                 name: 'Visible name',
                 description: 'Visible name of the host'
             },
-            //Default: host property value.
             //proxy_hostid    string  ID of the proxy that is used to monitor the host.
-            //snmp_available  integer (readonly) Availability of SNMP agent. 
-            //
-            //Possible values are:
-            //0 - (default) unknown;
-            //1 - available;
-            //2 - unavailable.
+            snmp_available: {
+                type: 'integer',
+                name: 'SNMP Availability',
+                description: 'Availability of SNMP agent',
+                values: [
+                    'Unknown',
+                    'Available',
+                    'Unavailable'
+                ]
+            },
             //snmp_disable_until  timestamp   (readonly) The next polling time of an unavailable SNMP agent.
             //snmp_error  string  (readonly) Error text if SNMP agent is unavailable.
             //snmp_errors_from    timestamp   (readonly) Time when SNMP agent became unavailable.
@@ -387,8 +504,8 @@ define(['config', 'moment'], function(zabimin, moment) {
                 name: 'Status',
                 description: 'integer Status and function of the host',
                 values: [
-                    'Monitored host',
-                    'Unmonitored host'
+                    'Monitored',
+                    'Unmonitored'
                 ]
             },
             inventory: {
@@ -636,56 +753,7 @@ define(['config', 'moment'], function(zabimin, moment) {
     };
 
 
-    var defaults = {
-        user: {
-            login: {
-                user: 'Guest',
-                password: '',
-                userData: true
-            }
-        },
-        host: {
-            get: {
-                output: ['name'],
-                selectGroups: ['name'],
-                sortfield: 'name'
-            }
-        },
-        hostgroup: {
-            get: {
-                output: ['name'],
-                sortfield: 'name'
-            }
-        },
-        history: {
-            get: {
-                hostids: 0
-            }
-        },
-        trigger: {
-            get: {
-                output: ['description'],
-                //selectHosts: 'extend',
-                sortfield: 'lastchange',
-                sortorder: 'DESC',
-                expandComment: true,
-                expandDescription: true,
-                expandExpression: true
-            }
-        },
-        event: {
-            get: {
-                output: 'extend',
-                selectHosts: 'extend',
-                //selectRelatedObject: 'extend',
-                //select_alerts: 'extend',
-                //select_acknowledges: 'extend'
-                sortfield: 'clock',
-                sortorder: 'DESC'
-            }
-        }
-    };
-    function map(methodObj, param, val) {
+    var map = function(methodObj, param, val) {
         var name;
         var v;
         var descr;
@@ -707,7 +775,7 @@ define(['config', 'moment'], function(zabimin, moment) {
             type: t
         }
     };
-    function zapi(method, params, extSettings) {
+    var zapi = function(method, params, extSettings) {
         var req = {
             jsonrpc: "2.0",
             method: method
@@ -724,19 +792,13 @@ define(['config', 'moment'], function(zabimin, moment) {
             async: false,
             success: function(loginData) {
                 $.extend(localStorage, loginData.result);
-            },
-    xhrFields: {
-      onprogress: function (e) {
-        if (e.lengthComputable) {
-          deferred.notify(parseInt(e.loaded / e.total * 100), 10);  // notify as a factor of the event object
-        }
-      }
-    }
+            }
         };
         // Apply defaults to all methods
         var m = method.split('.', 2)
         var defaultParams = defaults[m[0]] && defaults[m[0]][m[1]] || {}
         req.params = $.extend({}, defaultParams, params)
+console.info('zapi', req.method, req.params)
 
         $.extend(settings, extSettings)
 
@@ -752,12 +814,11 @@ define(['config', 'moment'], function(zabimin, moment) {
         }
         req.id = id;
         settings.data = JSON.stringify(req);
-        return $.ajax(settings).progress(function (event) {
-                console.log(event);
-            })
+        return $.ajax(settings)
     };
     
     return {
+        url: zabimin.api.url,
         req: zapi,
         obj: methodObjs,
         map: map

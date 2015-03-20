@@ -1,3 +1,22 @@
+@import "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css";
+@import "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css";
+@import "//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css";
+@import "//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.css";
+@import "//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.6.0/bootstrap-table.min.css";
+@import "//cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.css";
+@import "//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-rc.1/css/select2.min.css";
+/* waiting for select2-bootstrap-css update for select2 4.0
+@import "//cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css";
+*/
+@import "../dist/hint.css/hint.css";
+@import "daterangepicker-bs3.css";
+@import "../dist/xcharts-build/xcharts.css";
+@import "typeaheadjs.css";
+@import "../dist/metrics-graphics/dist/metricsgraphics.css";
+@import "//cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.0/nv.d3.min.css";
+@import "//cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.css";
+
+
 body {
     padding-top: 70px;
 }
@@ -5,11 +24,14 @@ body {
     body {
         overflow-y: hidden;
     }
-    #ajaxPage,.col-scroll {
+    .col-scroll {
         height: calc(100vh - 50px);
         overflow-y: auto;
         padding-top: 20px;
         margin-top: -20px;
+    }
+    .dropdown-menu-row-720 {
+        min-width: 720px;
     }
 }
 .col-modal-scroll {
@@ -27,9 +49,57 @@ body {
     text-overflow: ellipsis;
 }
 
-//.panel-heading[data-toggle="collapse"] {
-//    cursor: pointer;
-//}
+
+/* hint.css bootstrap-table header */
+.fixed-table-container thead th .th-inner {
+    overflow: inherit;
+}
+/* hint.css max size */
+.hint--wrap:after {
+    max-width: 320px;
+    white-space: pre;
+    word-break: break-all;
+}
+
+
+.collapse-icon:after
+{
+    font-family: 'Glyphicons Halflings';
+    content: "\e113";
+    float: right;
+    font-size: 18px;
+    line-height: 22px;
+}
+.collapsed .collapse-icon:after
+{
+    -webkit-transform: rotate(180deg);
+    -moz-transform:    rotate(180deg);
+    -ms-transform:     rotate(180deg);
+    -o-transform:      rotate(180deg);
+    transform:         rotate(180deg);
+}
+
+
+.disabled-link {
+    pointer-events: none;
+    cursor: default;
+}
+
+/* class to keep div's aspect ratio 16:9 */
+.aspect-ratio-16-by-9 {
+    position: relative;
+    /*
+    padding-bottom: 25%;
+    */
+    padding-bottom: 56.25%;
+}
+.aspect-ratio-16-by-9 > div, .aspect-ratio-target {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
 
 /*
 main, aside {
@@ -306,6 +376,9 @@ main {
     z-index: 50;
 }
 /********************************** tooltip *********************************/
+
+/****************************************************************************/
+/****************************************************************************/
 
 .col-width-auto {
     width: auto;

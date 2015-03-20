@@ -1,0 +1,41 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 col-md-push-10 col-scroll">
+            <nav>
+                <ul class="nav nav-pills">
+                    <li><a href="#!Monitoring/Overview" id="overview-hosts">Hosts</a></li>
+                    <li><a href="#!Monitoring/Overview/Triggers" id="overview-triggers">Triggers</a></li>
+                    <li class="active"><a href="#!Monitoring/Overview/Data" id="overview-data">Data</a></li>
+                </ul>
+            <nav>
+            <br/>
+            <form id="filter">
+                <div class="form-group">
+                    <label for="group-list">Host group</label>
+                    <select class="form-control selectpicker"
+                            id="group-list"
+                            data-hash-args="groupid"
+                            data-placeholder="Select group"
+                            disabled>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="app-list">Application</label>
+                    <select class="form-control selectpicker"
+                            id="app-list"
+                            data-hash-args="application"
+                            data-placeholder="Application name"
+                            disabled>
+                        <option value="">All applications</option>
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-10 col-md-pull-2 col-scroll">
+            <div id="overview-table">
+                <table class="table table-striped table-condensed table-hover" disabled>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

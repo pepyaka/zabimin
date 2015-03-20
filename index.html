@@ -8,35 +8,10 @@
     <meta name="author" content="">
     <link rel="icon" href="favicon.ico">
     <title>ZabImIn</title>
-<!--
-    <link href="css/bootstrap/bootstrap.css" rel="stylesheet">
-    <link href="css/bootstrap/bootstrap-theme.css" rel="stylesheet">
-    <link href="css/bootstrap-select/bootstrap-select.css" rel="stylesheet">
-    <link href="css/bootstrap-datetimepicker/bootstrap-datetimepicker.css" rel="stylesheet">
-    <link href="css/jquery-ui/ui-lightness/jquery-ui-1.10.4.css" rel="stylesheet">
-    <link href="css/jquery.jqplot.css" rel="stylesheet">
-    <link href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.css" rel="stylesheet">
--->
-    <link href="//cdn.jsdelivr.net/hint.css/1.3.2/hint.css" rel="stylesheet">
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.5.0/bootstrap-table.min.css" rel="stylesheet">
-    <link href="css/daterangepicker-bs3.css" rel="stylesheet">
-    <link href="//cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.css" rel="stylesheet">
-    <link href="//cdn.datatables.net/plug-ins/9dcbecd42ad/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-beta.3/css/select2.min.css" rel="stylesheet">
-    
 
-    <link href="dist/xcharts-build/xcharts.css" rel="stylesheet">
-    <link href="css/typeaheadjs.css" rel="stylesheet">
-    <link href="css/simple-hint.min.css" rel="stylesheet">
-    <link href="dist/metrics-graphics/dist/metricsgraphics.css" rel="stylesheet">
     <link href="css/zabimin.css" rel="stylesheet">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/rickshaw/1.5.1/rickshaw.min.css" rel="stylesheet">
 
-    <script data-main="js/zabimin" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.15/require.min.js"></script>
+    <script data-main="js/modules" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.16/require.min.js"></script>
 </head>
 <body>
 
@@ -53,115 +28,127 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-              <li id="Monitoring" class="dropdown">
-                <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Monitoring <b class="caret"></b></a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="Monitoring">
-                  <li><a class="ajax-link" href="#!Monitoring/Dashboard"><span class="glyphicon glyphicon-th"></span> Dashboard</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/Overview">Overview</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/Web">Web</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/Latest"><span class="glyphicon glyphicon-dashboard"></span> Latest data</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/Triggers"><span class="glyphicon glyphicon-retweet"></span> Triggers</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/Events"><span class="glyphicon glyphicon-time"></span> Events</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/Graphs"><span class="glyphicon glyphicon-stats"></span> Graphs</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/Screens">Screens</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/Maps">Maps</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/Discovery">Discovery</a></li>
-                  <li><a class="ajax-link" href="#!Monitoring/IT_services">IT services</a></li>
-                </ul>
-              </li>
-              <li id="Inventory" class="dropdown">
-                <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Inventory <b class="caret"></b></a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="Inventory">
-                  <li><a class="ajax-link" href="#!Inventory/Overview">Overview</a></li>
-                  <li><a class="ajax-link" href="#!Inventory/Hosts"><span class="glyphicon glyphicon-th-list"></span> Hosts</a></li>
-                </ul>
-              </li>
-              <li id="Reports" class="dropdown">
-                <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Reports <b class="caret"></b></a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="Reports">
-                  <li><a class="ajax-link" href="#!reports_zabbix_status">Status of Zabbix</a></li>
-                  <li><a class="ajax-link" href="#!reports_availability_report">Availability report</a></li>
-                  <li><a class="ajax-link" href="#!reports_triggers_top">Triggers top 100</a></li>
-                  <li><a class="ajax-link" href="#!reports_bar">Bar reports</a></li>
-                </ul>
-              </li>
-              <li id="Configuration" class="dropdown">
-                <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Configuration <b class="caret"></b></a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="Configiration">
-                  <li><a class="ajax-link" href="#!conf_host_groups">Host Groups</a></li>
-                  <li><a class="ajax-link" href="#!conf_templates">Templates</a></li>
-                  <li><a class="ajax-link" href="#!conf_hosts">Hosts</a></li>
-                  <li><a class="ajax-link" href="#!conf_maintenance">Maintenance</a></li>
-                  <li><a class="ajax-link" href="#!conf_actions">Actions</a></li>
-                  <li><a class="ajax-link" href="#!conf_screens">Screens</a></li>
-                  <li><a class="ajax-link" href="#!conf_slide_shows">Slide shows</a></li>
-                  <li><a class="ajax-link" href="#!conf_maps">Maps</a></li>
-                  <li><a class="ajax-link" href="#!conf_discovery">Discovery</a></li>
-                  <li><a class="ajax-link" href="#!conf_it_services">IT services</a></li>
-                </ul>
-              </li>
-              <li id="Administration" class="dropdown">
-                <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Administration <b class="caret"></b></a>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="Administration">
-                  <li><a class="ajax-link" href="#!adm_general">General</a></li>
-                  <li><a class="ajax-link" href="#!adm_dm">DM</a></li>
-                  <li><a class="ajax-link" href="#!adm_authentification">Authentication</a></li>
-                  <li><a class="ajax-link" href="#!adm_users">Users</a></li>
-                  <li><a class="ajax-link" href="#!adm_media_types">Media types</a></li>
-                  <li><a class="ajax-link" href="#!adm_scripts">Scripts</a></li>
-                  <li><a class="ajax-link" href="#!adm_audit">Audit</a></li>
-                  <li><a class="ajax-link" href="#!adm_queue">Queue</a></li>
-                  <li><a class="ajax-link" href="#!adm_notifications">Notifications</a></li>
-                  <li><a class="ajax-link" href="#!adm_installation">Installation</a></li>
-                </ul>
-              </li>
+                <li id="Monitoring" class="dropdown">
+                    <a href="" role="button" class="dropdown-toggle" data-toggle="dropdown">
+                        <span id="nav-title">Navigation</span>
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="Monitoring">
+                        <li class="dropdown-menu-row-720">
+                            <div class="col-sm-3">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li class="dropdown-header"><h5>Monitoring</h5></li>
+                                    <li><a href="#!Monitoring/Dashboard"><span class="glyphicon glyphicon-th"></span> Dashboard</a></li>
+                                    <li><a href="#!Monitoring/Overview"><span class="glyphicon glyphicon-picture"></span> Overview</a></li>
+                                    <!-- API can't get web scenario items
+                                    <li><a href="#!Monitoring/Web">Web</a></li>
+                                    -->
+                                    <li><a href="#!Monitoring/Latest"><span class="glyphicon glyphicon-dashboard"></span> Latest data</a></li>
+                                    <li><a href="#!Monitoring/Triggers"><span class="glyphicon glyphicon-retweet"></span> Triggers</a></li>
+                                    <li><a href="#!Monitoring/Events"><span class="glyphicon glyphicon-time"></span> Events</a></li>
+                                    <li><a href="#!Monitoring/Graphs"><span class="glyphicon glyphicon-stats"></span> Graphs</a></li>
+                                    <li><a href="#!Monitoring/Screens">Screens</a></li>
+                                    <li><a href="#!Monitoring/Maps">Maps</a></li>
+                                    <li><a href="#!Monitoring/Discovery"><span class="glyphicon glyphicon-search"></span> Discovery</a></li>
+                                    <li><a href="#!Monitoring/IT_services">IT services</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-3">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li class="dropdown-header"><h5>Inventory</h5></li>
+                                    <li><a href="#!Inventory/Overview">Overview</a></li>
+                                    <li><a href="#!Inventory/Hosts"><span class="glyphicon glyphicon-th-list"></span> Hosts</a></li>
+                                    <li class="dropdown-header"><h5>Reports</h5></li>
+                                    <li><a href="#!Reports/Status">Status of Zabbix</a></li>
+                                    <li><a href="#!Reports/Availability">Availability report</a></li>
+                                    <li><a href="#!Reports/Triggers">Triggers top 100</a></li>
+                                    <li><a href="#!Reports/Bar">Bar reports</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-3">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li class="dropdown-header"><h5>Configuration</h5></li>
+                                    <li><a href="#!Configuration/Host_groups">Host Groups</a></li>
+                                    <li><a href="#!Configuration/Templates">Templates</a></li>
+                                    <li><a href="#!Configuration/Hosts">Hosts</a></li>
+                                    <li><a href="#!Configuration/Maintenance">Maintenance</a></li>
+                                    <li><a href="#!Configuration/Actions">Actions</a></li>
+                                    <li><a href="#!Configuration/Screens">Screens</a></li>
+                                    <li><a href="#!Configuration/Slide_shows">Slide shows</a></li>
+                                    <li><a href="#!Configuration/Maps">Maps</a></li>
+                                    <li><a href="#!Configuration/Discovery">Discovery</a></li>
+                                    <li><a href="#!Configuration/It_services">IT services</a></li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-3">
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li class="dropdown-header"><h5>Administration</h5></li>
+                                    <li><a href="#!Administration/General">General</a></li>
+                                    <li><a href="#!Administration/Dm">DM</a></li>
+                                    <li><a href="#!Administration/Authentification">Authentication</a></li>
+                                    <li><a href="#!Administration/Users">Users</a></li>
+                                    <li><a href="#!Administration/Media_types">Media types</a></li>
+                                    <li><a href="#!Administration/Scripts">Scripts</a></li>
+                                    <li><a href="#!Administration/Audit">Audit</a></li>
+                                    <li><a href="#!Administration/Queue">Queue</a></li>
+                                    <li><a href="#!Administration/Notifications">Notifications</a></li>
+                                    <li><a href="#!Administration/Installation">Installation</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 <li id="userMenu" class="dropdown">
                     <a class="dropdown-toggle" href="#" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> <span id="user-name"></span> <b class="caret"></b></a>
                     <ul class="dropdown-menu" role="menu" aria-labelledby="Administration">
-                        <li><a class="ajax-link" href="http://www.zabbix.com/documentation/" target="_blank">Documentation</a></li>
+                        <li><a class="ajax-link" href="http://www.zabbix.com/documentation/" target="_blank">Zabbix documentation</a></li>
                         <li><a class="ajax-link" href="#!Profile">Profile</a></li>
-                        <li><a data-toggle="modal" data-target="#modalLogin" href="#!Login">Login as</a></li>
+                        <li><a data-toggle="modal" data-target="#modal-login" href="#!Login">Login as</a></li>
                     </ul>
                 </li>
-                <!--
-                <li>
-                    <form class="navbar-form" role="form">
-                        <input type="text" class="form-control" placeholder="Search...">
-                    </form>
-                </li>
-                -->
             </ul>
+            <form class="navbar-form navbar-right" role="search">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Search">
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<div id="ajaxPage" class="spinner">
+<div id="ajax-page" class="spinner">
 </div>
 
 <!-- modal windows -->
-<div class="modal fade" id="modalLogin" tabindex="-1" role="dialog" aria-labelledby="Login dialog" aria-hidden="true">
+<div class="modal fade" id="modal-login" tabindex="-1" role="dialog" aria-labelledby="Login dialog" aria-hidden="true">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
                 <h4 class="modal-title">Login</h4>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="exampleInputEmail1">Username</label>
-                    <input class="form-control" id="modalLoginUser" type="text">
+                    <label for="modal-login-user">Username</label>
+                    <input class="form-control" id="modal-login-user" type="text">
                 </div>
                 <div class="form-group">
-                    <label for="exampleInputPassword1">Password</label>
-                    <input class="form-control" id="modalLoginPassword" type="password">
+                    <label for="modal-login-password">Password</label>
+                    <input class="form-control" id="modal-login-password" type="password">
                 </div>
                 <div class="alert alert-danger hidden" role="alert"></div>
             </div>
-            <div class="modal-footer">
-                <button type="button" id="modalLoginAsGuestBtn" class="btn btn-default">Login as Guest</button>
-                <button type="button" id="modalLoginBtn" class="btn btn-primary">Login</button>
+            <div class="modal-footer" id="modal-login-buttons">
+                <button type="button" class="btn btn-default" data-login="Guest">
+                    Login as Guest
+                </button>
+                <button type="button" class="btn btn-primary">
+                    Login
+                </button>
             </div>
         </div>
     </div>

@@ -38,30 +38,30 @@ define(['Util', 'flot.time', 'flot.resize', 'flot.stack', 'flot.crosshair'], fun
                     show: !chart.thumbnail,
                     min: chart.yMinType === 'fixed' ? chart.yAxisMin : null,
                     max: chart.yMaxType === 'fixed' ? chart.yAxisMax : null,
-                    tickFormatter: function(val, axis) {
-                        var v = util.showUnit(val, chart.yAxisUnits.left)
-                        return v.join('')
-                    }
+                    //tickFormatter: function(val, axis) {
+                    //    var v = util.showUnit(val, chart.yAxisUnits.left)
+                    //    return v.join('')
+                    //}
                 }, {
                     show: chart.thumbnail ? false : null,
                     position: 'right',
                     min: chart.yMinType === 'fixed' ? chart.yAxisMin : null,
                     max: chart.yMaxType === 'fixed' ? chart.yAxisMax : null,
-                    tickFormatter: function(val, axis) {
-                        var v = util.showUnit(val, chart.yAxisUnits.right)
-                        return v.join('')
-                    }
+                    //tickFormatter: function(val, axis) {
+                    //    var v = util.showUnit(val, chart.yAxisUnits.right)
+                    //    return v.join('')
+                    //}
                 }
             ],
             series: {
-                stack: chart.type === 'stacked'
+                stack: chart.graphtype === '1'
             },
             crosshair: {
                 mode: chart.thumbnail ? null : "x"
             },
             grid: {
                 //background: '#f0f0f0',
-                hoverable: true
+                hoverable: !chart.thumbnail
             },
             //cursor:{ 
             //    //show: !briefChart,
@@ -119,19 +119,8 @@ define(['Util', 'flot.time', 'flot.resize', 'flot.stack', 'flot.crosshair'], fun
             //series: series
         };
     };
-    var draw = function() {
-        $('#flot-chart')
-            .removeClass('hidden')
-            .plot(data, options);
-        //$("#flot-chart").bind("plothover",  function (event, pos, item) {
-        //    console.log(pos);
-        //    if (!updateLegendTimeout) {
-        //        var updateLegendTimeout = setTimeout(updateLegend, 100);
-        //    }
-        //});
-    };
     var load = function(rawData) {
-        data = chart.items.map(function(gItem, i) {
+        data = chart.gItems.map(function(gItem, i) {
             var gItemData = rawData[i].map(function(d) {
                 return [d.clock * 1000, d.value ? +d.value : +d.value_avg]
             });
@@ -140,19 +129,27 @@ define(['Util', 'flot.time', 'flot.resize', 'flot.stack', 'flot.crosshair'], fun
                 color: gItem.color && '#' + gItem.color,
                 units: gItem.units,
                 data: gItemData,
-                yaxis: gItem.yaxisside === 'right' ? 2 : 1,
+                yaxis: gItem.yaxisside === '0' ? 2 : 1,
                 lines: {
                     //lineWidth: gItem.drawtype === 'bold line' ? 2 : null,
-                    fill: gItem.drawtype === 'gradient line' || chart.type === 'stacked',
+                    fill: gItem.drawtype === '5' || chart.graphtype === '1',
                     fillColor: {
                         colors: [
-                            { opacity: gItem.drawtype === 'gradient line' ? 0.2 : 0.8 },
+                            { opacity: gItem.drawtype === '5' ? 0.2 : 0.8 },
                             { opacity: 0.8 } 
                         ]
                     }
                 }
             }
         })
+    };
+    var draw = function(idSel) {
+        $('#' + idSel)
+            .removeClass('hidden')
+            .plot(data, options);
+        this.data = null;
+        this.options = null;
+        this.chart = null;
     };
     var destroy = function() {
         var flot = $('#flot-chart')

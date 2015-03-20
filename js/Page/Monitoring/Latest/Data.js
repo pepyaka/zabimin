@@ -21,7 +21,7 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-datetimepicker', 'bootstr
                     page.update = false; //prevent update page on type change
                     util.hash({
                         type: val === 'graph' ? null : val
-                    });
+                    }, true);
                 });
             //Datetime range selector
             $('.datetimepicker')
@@ -37,7 +37,7 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-datetimepicker', 'bootstr
             $('#since')
                 .on("dp.hide", function () {
                     var since = $(this).data("DateTimePicker").date();
-                    util.hash({since: since ? since.format('X') : null});
+                    util.hash({since: since ? since.format('X') : null}, true);
                     $('#till')
                         .data("DateTimePicker")
                             .minDate(since || false);
@@ -45,7 +45,7 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-datetimepicker', 'bootstr
             $('#till')
                 .on("dp.hide", function (e) {
                     var till = $(this).data("DateTimePicker").date();
-                    util.hash({till: till ? till.format('X') : null});
+                    util.hash({till: till ? till.format('X') : null}, true);
                     $('#since')
                         .data("DateTimePicker")
                             .maxDate(till || new Date());
@@ -56,7 +56,7 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-datetimepicker', 'bootstr
                     util.hash({
                         since: val ? moment().subtract(1, val).format('X') : 0,
                         till: moment().format('X')
-                    });
+                    }, true);
                 });
         },
         update: function(hash) {
