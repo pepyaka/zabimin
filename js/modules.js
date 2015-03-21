@@ -10,6 +10,7 @@ require.config({
         'bootstrap-select': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select'],//http://silviomoreto.github.io/bootstrap-select/
         'bootstrap-datetimepicker': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.0.0/js/bootstrap-datetimepicker.min'],//http://eonasdan.github.io/bootstrap-datetimepicker/
         'bootstrap-table': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.6.0/bootstrap-table.min'], //http://bootstrap-table.wenzhixin.net.cn/
+        'bootstrap-daterangepicker': ['//cdn.jsdelivr.net/bootstrap.daterangepicker/1.3.19/daterangepicker'],//https://github.com/dangrossman/bootstrap-daterangepicker
         'select2': ['//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-beta.3/js/select2.min'],
         //Chart libs
         'jqplot': ['//cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.8/jquery.jqplot.min'],

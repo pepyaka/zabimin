@@ -1,5 +1,5 @@
 // Monitoring/Events
-define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-select', 'js/lib/daterangepicker.js'], function(zapi, Util, nav, moment) {
+define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-select', 'bootstrap-daterangepicker'], function(zapi, Util, nav, moment) {
     "use strict";
 
     var data = {};
@@ -403,7 +403,6 @@ define(['Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table', 'bootstrap-sele
             .fadeTo('fast', 0.3)
 
         eventGet.done(function(zapiResponse) {
-            console.log('event.get', reqParams, zapiResponse.result)
             $('#triggerEvent')
                 .bootstrapTable('destroy')
                 .bootstrapTable({

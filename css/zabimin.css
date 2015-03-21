@@ -8,11 +8,11 @@
 /* waiting for select2-bootstrap-css update for select2 4.0
 @import "//cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css";
 */
-@import "../dist/hint.css/hint.css";
-@import "daterangepicker-bs3.css";
-@import "../dist/xcharts-build/xcharts.css";
-@import "typeaheadjs.css";
-@import "../dist/metrics-graphics/dist/metricsgraphics.css";
+@import "//cdn.jsdelivr.net/hint.css/1.3.2/hint.min.css";
+@import "//cdn.jsdelivr.net/bootstrap.daterangepicker/1.3.19/daterangepicker-bs3.css";
+@import "//cdn.jsdelivr.net/xcharts/0.1.3/xcharts.css";
+@import "//rawgit.com/bassjobsen/typeahead.js-bootstrap-css/master/typeaheadjs.css";
+@import "//cdnjs.cloudflare.com/ajax/libs/metrics-graphics/2.2.1/metricsgraphics.min.css";
 @import "//cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.0/nv.d3.min.css";
 @import "//cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.css";
 

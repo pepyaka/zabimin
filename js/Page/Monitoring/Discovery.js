@@ -45,7 +45,7 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table'], function(zapi, util, momen
                         }
                         if (chk.key_) {
                             text = [
-                                ' <span class="hint--left hint--rounded hint--info text-info" data-hint="'+ chk.key_ + '">',
+                                ' <span class="label label-info hint--left hint--rounded hint--info" data-hint="'+ chk.key_ + '">',
                                     zapi.map('Discovery check', 'type', chk.type).value,
                                 '</span>'
                             ].join('')
@@ -62,7 +62,7 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table'], function(zapi, util, momen
                             down = moment(dcheck.lastdown, 'X');
                             if (dcheck.value) {
                                 type = [
-                                    '<span class="pull-right hint--left hint--rounded hint--info hint--wrap" data-hint="'+dcheck.value+'">',
+                                    '<span class="pull-right hint--left hint--rounded hint--info" data-hint="'+dcheck.value+'">',
                                         '<span class="glyphicon glyphicon-info-sign text-info">',
                                         '</span>',
                                     '</span>'
@@ -70,7 +70,7 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table'], function(zapi, util, momen
                             }
                             if (dcheck.status == 0) {
                                 cell = [
-                                    '<span data-hint="Service up: '+up.format('lll')+'" class="hint--left hint--rounded hint--success text-success text-nowrap">',
+                                    '<span data-hint="Service up: '+up.format('lll')+'" class="label label-success hint--left hint--rounded hint--success text-nowrap">',
                                         up.fromNow(true),
                                     '</span>',
                                     type
@@ -78,7 +78,7 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table'], function(zapi, util, momen
                             }
                             if (dcheck.status == 1) {
                                 cell = [
-                                    '<span data-hint="Service down: '+down.format('lll')+'" class="hint--left hint--rounded hint--error text-danger text-nowrap">',
+                                    '<span data-hint="Service down: '+down.format('lll')+'" class="label label-danger hint--left hint--rounded hint--error text-nowrap">',
                                         down.fromNow(true),
                                     '</span>',
                                     type
@@ -114,13 +114,13 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table'], function(zapi, util, momen
                         var down = moment(h.lastdown, 'X');
                         if (s == 0) {
                             hStatus = [
-                                '<span data-hint="Host up: '+up.format('lll')+'" class="hint--left hint--rounded hint--success text-success">',
+                                '<span data-hint="Host up: '+up.format('lll')+'" class="label label-success hint--left hint--rounded hint--success">',
                                     up.fromNow(true),
                                 '</span>'
                             ]
                         } else {
                             hStatus = [
-                                '<span data-hint="Host down: '+down.format('lll')+'" class="hint--left hint--rounded hint--error text-danger">',
+                                '<span data-hint="Host down: '+down.format('lll')+'" class="label label-danger hint--left hint--rounded hint--error">',
                                     down.fromNow(true),
                                 '</span>'
                             ]

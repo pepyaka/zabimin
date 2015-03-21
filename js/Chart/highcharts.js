@@ -140,15 +140,15 @@ define(['highstock'], function() {
                     'area'
                 ][gItem.drawtype],
                 name: gItem.name,
-                color: '#' + gItem.color,
-                yAxis: +gItem.yaxisside,
+                color: gItem.color ? '#' + gItem.color : null,
+                yAxis: +gItem.yaxisside || 0,
                 data: [],
             }
         });
         if (chart.graphtype === '1' && !chart.trends) {
             // on stacked chart all timestamp must be same
             data.forEach(function (iData, i) {
-                var interval = chart.gItems[i].delay;
+                var interval = +chart.gItems[i].delay || 3600;
                 iData.forEach(function (d) {
                     var sec = d.clock  - (d.clock % interval);
                     if (timeObj[sec]) {
@@ -169,27 +169,19 @@ define(['highstock'], function() {
                 return a.ms - b.ms
             });
             timeArr.forEach(function (p) {
+                var v = typeof p.items[0].value === 'undefined' ? 'value_avg' : 'value';
                 p.items.forEach(function (pd, i) {
-                    series[i].data.push([p.ms, +pd.value]);
+                    series[i].data.push([ p.ms, +pd[v] ]);
                 })
             });
         } else {
-            var v = chart.trends ? 'value_avg' : 'value';
             data.forEach(function (iData, i) {
+                var v = typeof iData[0].value === 'undefined' ? 'value_avg' : 'value';
                 iData.forEach(function (d) {
                     series[i].data.push([ d.clock * 1000, +d[v] ]);
                 });
             });
         }
-/*
-series.forEach(function (s) {
-    s.data.forEach(function (d, i) {
-        if (isNaN(d[0]) || isNaN(d[1])) {
-            console.warn(s, i, d)
-        }
-    });
-})
-*/
         highChart.series = series;
     };
     var draw = function(idSel) {

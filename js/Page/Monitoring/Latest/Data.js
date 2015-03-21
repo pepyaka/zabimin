@@ -77,33 +77,35 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-datetimepicker', 'bootstr
     };
     var graph = {
         lib: null, //Defined on library load. Depend on config.
-        init: function(items) {
+        init: function(items, stacked) {
             var graph = {
-                idSel: 'graph',
+                idSel: 'chart',
+                graphtype: stacked ? '1' : '0',
                 yAxisUnits: { left: '', right: '' },
-                items: items
+                gItems: items
             }
             this.lib.init(graph)
         },
         load: function(data) {
             this.lib.load(data)
+            this.lib.draw('chart')
         },
         show: function() {
             $('#graph')
                 .removeClass('hidden')
-            this.lib.draw()
         },
         hide: function() {
             $('#graph')
                 .addClass('hidden')
-            this.lib.destroy()
+            //this.lib.destroy()
         }
     };
     var table = {
         init: function(items) {
             var columns = [{
                 field: 'Time',
-                title: 'Time'
+                title: 'Time',
+                class: 'text-nowrap'
             }];
             this.items = items;
             items.forEach(function(item) {
@@ -227,8 +229,9 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-datetimepicker', 'bootstr
                         .text(title.join(', '));
                     graph.init(items.map(function(i) {
                         i.name = i.hosts[0].name + ': ' + i.name;
+                        i.drawtype = hashArgs.stacked ? '1' : '0';
                         return i
-                    }));
+                    }), hashArgs.stacked);
                     table.init(items);
                     text.init(items);
                 }

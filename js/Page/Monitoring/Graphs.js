@@ -138,7 +138,6 @@ define(['Zapi', 'moment', 'config', 'Util', 'bootstrap-select'], function(zapi, 
                             .prop('href', page + '&hostid=' + g.hosts[0].hostid + '&graphid=' + g.graphid);
                     args.items = g.gItems;
                     getHistory(args, function (history) {
-console.log(history)
                         chartLib.init(g, idSel);
                         chartLib.load(history);
                         chartLib.draw(idSel);
