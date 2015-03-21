@@ -169,9 +169,11 @@ define(['highstock'], function() {
                 return a.ms - b.ms
             });
             timeArr.forEach(function (p) {
-                var v = typeof p.items[0].value === 'undefined' ? 'value_avg' : 'value';
                 p.items.forEach(function (pd, i) {
-                    series[i].data.push([ p.ms, +pd[v] ]);
+                    series[i].data.push([
+                        p.ms, 
+                        typeof pd.value === 'undefined' ? +pd.value_avg : +pd.value
+                    ]);
                 })
             });
         } else {
