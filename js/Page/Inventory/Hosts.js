@@ -6,16 +6,22 @@ define(['Zapi', 'bootstrap-table'], function(zapi) {
     var filter = {
         init: function(initDone) {
             var hostGroupGet = zapi.req('hostgroup.get', {
-                real_hosts: true
+                real_hosts: true,
+                selectHosts: 'count'
             });
             hostGroupGet.done(function(groupResponse) {
                 var groups = groupResponse.result;
                 var groupList = groups.map(function(group) {
-                    return [
-                        '<li data-groupid="'+group.groupid+'">',
-                            '<a href="#!Inventory/Hosts&groupid='+group.groupid+'">'+group.name+'</a>',
+                    return (
+                        '<li data-groupid="'+group.groupid+'">' +
+                            '<a href="#!Inventory/Hosts&groupid='+group.groupid+'">' +
+                                group.name + 
+                                '<span class="badge pull-right">' + 
+                                    group.hosts +
+                                '</span>' +
+                            '</a>' +
                         '</li>'
-                    ].join('')
+                    )
                 });
                 $('#group-list')
                     .append(groupList.join(''))
@@ -36,8 +42,13 @@ define(['Zapi', 'bootstrap-table'], function(zapi) {
                     field: 'name',
                     title: 'Host',
                     sortable: true,
+                    class: "text-nowrap",
                     formatter: function(name, host) {
-                        return '<a href="#!Inventory/Host&hostid='+host.hostid+'">'+name+'</a>'
+                        return (
+                            '<a href="#!Inventory/Host&hostid='+host.hostid+'">' +
+                                name +
+                            '</a>'
+                        )
                     }
                 }, {
                     field: 'groups',
@@ -48,7 +59,13 @@ define(['Zapi', 'bootstrap-table'], function(zapi) {
                         var groupList = groups.map(function(g) {
                             return g.name
                         });
-                        return '<a class="hint--right hint--info hint--rounded" data-hint="'+groupList.join('\n')+'"><span class="badge">'+groupList.length+'</span></a>'
+                        return (
+                            '<a class="hint--right hint--info hint--rounded" data-hint="'+groupList.join('\n')+'">' +
+                                '<span class="badge">' +
+                                    groupList.length +
+                                '</span>' +
+                            '</a>'
+                        )
                     }
                 }, {
                     field: 'interfaces',
@@ -121,10 +138,12 @@ define(['Zapi', 'bootstrap-table'], function(zapi) {
             $('#hosts-inventory')
                 .bootstrapTable({
                     search: true,
-                    //pagination: true,
-                    //showRefresh: true,
                     showToggle: true,
                     showColumns: true,
+                    showPaginationSwitch: true,
+                    pagination: true,
+                    pageSize: 20,
+                    pageList: [10, 20, 50, 100],
                     columns: columns
                 })
                 .css('opacity', 0.3)

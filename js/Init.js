@@ -1,10 +1,15 @@
 define(['Page', 'Zapi', 'jquery', 'bootstrap'], function(Page, zapi) {
-    'use strict';
+    "use strict";
 
     $(document).ready(function () {
 
-        $('#user-name')
-            .text(localStorage.name + ' ' + localStorage.surname);
+        //Check zabbix api version
+        var apiInfo = zapi.req('apiinfo.version', {});
+        apiInfo.done(function (zapiResponse) {
+            var version = zapiResponse.result;
+            $('#user-name')
+                .text(localStorage.name + ' ' + localStorage.surname);
+        })
 
         $('#modal-login-buttons button')
             .on('click', function () {

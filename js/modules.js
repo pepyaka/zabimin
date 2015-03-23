@@ -2,6 +2,7 @@ require.config({
     paths: { 
         //RequireJS plugins
         'text': ['//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text'],
+
         //Common libs
         'jquery': ['//code.jquery.com/jquery-2.1.1', 'lib/jquery.min'],
         'moment': ['//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min'],
@@ -9,8 +10,15 @@ require.config({
         'bootstrap': ['//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap', 'libs/bootstrap.min'],
         'bootstrap-select': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select'],//http://silviomoreto.github.io/bootstrap-select/
         'bootstrap-datetimepicker': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.0.0/js/bootstrap-datetimepicker.min'],//http://eonasdan.github.io/bootstrap-datetimepicker/
-        'bootstrap-table': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.6.0/bootstrap-table.min'], //http://bootstrap-table.wenzhixin.net.cn/
-        'bootstrap-daterangepicker': ['//cdn.jsdelivr.net/bootstrap.daterangepicker/1.3.19/daterangepicker'],//https://github.com/dangrossman/bootstrap-daterangepicker
+        //http://bootstrap-table.wenzhixin.net.cn/       
+        'bootstrap-table': [
+            '../dist/bootstrap-table/dist/bootstrap-table.min',
+            '//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.6.0/bootstrap-table.min'
+        ],
+        //https://github.com/dangrossman/bootstrap-daterangepicker
+        'bootstrap-daterangepicker': [
+            '//cdn.jsdelivr.net/bootstrap.daterangepicker/1.3.19/daterangepicker'
+        ],
         'select2': ['//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-beta.3/js/select2.min'],
         //Chart libs
         'jqplot': ['//cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.8/jquery.jqplot.min'],

@@ -166,7 +166,8 @@ define(['Zapi', 'moment', 'config', 'Util', 'bootstrap-select'], function(zapi, 
         filter.init(function () {
             filter.update(hashArgs);
         });
-        require(['Chart/'+zabimin.chartLib], function (lib) {
+        var chartLibName = hashArgs.chartLib || zabimin.chartLib;
+        require(['Chart/' + chartLibName], function (lib) {
             chartLib = lib;
             selectView(hashArgs);
         })
