@@ -1,97 +1,94 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-2 col-lg-push-10">
-            <div class="row">
-                <div class="col-lg-12 col-xs-6">
-                    <div class="btn-group btn-group-justified" role="group" aria-label="history-type">
-                        <div class="btn-group" role="group">
-                            <button type="button"
-                                    class="btn btn-default"
-                                    data-hash-args="trends"
-                                    value="">
-                                History
-                            </button>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <button type="button"
-                                    class="btn btn-default"
-                                    data-hash-args="trends"
-                                    value="true">
-                                Trends
-                            </button>
-                        </div>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label for="group-list" class="col-xs-3 control-label">Group</label>
+                    <div class="col-xs-9">
+                        <select class="form-control selectpicker pull-right"
+                                id="group-list"
+                                data-style="btn-primary"
+                                data-hash-args="groupid"
+                                disabled>
+                            <option value="">All groups</option>
+                        </select>
                     </div>
-                    <br>
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <form>
-                                <div class="form-group">
-                                    <label for="group-list">Host group</label>
-                                    <select class="form-control selectpicker pull-right"
-                                            id="group-list"
-                                            data-hash-args="groupid"
-                                            disabled>
-                                        <option value="">All groups</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="host-list">Host</label>
-                                    <select class="form-control selectpicker pull-right"
-                                            id="host-list"
-                                            data-hash-args="hostid"
-                                            data-live-search="true"
-                                            disabled>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="graph-list">Graph</label>
-                                    <select class="form-control selectpicker pull-right"
-                                            id="graph-list"
-                                            data-hash-args="graphid"
-                                            data-live-search="true"
-                                            disabled>
-                                    </select>
-                                </div>
-                            </form>
+                </div>
+                <div class="form-group">
+                    <label for="group-list" class="col-xs-3 control-label">Host</label>
+                    <div class="col-xs-9">
+                        <select class="form-control selectpicker pull-right"
+                                id="host-list"
+                                data-style="btn-primary"
+                                data-hash-args="hostid"
+                                data-live-search="true"
+                                disabled>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="group-list" class="col-xs-3 control-label">Graph</label>
+                    <div class="col-xs-9">
+                        <select class="form-control selectpicker pull-right"
+                                id="graph-list"
+                                data-style="btn-primary"
+                                data-hash-args="graphid"
+                                data-live-search="true"
+                                disabled>
+                        </select>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class='col-xs-12'>
+                                <label for="datetimerange-slider">Time interval</label>
+                                <input  class="hidden"
+                                        id="datetimerange-slider"
+                                        type="text"
+                                        data-slider-range="true"
+                                        data-slider-enabled="false">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="datetimerange-since" class="col-xs-3 control-label">Since</label>
+                            <div class='col-xs-9'>
+                                <input id="datetimerange-since" type='text' class="form-control datetimepicker"/>
+                            </div>
+                        <div class="form-group">
+                        </div>
+                            <label for="datetimerange-till" class="col-xs-3 control-label">Till</label>
+                            <div class='col-xs-9'>
+                                <input id="datetimerange-till" type='text' class="form-control datetimepicker"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="datetimerange-select" class="col-xs-12">Fixed interval</label>
+                            <div class="col-xs-12">
+                                <select class="selectpicker form-control pull-right"
+                                        id="datetimerange-select"
+                                        data-style="btn-default">
+                                    <option value="" disabled="disabled">Custom range</option>
+                                    <option value="hour">Hour</option>
+                                    <option value="day">Day</option>
+                                    <option value="today">Today</option>
+                                    <option value="yesterday">Yesterday</option>
+                                    <option value="week">Week</option>
+                                    <option value="this_week">This week</option>
+                                    <option value="last_week">Last week</option>
+                                    <option value="month">Month</option>
+                                    <option value="this_month">This month</option>
+                                    <option value="last_month">Last month</option>
+                                    <option value="year">Year</option>
+                                    <option value="this_year">This year</option>
+                                    <option value="last_year">Last year</option>
+                                    <option value="all">All</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
-<!--
-                <div class="col-lg-12 col-xs-6">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <form class="form-horizontal">
-                                <div class="form-group">
-                                    <label for="since" class="col-sm-3 control-label">Since</label>
-                                    <div class='col-xs-9'>
-                                        <input id="since" type='text' class="form-control datetimepicker"/>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="till" class="col-sm-3 control-label">Till</label>
-                                    <div class='col-xs-9'>
-                                        <input id="till" type='text' class="form-control datetimepicker"/>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="last-period" class="col-sm-6 control-label">Last period</label>
-                                    <div class='col-xs-6'>
-                                        <select class="form-control selectpicker" id="last-period">
-                                            <option value="h">Hour</option>
-                                            <option value="d">Day</option>
-                                            <option value="w">Week</option>
-                                            <option value="M">Month</option>
-                                            <option value="y">Year</option>
-                                            <option value="">All</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
--->
-            </div>
+            </form>
         </div>
         <div class="col-lg-10 col-lg-pull-2 col-scroll">
             <div class="hidden" id="popular-graphs">
@@ -99,106 +96,106 @@
                 <div class="row">
                     <div class="col-lg-3 col-sm-4 col-xs-6">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-0"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-4 col-xs-6">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-1"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-4 col-xs-6">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-2"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-4 col-xs-6">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-3"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-4 col-xs-6">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-4"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-4 col-xs-6">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-5"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-4 col-xs-6 hidden-xs">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-6"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-4 col-xs-6 hidden-xs">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-7"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-4 col-xs-6 hidden-xs">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-8"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 visible-lg-block">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-9"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 visible-lg-block">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-10"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 visible-lg-block">
                         <a class="thumbnail" href="">
-                            <h5 class="text-center">Graph</h5>
+                            <h5 class="graph-title text-center">Graph</h5>
                             <div class="aspect-ratio-16-by-9">
-                                <div id="popular-graph-11"></div>
+                                <div class="graph-container"></div>
                             </div>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="hidden" id="main-chart">
-                <h4 class="text-center">Graph</h4>
+            <div class="hidden" id="main-graph">
+                <h4 class="graph-title text-center">Graph</h4>
                 <div class="aspect-ratio-16-by-9">
-                    <div id="chart"></div>
+                    <div class="graph-container"></div>
                 </div>
             </div>
         </div>

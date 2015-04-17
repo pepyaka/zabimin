@@ -1,39 +1,55 @@
-// Inventory/Hosts
-define(['Zapi', 'bootstrap-table'], function(zapi) {
+define(['Zapi', 'Util', 'bootstrap-table', 'bootstrap-select'], function(zapi, util) {
     "use strict";
+
+    //Page global variables
     var page = '#!Inventory/Hosts';
 
+    //Page components
     var filter = {
         init: function(initDone) {
             var hostGroupGet = zapi.req('hostgroup.get', {
                 real_hosts: true,
                 selectHosts: 'count'
             });
+            $('.selectpicker')
+                .selectpicker()
+                .on('change', function () {
+                    var $opt = $(this);
+                    var args = {};
+                    if ($opt.data('hashArgs')) {
+                        args[$opt.data('hashArgs')] = $opt.val() || null;
+                        util.hash(args, true)
+                    }
+                });
+            $('#inventory-prop-search')
+                .on('click', function () {
+                    var args = {};
+                    var k = $('#field-select').val();
+                    var v = $('#inventory-prop-value').val();
+                    args['inventory.' + k] = v || null;
+                    util.hash(args, true);
+                });
             hostGroupGet.done(function(groupResponse) {
                 var groups = groupResponse.result;
-                var groupList = groups.map(function(group) {
-                    return (
-                        '<li data-groupid="'+group.groupid+'">' +
-                            '<a href="#!Inventory/Hosts&groupid='+group.groupid+'">' +
-                                group.name + 
-                                '<span class="badge pull-right">' + 
-                                    group.hosts +
-                                '</span>' +
-                            '</a>' +
-                        '</li>'
-                    )
-                });
-                $('#group-list')
-                    .append(groupList.join(''))
-                initDone()
+                $('#group-select')
+                    .append(groups.map(function(g) {
+                        var dataContent = '<span class="badge pull-right">' + g.hosts + '</span>' + g.name;
+                        return (
+                            '<option value="' + g.groupid + '" data-content=\'' + dataContent + '\'>' +
+                                    g.name +
+                            '</option>'
+                        )
+                    }))
+                    .prop('disabled', false)
+                    .selectpicker('refresh');
+                initDone();
             });
         },
-        update: function(hash) {
-            var gid = hash.groupid ? hash.groupid[0] : 0;
-            $('#group-list li')
-                .removeClass('active')
-            $('[data-groupid="'+gid+'"]')
-                .addClass('active')
+        update: function(hashArgs) {
+            $.each(hashArgs, function (k, v) {
+                $('[data-hash-args="' + k + '"]')
+                    .selectpicker('val', v);
+            });
         }
     };
     var inventoryTable = {
@@ -55,16 +71,27 @@ define(['Zapi', 'bootstrap-table'], function(zapi) {
                     title: 'Groups',
                     searchable: false,
                     sortable: true,
+                    align: 'center',
+                    valign: 'middle',
                     formatter: function(groups) {
                         var groupList = groups.map(function(g) {
-                            return g.name
+                            return (
+                                '<a class="list-group-item" href="'+page+'&groupid='+g.groupid+'">' +
+                                    g.name +
+                                '</a>'
+                            )
                         });
                         return (
-                            '<a class="hint--right hint--info hint--rounded" data-hint="'+groupList.join('\n')+'">' +
-                                '<span class="badge">' +
-                                    groupList.length +
-                                '</span>' +
-                            '</a>'
+                            '<span class="expanded-info badge alert-info">' +
+                                groupList.length +
+                                '<div class="expanded-info-content-left">' +
+                                    '<div class="panel panel-default">' +
+                                        '<div class="list-group list-group-sm text-left text-nowrap">' +
+                                            groupList.join('') +
+                                        '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</span>'
                         )
                     }
                 }, {
@@ -109,8 +136,8 @@ define(['Zapi', 'bootstrap-table'], function(zapi) {
                     field: 'inventory',
                     title: 'Serial',
                     formatter: function(i) {
-                        var a = i.serialno_a ? '<span class="text-info">'+i.serialno_a+'</span>' : ''
-                        var b = i.serialno_b ? ' <span class="text-muted">'+i.serialno_b+'</span>' : ''
+                        var a = i.serialno_a ? '<span class="label label-primary">'+i.serialno_a+'</span>' : ''
+                        var b = i.serialno_b ? ' <span class="label label-default">'+i.serialno_b+'</span>' : ''
                         return a + b
                     }
                 }, {
@@ -148,16 +175,33 @@ define(['Zapi', 'bootstrap-table'], function(zapi) {
                 })
                 .css('opacity', 0.3)
         },
-        update: function(hash) {
+        update: function(hashArgs) {
             var hostGet = zapi.req('host.get', {
-                groupids: hash.groupid,
+                groupids: hashArgs.groupid,
                 selectInventory: 'extend',
                 selectInterfaces: ['ip', 'type']
             });
             $('#hosts-inventory')
                 .fadeTo('fast', 0.3)
             hostGet.done(function(hostResponse) {
-                var hosts = hostResponse.result;
+                var inventoryProp;
+                $.each(hashArgs, function (k, v) {
+                    var p = k.split('.');
+                    if (p[0] === 'inventory') {
+                        inventoryProp = [ p[1], v[0] ];
+                    }
+                });
+                var hosts = inventoryProp ?
+                            hostResponse.result.filter(function (h) {
+                                var filter = false;
+                                $.each(h.inventory, function (k, v) {
+                                    if (inventoryProp[0] === k && inventoryProp[1] === v) {
+                                        filter = true
+                                    }
+                                });
+                                return filter
+                            }) :
+                            hostResponse.result;
                 $('#hosts-inventory')
                     .bootstrapTable('load', hosts)
                     .fadeTo('fast', 1)
@@ -165,6 +209,7 @@ define(['Zapi', 'bootstrap-table'], function(zapi) {
         }
     };
 
+    //Page external methods
     var init = function(hash) {
         filter.init(function() {
             filter.update(hash);
@@ -177,29 +222,6 @@ define(['Zapi', 'bootstrap-table'], function(zapi) {
         inventoryTable.update(hash);
     };
 
-    function filterSelHosts(hash) {
-        var selHosts = hosts.slice(0)
-        if (hash.groupid) {
-            hash.groupid.forEach(function(selGroupId) {
-                selHosts = selHosts.filter(function(host) {
-                    return host.groups.some(function(g) {
-                        return g.groupid == selGroupId
-                    });
-                });
-            });
-        }
-        if (hash.hostgroup) {
-            hash.hostgroup.forEach(function(selGroup) {
-                selHosts = selHosts.filter(function(host) {
-                    return host.groups.some(function(g) {
-                        return g.name == selGroup
-                    });
-                });
-            });
-        }
-        createInventoryTable(selHosts)
-    };
-    
     return {
         init: init,
         update: update

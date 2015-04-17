@@ -1,78 +1,43 @@
 // Monitoring/Triggers page
-define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], function(Page, zapi, Util, nav, moment) {
+define(['Zapi', 'Util', 'moment', 'bootstrap-select', 'bootstrap-table'], function(zapi, util, moment) {
     "use strict";
 
     //Page global variables
     var data = {};// work data
-    var hostSelector = nav.hostSelector; // Shorthands
+
+    //Page components
     var filter = {
-        init: function(changeHashArgs) {
-            filter.callback = changeHashArgs;
-            $('#filterTriggerStatus')
-                .on('change', function() {
-                    changeHashArgs({
-                        triggerStatus: $(this).val() || null
-                    });
-                })
-            $('#filterAcknowledgeStatus')
-                .on('change', function() {
-                    changeHashArgs({
-                        acknowledgeStatus: $(this).val() || null
-                    });
+        hosts: [],
+        groups: [],
+        init: function (initDone) {
+            var hosts = this.hosts;
+            var groups = this.groups;
+            var hostGet = zapi.req('host.get', {
+                output: ['name'],
+                selectGroups: ['name'],
+                selectApplications: ['name', 'applicationid']
+            });
+            $('.selectpicker')
+                .selectpicker();
+            $('[data-hash-args]')
+                .on('change', function () {
+                    var hashArgs = {};
+                    var arg = $(this).data('hashArgs');
+                    var val = $(this).val() || null;
+                    hashArgs[arg] = val;
+                    if (arg === 'groupid') {
+                        hashArgs.hostid = null;
+                    }
+                    util.hash(hashArgs, true);
                 });
-            $('#filterEvents')
-                .on('change', function() {
-                    changeHashArgs({
-                        events: $(this).val() || null
-                    });
-                });
-            $('#filterMinSeverity')
-                .on('change', function() {
-                    changeHashArgs({
-                        minSeverity: $(this).val() || null
-                    });
-                });
-            $('#filterLastChangeSince')
-                .on('dp.change', function(e) {
-                    var m =  moment(e.date);
-                    changeHashArgs({
-                        lastChangeSince: m.format('YYYY-MM-DD')
-                    });
-                    $('#filterLastChangeTill').data("DateTimePicker").setMinDate(e.date);
-                })
-                .on('click', '.datetimepicker-clear', function() {
-                    changeHashArgs({
-                        lastChangeSince: null
-                    });
-                    $('#filterLastChangeSince').find('input').val('')
-                });
-            $('#filterLastChangeTill')
-                .on('dp.change', function(e) {
-                    var m =  moment(e.date);
-                    changeHashArgs({
-                        lastChangeTill: m.format('YYYY-MM-DD')
-                    });
-                    $('#filterLastChangeSince').data("DateTimePicker").setMaxDate(e.date);
-                })
-                .on('click', '.datetimepicker-clear', function() {
-                    changeHashArgs({
-                        lastChangeTill: null
-                    });
-                    $('#filterLastChangeTill').find('input').val('')
-                });
-            $('#filterByName')
+
+            $('#filter-by-name')
                 .on('click', 'button', function() {
-                    var searchPattern = $('#filterByName input').val()
+                    var searchPattern = $('#filter-by-name input').val()
                     searchPattern = searchPattern.replace('=', ' ').replace('&', ' ')
-                    changeHashArgs({
-                        byName: searchPattern
-                    });
-                });
-            $('#filterShowDetails')
-                .on('change', function() {
-                    changeHashArgs({
-                        showDetails: $(this).is(':checked') || null
-                    });
+                    util.hash({
+                        search: searchPattern
+                    }, true);
                 });
             $('#filterMaintenance')
                 .on('change', function() {
@@ -80,324 +45,303 @@ define(['Page','Zapi', 'Util', 'Page/nav', 'moment', 'bootstrap-table'], functio
                         maintenance: $(this).is(':checked') || null
                     });
                 });
-            $('#filterReset')
+            $('#filter-reset')
                 .on('click', function(e) {
-                    e.preventDefault();
-                    filter.reset();
+                    util.hash(null, true);
                 });
-        },
-        set: function(hashArgs) {
-            var filterArgs = {};
-            // we need only filter args
-            var map = {
-                triggerStatus: function(v) {
-                    $('#filterTriggerStatus').selectpicker('val', v)
-                },
-                acknowledgeStatus: function(v) {
-                    $('#filterAcknowledgeStatus').selectpicker('val', v)
-                },
-                events: function(v) {
-                    $('#filterEvents').selectpicker('val', v)
-                },
-                minSeverity: function(v) {
-                    $('#filterMinSeverity').selectpicker('val', v)
-                },
-                lastChangeSince: function(v) {
-                    $('#filterLastChangeSince input').val(v)
-                },
-                lastChangeTill: function(v) {
-                    $('#filterLastChangeTill input').val(v)
-                },
-                byName: function(v) {
-                    $('#filterByName input').val(v)
-                },
-                showDetails: function(v) {
-                    $('#filterShowDetails').prop('checked', v)
-                },
-                maintenance: function(v) {
-                    $('#filterMaintenance').prop('checked', v)
-                }
-            };
-            $.each(hashArgs, function(k, v) {
-                if (map[k]) {
-                    map[k](v[0]);
-                    filterArgs[k] = v;
-                };
+            hostGet.done(function(zapiResponse) {
+                var groupList = [];
+                Array.prototype.push.apply(hosts, zapiResponse.result);
+                hosts.forEach(function(host) {
+                    host.groups.forEach(function(group) {
+                        if (groups[group.groupid]) {
+                            groups[group.groupid].hosts.push(host)
+                        } else {
+                            groups[group.groupid] = group
+                            groups[group.groupid].hosts = [host]
+                        }
+                    });
+                });
+                groups.forEach(function (g) {
+                    groupList.push(
+                        '<option value="' + g.groupid + '">' +
+                            g.name +
+                        '</otion>'
+                    );
+                });
+                $('#group-select')
+                    .append(groupList)
+                    .prop('disabled', false)
+                initDone();
             });
-            filter.callback(filterArgs)
         },
-        reset: function() {
-            filter.callback({
-                triggerStatus: null,
-                acknowledgeStatus: null,
-                events: null,
-                minSeverity: null,
-                lastChangeSince: null,
-                lastChangeTill: null,
-                byName: null,
-                showDetails: null,
-                maintenance: null
+        update: function (hashArgs) {
+            var group = this.groups.filter(function (g) {
+                return g.groupid === (hashArgs.groupid && hashArgs.groupid[0])
+            })[0];
+            var hosts = group ? group.hosts : this.hosts;
+            var host = hosts.filter(function (h) {
+                return h.hostid === (hashArgs.hostid && hashArgs.hostid[0])
+            })[0];
+            var hostList = hosts.map(function (h) {
+                return (
+                    '<option value="' + h.hostid + '">' +
+                        h.name +
+                    '</otion>'
+                )
+            })
+            var appObj = {};
+            var appList = [];
+            var appHosts = host ? [host] : hosts;
+            appHosts.forEach(function (h) {
+                h.applications.forEach(function (a) {
+                    if (appObj[a.name]) {
+                        appObj[a.name].push(a)
+                    } else {
+                        appObj[a.name] = [a];
+                    }
+                });
             });
-            $('#filterTriggerStatus').selectpicker('val', '')
-            $('#filterAcknowledgeStatus').selectpicker('val', '')
-            $('#filterEvents').selectpicker('val', '')
-            $('#filterMinSeverity').selectpicker('val', '')
-            $('#filterLastChangeSince input').val('')
-            $('#filterLastChangeTill input').val('')
-            $('#filterByName input').val('')
-            $('#filterShowDetails').prop('checked', false)
-            $('#filterMaintenance').prop('checked', false)
+            Object.keys(appObj).forEach(function (aName) {
+                appList.push(
+                    '<option value="' + aName + '">' +
+                        aName +
+                    '</option>'
+                );
+            });
+            hostList.unshift('<option value="">Nothing selected</option>');
+            appList.unshift('<option value="">Nothing selected</option>');
+            $('#group-select')
+                .val(hashArgs.groupid && hashArgs.groupid[0])
+                .selectpicker('refresh');
+            $('#host-select')
+                .html(hostList)
+                .val(hashArgs.hostid ? hashArgs.hostid[0] : '')
+                .prop('disabled', false)
+                .selectpicker('refresh');
+            $('#app-select')
+                .html(appList)
+                .val(hashArgs.app ? hashArgs.app[0] : '')
+                .prop('disabled', false)
+                .selectpicker('refresh');
+            return appObj
         }
     };
+    var table = {
+        init: function () {
+            var columns = [{
+                    field: 'priority',
+                    title: 'Severity',
+                    sortable: true,
+                    cellStyle: function(value) {
+                        return {
+                            classes: {
+                                'Not classified': '',
+                                'Information': 'info',
+                                'Warning': 'warning',
+                                'Average': 'warning text-danger',
+                                'High': 'danger',
+                                'Disaster': 'danger text-danger'
+                            }[value]
+                        }
+                    },
+                    formatter: function(priority) {
+                        return zapi.map('Trigger', 'priority', priority).value
+                    }
+                }, {
+                    field: 'value',
+                    title: 'Status',
+                    sortable: true,
+                    formatter: function (value) {
+                        return zapi.map('Trigger', 'value', value).value
+                    },
+                    cellStyle: function(status) {
+                        return {
+                            classes: {
+                                'OK': 'text-success',
+                                'Problem': 'text-danger'
+                            }[status]
+                        }
+                    }
+                }, {
+                    field: 'lastchange',
+                    title: 'Last change',
+                    sortable: true,
+                    formatter: function(s, trigger) {
+                        return (
+                            '<a href="#!Monitoring/Event&eventid='+trigger.lastEvent.eventid+'">' +
+                                 moment(s, 'X').format('lll') +
+                            '</a>'
+                        )
+                    }
+                }, {
+                    field: 'lastchange',
+                    title: 'Age',
+                    formatter: function(unixtime) {
+                        var d = moment(unixtime, 'X');
+                        return d.fromNow('lll')
+                    }
+                }, {
+                    field: 'lastEvent',
+                    title: 'Acknowledged',
+                    formatter: function(e) {
+                        var btnClass = 'btn-danger';
+                        var btnText = 'No';
+                        if (e.acknowledged === '1') {
+                            btnClass = 'btn-success';
+                            btnText = 'Yes';
+                        }
+                        return (
+                            '<button type="button" ' +
+                                    'class="btn btn-xs ' + btnClass+' "' +
+                                    'data-toggle="modal" ' +
+                                    'data-target="#modal-ack-editor" ' +
+                                    'data-eventid="'+e.eventid+'">' +
+                                        btnText +
+                            '</button>'
+                        )
+                    }
+                }, {
+                    field: 'events',
+                    title: 'Events',
+                    formatter: function (events, trigger) {
+                        var href = '#!Monitoring/Events/Triggers' +
+                            '&hostid=' + trigger.hosts[0].hostid +
+                            '&triggerid=' + trigger.triggerid;
+                        return '<a href="' + href + '">' + events + '</a>'
+                    }
+                }, {
+                    field: 'hosts',
+                    title: 'Host',
+                    sortable: true,
+                    formatter: function(hosts) {
+                        return hosts.map(function (h) {
+                            return (
+                                '<a href="#!Inventory/Host&hostid='+h.hostid+'">' +
+                                    h.name +
+                                '</a>'
+                            )
+                        }).join(', ')
+                    },
+                }, {
+                    field: 'description',
+                    title: 'Name',
+                }, {
+                    field: 'error',
+                    title: 'Info',
+                    align: 'center',
+                    formatter: function (err, trigger) {
+                        var comment = trigger.comments ? (
+                            '<span class="text-info expanded-info">' +
+                                '<span class="glyphicon glyphicon-info-sign"></span>' +
+                                '<span class="expanded-info-content-left">' +
+                                    '<div class="alert alert-sm alert-info" style="white-space:nowrap;">' +
+                                        trigger.comments +
+                                    '</div>' +
+                                '</span>' +
+                            '</span>'
+                        ) : '';
+                        var error = trigger.error ? (
+                                '<span class="text-danger expanded-info">' +
+                                    '<span class="glyphicon glyphicon-exclamation-sign"></span>' +
+                                    '<h4 class="expanded-info-content-left">' +
+                                        '<span class="label label-danger">' +
+                                            trigger.error +
+                                        '</span>' +
+                                    '</h4>' +
+                                '</span>'
+                        ) : '';
+                        return comment + ' ' + error
+                    },
+            }];
+            $('#triggers')
+                .bootstrapTable({
+                    search: true,
+                    clickToSelect: true,
+                    showToggle: true,
+                    showColumns: true,
+                    showPaginationSwitch: true,
+                    pagination: true,
+                    pageSize: 20,
+                    pageList: [10, 20, 50, 100],
+                    columns: columns,
+                })
+        },
+        update: function (hashArgs, apps) {
+            var triggerGet = zapi.req('trigger.get', {
+                groupids: hashArgs.groupid,
+                hostids: hashArgs.hostid,
+                host: hashArgs.host && hashArgs.host[0],
+                group: hashArgs.group && hashArgs.group[0],
+                applicationids: hashArgs.app ?
+                    apps[hashArgs.app[0]].map(function (a) {
+                        return a.applicationid
+                    }) : null,
+                filter: hashArgs.trigger && hashArgs.trigger[0] === 'Problem' ? { value: 1 } : null,
+                min_severity: hashArgs.priority ? hashArgs.priority[0] : null,
+                only_true: hashArgs.trigger && hashArgs.trigger[0] === 'Any' ? null : true,
+                withUnacknowledgedEvents: hashArgs.ack && hashArgs.ack[0] === 'unacknowledged' || null,
+                withAcknowledgedEvents: hashArgs.ack && hashArgs.ack[0] === 'acknowledged' || null,
+                withLastEventUnacknowledged: hashArgs.ack && hashArgs.ack[0] === 'lastUnacknowledged' || null,
+                skipDependent: true,
+                //active: true,
+                monitored: true,
+                search: hashArgs.search ? { description: hashArgs.search[0] } : null,
+                output: 'extend',
+                preservekeys: true,
+                selectLastEvent: 'extend',
+                selectHosts: ['name']
+            });
+            triggerGet.done(function(zapiResponse) {
+                var triggersObj = zapiResponse.result;
+console.log(triggersObj);
+                var eventGet = zapi.req('event.get', {
+                    source: 0,
+                    object: 0,
+                    eventids: null,
+                    objectids: Object.keys(triggersObj),
+                    countOutput: true,
+                    groupCount: true,
+                    //filter: {
+                    //    acknowledged: 0,
+                    //    value: 1
+                    //}
+                });
+                eventGet.done(function(zapiResponse) {
+                    var events = zapiResponse.result;
+console.log(events);
+                    var triggers = events.map(function (e) {
+                        var t = triggersObj[e.objectid];
+                        t.events = e.rowscount;
+                        return t
+                    });
+                    triggers.sort(function (a, b) {
+                        return b.lastchange - a.lastchange
+                    })
+                    $('#triggers')
+                        .bootstrapTable('load', triggers);
+                });
 
+            });
+        }
+    }
+
+
+    //Page external methods
     var init = function(hashArgs) {
-        hostSelector.init(function(hosts, hostGroups) {
-            data.hosts = hosts;
-            data.hostGroups = hostGroups;
-            hostSelector.set(hashArgs);
-            setTriggersReqParams(hashArgs)
+        filter.init(function () {
+            var apps = filter.update(hashArgs);
+            table.update(hashArgs, apps);
         });
-        hostSelector.done(function(selected) {
-            Util.hash(selected);
-        });
-
-        filter.init(function(filterArgs) {
-            Util.hash(filterArgs);
-        });
-        filter.set(hashArgs);
+        table.init();
     };
     var update = function(hashArgs) {
-        filter.set(hashArgs);
-        hostSelector.set(hashArgs);
-        setTriggersReqParams(hashArgs); 
+        var apps = filter.update(hashArgs);
+        table.update(hashArgs, apps);
     };
-    
-    function setTriggersReqParams(args) {
-        var reqParams = {
-            //filter: {
-            //    'value': 1
-            //},
-            output: 'extend',
-            only_true: true,
-            skipDependent: true,
-            //active: true,
-            monitored: true,
-            //search: {description: 'ping'}
-            selectLastEvent: true,
-            selectHosts: ['host']
-        };
-        var map = {
-            triggerStatus: function(v) {
-                if (v[0] == 'Problem') {
-                    reqParams.filter = {value: 1};
-                }
-                if (v[0] == 'Any') {
-                    delete reqParams.only_true;
-                }
-            },
-            acknowledgeStatus: function(v) {
-                var map = {
-                    Acknowledged: 'withAcknowledgedEvents',
-                    Unacknowledged: 'withUnacknowledgedEvents',
-                    LastUnacknowledged: 'withLastEventUnacknowledged'
-                };
-                reqParams[map[v[0]]] = true;
-            },
-            events: function(v) {
-            },
-            minSeverity: function(v) {
-                var severity = {
-                    'Not classified': 0,
-                    'Information': 1,
-                    'Warning': 2,
-                    'Average': 3,
-                    'High': 4,
-                    'Disaster': 5
-                };
-                reqParams.min_severity = severity[v[0]];
-            },
-            lastChangeSince: function(v) {
-                var timestamp = new Date(v[0]).getTime() / 1000;
-                reqParams.lastChangeSince = timestamp;
-            },
-            lastChangeTill: function(v) {
-                var timestamp = new Date(v[0]).getTime() / 1000;
-                reqParams.lastChangeTill = timestamp;
-            },
-            byName: function(v) {
-                reqParams.search = {description: v[0]};
-            },
-            showDetails: function(v) {
-                reqParams.expandExpression = !!v[0];
-            },
-            maintenance: function(v) {
-                reqParams.maintenance = !!v[0];
-            },
-            host: function(v) {
-                reqParams.hostids = [];
-                $.each(v, function(i, hostname) {
-                    $.each(data.hosts, function(i, host) {
-                        if (hostname === host.host) {
-                            reqParams.hostids.push(host.hostid)
-                        }
-                    });
-                });
-            },
-            hostgroup: function(v) {
-                reqParams.groupids = [];
-                $.each(v, function(i, groupname) {
-                    $.each(data.hostGroups, function(i, group) {
-                        if (groupname === group.name) {
-                            reqParams.groupids.push(group.groupid)
-                        }
-                    });
-                });
-            }
-        }
-        $.each(args, function(k, v) {
-            map[k] ? map[k](v) : reqParams[k] = v;
-        });
-        createStatusTable(reqParams);
-    }
-    function createStatusTable(reqParams) {
-        var map = {
-            html: { //This map to set <td> classes or css
-                status: function(value) {
-                    return {
-                        classes: {
-                            'OK': 'text-success',
-                            'Problem': 'text-danger'
-                        }[value]
-                    }
-                },
-                severity: function(value) {
-                    return {
-                        classes: {
-                            'Not classified': '',
-                            'Information': 'info',
-                            'Warning': 'warning',
-                            'Average': 'warning text-danger',
-                            'High': 'danger',
-                            'Disaster': 'danger text-danger'
-                        }[value]
-                    }
-                }
 
-            },
-            data: { //This is cell map (also html inside)
-                clock: function(unixtime) {
-                    var d = moment(unixtime, 'X');
-                    return d.format('lll')
-                },
-                age: function(unixtime) {
-                    var d = moment(unixtime, 'X');
-                    return d.fromNow('lll')
-                },
-                host: function(hosts) {
-                    var hostNames = [];
-                    $.each(hosts, function(i, host) {
-                        hostNames.push(host.host)
-                    });
-                    return hostNames.join(', ')
-                },
-                description: function(relateObject) {
-                    return relateObject.description
-                },
-                status: function(value) {
-                    return zapi.map('Trigger', 'value', value).value
-                },
-                severity: function(priority) {
-                    return zapi.map('Trigger', 'priority', priority).value
-                },
-                ack: function(value) {
-                    var ack;
-                    if (+value) {
-                        ack = [
-                            '<button type="button" class="btn btn-xs btn-success">',
-                            'Yes ',
-                            '<span class="badge">',
-                            4,
-                            '</span>',
-                            '</button>'
-                        ].join('');
-                    } else {
-                        ack = '<button type="button" class="btn btn-xs btn-warning" data-toggle="popover" title="Popover">No</button>'
-                    }
-                    return ack
-                }
-            }
-        };
-        var columns = [{
-                field: 'priority',
-                title: 'Severity',
-                sortable: true,
-                cellStyle: map.html.severity,
-                formatter: map.data.severity
-            }, {
-                field: 'value',
-                title: 'Status',
-                sortable: true,
-                formatter: map.data.status,
-                cellStyle: map.html.status
-            }, {
-                field: 'error',
-                title: 'Info',
-                //formatter: map.data.description
-            }, {
-                field: 'lastchange',
-                title: 'Last change',
-                sortable: true,
-                formatter: map.data.clock
-            }, {
-                field: 'lastchange',
-                title: 'Age',
-                formatter: map.data.age
-            }, {
-                field: 'acknowledged',
-                title: 'Acknowledged',
-                //sortable: true,
-                //formatter: map.data.duration
-            }, {
-                field: 'hosts',
-                title: 'host',
-                sortable: true,
-                formatter: map.data.host
-                //valign: 'middle',
-                //formatter: map.data.ack,
-                //events: {
-                //    'click button': function (e, value, row, index) {
-                //        console.log($(this), value, row, index);
-                //    }
-                //}
-            }, {
-                field: 'description',
-                title: 'Name'
-            }, {
-                field: 'triggerid',
-                title: 'Description'
-        }];
-        var triggerGet = zapi.req('trigger.get', reqParams)
-        triggerGet.done(function(zapiResponse) {
-console.log(zapiResponse.result)
-            $('#triggers')
-                .bootstrapTable('destroy')
-                .bootstrapTable({
-                    data: zapiResponse.result,
-                    search: true,
-                    pagination: true,
-                    //showRefresh: true,
-                    showToggle: true,
-                    //showColumns: true,
-                    columns: columns
-                })
-                //.on('click', function (e, name, args) {
-                //    console.log(e, name, args);
-                //})
-                .prop('disabled', false)
-                .fadeTo('fast', 1)
 
-        });
-    }
+    //Page common functions
     
     return {
         init: init,

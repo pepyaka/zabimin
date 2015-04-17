@@ -1,0 +1,42 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 col-lg-push-10 col-scroll">
+            <div id="filter">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="time-interval" class="col-lg-4 control-label">Interval</label>
+                        <div class="col-lg-8" id="time-interval">
+                            <a class="btn btn-default btn-block" href="#!Reports/Triggers&interval=1,days">Day</a>
+                            <a class="btn btn-default btn-block" href="#!Reports/Triggers&interval=1,weeks">Week</a>
+                            <a class="btn btn-default btn-block" href="#!Reports/Triggers&interval=1,months">Month</a>
+                            <a class="btn btn-default btn-block" href="#!Reports/Triggers&interval=1,years">Year</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-10 col-lg-pull-2 col-scroll">
+            <div>
+                <div id="report-trigger-top">
+                    <table  class="table table-striped table-condensed table-hover"
+                            data-page-size="20"
+                            data-search="true"
+                            data-pagination="true"
+                            data-smart-display="true"
+                            data-show-pagination-switch="true"
+                            data-show-toggle="true">
+                        <thead>
+                            <tr>
+                                <th data-field="hosts">Host</th>
+                                <th data-field="description">Trigger</th>
+                                <th data-field="priority">Severity</th>
+                                <th data-field="events">Status changes</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div><!-- Page content end -->
+</div><!-- Page content end -->
+

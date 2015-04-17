@@ -20,9 +20,12 @@ define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select'], functi
                 var groups = zapiResponse.result;
                 $('#group-list')
                     .append(groups.map(function (g) {
-                        return  '<option value="'+g.groupid+'" data-content=\''+g.name+'<span class="badge pull-right">'+g.hosts+'</span>\'>' +
+                        var dataContent = g.name + '<span class="badge pull-right">' + g.hosts + '</span>';
+                        return (
+                            '<option value="'+g.groupid+'" data-content=\''+dataContent+'\'>' +
                                     g.name +
-                                '</option>'
+                            '</option>'
+                        )
                     }))
                     .prop('disabled', false)
                     .selectpicker('refresh')
@@ -83,14 +86,20 @@ define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select'], functi
                         var sClass = [
                             'text-muted',
                             'text-success',
-                            'label label-danger hint--right hint--rounded hint--error'
+                            'text-danger expanded-info'
                         ][v];
-                        var hint = ['', '', 'data-hint=\''+host.error+'\''][v];
-                        return [
-                            '<span class="' + sClass + '"' + hint + '>',
-                                zapi.map('Host', 'available', v).value,
+                        return (
+                            '<span class="'+sClass+'">' +
+                                zapi.map('Host', 'available', v).value +
+                                '<div class="expanded-info-content-right">' +
+                                    '<h4>' +
+                                        '<span class="label label-danger">' +
+                                            host.error +
+                                        '</span>' +
+                                    '</h4>' +
+                                '</div>' +
                             '</span>'
-                        ].join('')
+                        )
                     }
                 }, {
                     field: 'ipmi_available',

@@ -24,7 +24,13 @@ define(['moment'], function(moment) {
         if ($.isPlainObject(newArgs) && !$.isEmptyObject(newArgs)) {
             // can't use jQuery.extend(), because need to delete keys by null value
             $.each(newArgs, function(k, v) {
-                v === null ? delete args[k] : args[k] = v;
+                if (v === null) {
+                    delete args[k];
+                } else {
+                    if (v !== undefined) {
+                        args[k] = v;
+                    }
+                }
             });
         }
         if (newArgs !== null) { //reset all arguments on hashArgs === null
@@ -218,23 +224,38 @@ define(['moment'], function(moment) {
             var max = 1000;
             var page = '#!' + hash.page;
             var cur = localStorage[page] ? JSON.parse(localStorage[page]) : [];
-            cur.push(hash.args);
+            // Don't add pages without args to statistic
+            if (!$.isEmptyObject(hash.args)) {
+                cur.push(hash.args);
+            }
             cur.splice(0, cur.length - max);
             localStorage[page] = JSON.stringify(cur);
         },
-        show: function(page, value) {
+        show: function(page, value, filter) {
             var page = '#!' + page;
             var visits = localStorage[page] ? JSON.parse(localStorage[page]) : [];
             var valObj = {};
-            visits.forEach(function(args) {
-                if (args[value]) {
-                    args[value].forEach(function(v) {
-                        if (valObj[v]) {
-                            valObj[v][1]++
-                        } else {
-                            valObj[v] = [v, 1];
-                        }
-                    });
+            visits.forEach(function(hashArgs) {
+                var filtred = true;
+                if (hashArgs[value]) {
+                    if (filter) {
+                        filtred = false;
+                        $.each(filter, function (filterKey, filterVal) {
+                            if ($.inArray(filterVal, hashArgs[filterKey]) > -1) {
+                                filtred = true;
+                                return false;
+                            }
+                        });
+                    }
+                    if (filtred) {
+                        hashArgs[value].forEach(function(v) {
+                            if (valObj[v]) {
+                                valObj[v][1]++
+                            } else {
+                                valObj[v] = [v, 1];
+                            }
+                        });
+                    }
                 }
             });
             var valArr = Object.keys(valObj).map(function(k) {

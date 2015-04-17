@@ -1,8 +1,8 @@
-define(['Zapi', 'moment', 'config', 'Util', 'bootstrap-select'], function(zapi, moment, zabimin, util) {
+define(['Zapi', 'moment', 'config', 'Util', 'Page', 'bootstrap-select'], function(zapi, moment, zabimin, util, page) {
     "use strict";
 
     //Page global variables
-    var page = '#!Monitoring/Graphs';
+    var pageHash = '#!Monitoring/Graphs';
     var chartLib;
 
     //Page elements
@@ -37,6 +37,9 @@ define(['Zapi', 'moment', 'config', 'Util', 'bootstrap-select'], function(zapi, 
                             groups[group.groupid].hosts = [host]
                         }
                     });
+                });
+                groups.sort(function (a, b) {
+                    return a.name > b.name ? 1 : -1;
                 });
                 groups.forEach(function (g) {
                     groupList.push(
@@ -78,6 +81,13 @@ define(['Zapi', 'moment', 'config', 'Util', 'bootstrap-select'], function(zapi, 
                 //    });
                 initDone();
             });
+            page.dateTimeRangePicker.init(function (since, till) {
+                util.hash({
+                    since: since ? since.format('YYYY-MM-DDTHH:mm') : null,
+                    till: till ? till.format('YYYY-MM-DDTHH:mm') : null
+                }, true);
+            });
+
         },
         update: function (hashArgs) {
             var group = this.groups.filter(function (g) {
@@ -111,63 +121,133 @@ define(['Zapi', 'moment', 'config', 'Util', 'bootstrap-select'], function(zapi, 
                 .html(graphList)
                 .val(hashArgs.graphid && hashArgs.graphid[0])
                 .selectpicker('refresh');
-            if (hashArgs.trends && hashArgs.trends[0] === 'true') {
-                $('[data-hash-args="trends"]').removeClass('active')
-                $('[data-hash-args="trends"][value="true"]').addClass('active')
-            } else {
-                $('[data-hash-args="trends"][value="true"]').removeClass('active')
-                $('[data-hash-args="trends"][value=""]').addClass('active')
-            }
+
+            // DateTimeRangePicker
+            page.dateTimeRangePicker.since(hashArgs.since ?
+                moment(hashArgs.since[0]) :
+                page.dateTimeRangePicker.min()
+            );
+            page.dateTimeRangePicker.till(hashArgs.till ?
+                moment(hashArgs.till[0]) :
+                page.dateTimeRangePicker.max()
+            );
         }
     };
     var graph = {
-        init: function (hashArgs) {
-        },
-        update: function (args) {
-            var graphids = args.graphids.slice(0, args.idSel.length + 1);
-            getGraph(graphids, function (graphs) {
-                graphs.forEach(function (g, i) {
-                    var idSel = args.idSel[i];
-                    g.thumbnail = args.thumbnail;
-                    g.trends = args.trends;
-                    $('#' + idSel)
-                        .parent()
-                        .siblings('h3,h4,h5')
-                            .text(g.hosts[0].name + ': ' + g.name)
-                        .parent('a')
-                            .prop('href', page + '&hostid=' + g.hosts[0].hostid + '&graphid=' + g.graphid);
-                    args.items = g.gItems;
-                    getHistory(args, function (history) {
-                        chartLib.init(g, idSel);
-                        chartLib.load(history);
-                        chartLib.draw(idSel);
+        init: function (graphids, graphOpts, initDone) {
+            var graphGet = zapi.req('graph.get', {
+                graphids: graphids,
+                selectGraphItems: [
+                    'calc_fnc',
+                    'color',
+                    'drawtype',
+                    'gitemid',
+                    'itemid',
+                    'sortorder',
+                    'yaxisside'
+                ],
+                selectItems: [
+                    'delay',
+                    'name',
+                    'value_type',
+                    'units'
+                ],
+                selectHosts: ['name']
+            });
+            graphGet.done(function(zapiResponse) {
+                var graphs = zapiResponse.result;
+                graphs = graphs.map(function (g) {
+                    var gItems = [];
+                    g.gitems.forEach(function (gi) {
+                        var item = g.items.filter(function (i) {
+                            return gi.itemid === i.itemid
+                        })[0];
+                        gItems[gi.sortorder] = $.extend({}, gi, item);
                     });
+                    return $.extend({
+                        idSel: 'graphid-' + g.graphid,
+                        gItems: gItems
+                    }, graphOpts, g);
+                });
+                initDone(graphs);
+            });
+        },
+        getOldest: function (graphs, getOldestDone) {
+            var itemsByType = [];
+            var oldestHistoryReqArr = [];
+            var oldestTrendsReqArr = [];
+            graphs.forEach(function (g) {
+                g.gItems.forEach(function (gi) {
+                    if (itemsByType[gi.value_type]) {
+                        itemsByType[gi.value_type].push(gi.itemid);
+                    } else {
+                        itemsByType[gi.value_type] = [ gi.itemid ];
+                    }
                 });
             });
-        }
-    }
-    var tiles = {
-        init: function (hashArgs) {
-        },
-        update: function (graphOpts) {
-            var graphRate = util.visit.show('Monitoring/Graphs', 'graphid').slice(0, 12);
-            graphOpts.idSel = [];
-            graphOpts.graphids = graphRate.map(function (g, i) {
-                graphOpts.idSel.push('popular-graph-' + i);
-                return g[0]
+            itemsByType.forEach(function (itemids, value_type) {
+                oldestHistoryReqArr.push(
+                    zapi.req('history.get', {
+                        itemids: itemids,
+                        history: value_type,
+                        sortfield: 'clock',
+                        sortorder: 'ASC',
+                        limit: 1
+                    })
+                );
+                oldestTrendsReqArr.push(
+                    zapi.req('trends.get', {
+                        itemids: itemids,
+                        history: value_type,
+                        sortfield: 'clock',
+                        sortorder: 'ASC',
+                        limit: 1
+                    })
+                );
             });
-            graph.update(graphOpts);
+            $.when.apply(null, [].concat(oldestHistoryReqArr, oldestTrendsReqArr))
+            .done(function(oldestHistoryResponse, oldestTrendsResponse) {
+                getOldestDone(
+                    oldestHistoryResponse[0].result[0],
+                    oldestTrendsResponse[0].result[0]
+                );
+            });
+        },
+        load: function (graph, loadDone) {
+            // Add fake deffered object for zapi requests to 
+            // always pass multiple Deferred objects to jQuery.when()
+            var deferred = new $.Deferred();
+            var histReqArray = [ deferred ];
+            graph.gItems.map(function (item) {
+                histReqArray.push(
+                    zapi.req((graph.trends ? 'trends' : 'history') + '.get', {
+                        itemids: item.itemid || 0,
+                        history: item.value_type,
+                        time_from: graph.since || Date.now()/1000-86400,
+                        time_till: graph.till
+                    })
+                );
+            });
+            $.when.apply(null, histReqArray).done(function() {
+                // extract all responses except fake deferred
+                var args = Array.prototype.slice.call(arguments, 1);
+                var history = args.map(function (zapiResponse) {
+                    return zapiResponse[0].result
+                });
+                loadDone(history);
+            });
+            deferred.resolve(false);
         }
+
     }
 
-
-    //Page external fumctions
+    //Page external functions
     var init = function(hashArgs) {
         filter.init(function () {
             filter.update(hashArgs);
         });
-        var chartLibName = hashArgs.chartLib || zabimin.chartLib;
-        require(['Chart/' + chartLibName], function (lib) {
+        var chartLibName = hashArgs.chartLib ? hashArgs.chartLib[0] : zabimin.chartLib;
+        require(['chartLib/' + chartLibName], function (lib) {
             chartLib = lib;
             selectView(hashArgs);
         })
@@ -180,85 +260,96 @@ define(['Zapi', 'moment', 'config', 'Util', 'bootstrap-select'], function(zapi, 
 
     //Page common functions
     function selectView(hashArgs) {
+        var now = moment();
+        var dayAgo = moment().subtract(1, 'd');
+        var graphRate = util.visit.show('Monitoring/Graphs', 'graphid');
+        var graphids = [ hashArgs.graphid && hashArgs.graphid[0] ];
         var graphOpts = {
-            idSel: ['chart'],
-            graphids: hashArgs.graphid,
-            time_till: hashArgs.till && hashArgs.till[0],
+            since: hashArgs.since ? moment(hashArgs.since[0]).format('X') : null,
+            till: hashArgs.till ? moment(hashArgs.till[0]).format('X') : null
         };
-        if (graphOpts.graphids) {
-            $('#popular-graphs')
-                .addClass('hidden');
-            $('#main-chart')
-                .removeClass('hidden');
-            graphOpts.thumbnail = false;
-            graphOpts.trends = hashArgs.trends && hashArgs.trends[0];
-            graphOpts.time_from = 0;
-            graph.update(graphOpts);
-        } else {
-            $('#popular-graphs')
-                .removeClass('hidden');
-            $('#main-chart')
-                .addClass('hidden');
-            graphOpts.thumbnail = true;
-            graphOpts.trends = true;
-            graphOpts.time_from = Date.now()/1000-86400,
-            tiles.update(graphOpts);
-        }
-    };
-    function getGraph(graphid, getGraphDone) {
-        var graphGet = zapi.req('graph.get', {
-            graphids: graphid || 0,
-            selectGraphItems: [
-                'calc_fnc',
-                'color',
-                'drawtype',
-                'gitemid',
-                'itemid',
-                'sortorder',
-                'yaxisside'
-            ],
-            selectItems: [
-                'delay',
-                'name',
-                'value_type',
-                'units'
-            ],
-            selectHosts: ['name']
-        });
-        graphGet.done(function(zapiResponse) {
-            getGraphDone(zapiResponse.result.map(function (g) {
-                g.gItems = [];
-                g.gitems.forEach(function (gi) {
-                    var item = g.items.filter(function (i) {
-                        return gi.itemid === i.itemid
-                    })[0];
-                    g.gItems[gi.sortorder] = $.extend({}, gi, item);
-                });
-                return g
-            }));
-        });
-    };
-    function getHistory(args, getTrendsDone) {
-        var histReqArray = args.items.map(function (item) {
-            return zapi.req((args.trends ? 'trends' : 'history') + '.get', {
-                hostids: null,
-                itemids: item.itemid || 0,
-                history: item.value_type,
-                time_from: args.time_from && Date.now()/1000-86400,
-                time_till: args.time_till
+
+        //Remove old graphs
+        $('.graph-container').each(function () {
+            $(this).attr('id', function (i, idSel) {
+                chartLib.destroy(idSel);
+                return null;
             });
         });
-        var deferred = new $.Deferred();// Add fake deffered object for zapi requests to 
-        histReqArray.unshift(deferred); // always pass multiple Deferred objects to jQuery.when()
-        $.when.apply(null, histReqArray).done(function() {
-            var data = [];
-            for (var a = 1; a < arguments.length; a++) {
-                data.push(arguments[a][0].result);
-            }
-            getTrendsDone(data)
-        });
-        deferred.resolve(false);
-    }
+
+        // Select single graph or popular graphs tiles
+        if (graphids[0]) {
+            page.dateTimeRangePicker.enable();
+
+            graph.init(graphids, graphOpts, function (graphs) {
+                var g = graphs[0];
+                g.form = 'Monitoring/Graphs: chart';
+                $('#popular-graphs')
+                    .addClass('hidden')
+                $('#main-graph')
+                    .removeClass('hidden')
+                    .find('.graph-container')
+                        .attr('id', 'graphid-' + g.graphid)
+                        .end()
+                    .find('.graph-title')
+                        .text(g.name);
+                graph.getOldest(graphs, function (h, t) {
+                    var historyOldest = moment(h.clock, 'X');
+                    var trendsOldest = moment(t.clock, 'X');
+                    page.dateTimeRangePicker.min(trendsOldest);
+                    if (g.since < historyOldest.format('X')) {
+                        g.trends = true
+                    } else {
+                        g.trends = false
+                    }
+                    graph.load(g, function (history) {
+                        chartLib.load(history, g);
+                    });
+                });
+                chartLib.init(g);
+            });
+        } else {
+            page.dateTimeRangePicker.min(dayAgo);
+            page.dateTimeRangePicker.max(now);
+            page.dateTimeRangePicker.disable();
+            //TODO: add popular graphs for each group
+            //var gidFilter = groupid && { groupid: groupid };
+            //var graphRate = util.visit.show('Monitoring/Graphs', 'graphid', gidFilter);
+            $('#popular-graphs .graph-container').each(function (i) {
+                var graphid;
+                if (graphRate[i]) {
+                    graphid = graphRate[i][0];
+                    graphids.push(graphid);
+                    $(this).attr('id', 'graphid-' + graphid);
+                }
+            });
+            graphOpts.thumbnail = true;
+            graphOpts.form = 'Monitoring/Graphs: thumbnail'
+            graph.init(graphids, graphOpts, function (graphs) {
+                var histOpts = {
+                    since: dayAgo.format('X'),
+                    till: now.format('X'),
+                    trends: true,
+                };
+                $('#popular-graphs')
+                    .removeClass('hidden');
+                $('#main-graph')
+                    .addClass('hidden');
+                graphs.forEach(function (g) {
+                    $('#' + g.idSel)
+                        .parent()
+                        .siblings('.graph-title')
+                            .text(g.hosts[0].name + ': ' + g.name)
+                        .parent('a')
+                            .attr('href', pageHash + '&hostid=' + g.hosts[0].hostid + '&graphid=' + g.graphid);
+                    chartLib.init(g);
+                    graph.load($.extend(g, histOpts), function (history) {
+                        chartLib.load(history, g);
+                    });
+                });
+            });
+        }
+    };
 
     return {
         init: init,

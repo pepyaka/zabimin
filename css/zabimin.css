@@ -1,5 +1,6 @@
-@import "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css";
-@import "//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css";
+@import "//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css";
+@import "//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css";
+@import "//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css";
 @import "//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css";
 @import "//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.css";
 @import "//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.6.0/bootstrap-table.min.css";
@@ -15,6 +16,8 @@
 @import "//cdnjs.cloudflare.com/ajax/libs/metrics-graphics/2.2.1/metricsgraphics.min.css";
 @import "//cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.0/nv.d3.min.css";
 @import "//cdnjs.cloudflare.com/ajax/libs/c3/0.4.10/c3.min.css";
+@import "//cdn.rawgit.com/seiyria/bootstrap-slider/master/dist/css/bootstrap-slider.min.css";
+@import "https://cdnjs.cloudflare.com/ajax/libs/jointjs/0.9.0/joint.min.css";
 
 
 body {
@@ -26,6 +29,7 @@ body {
     }
     .col-scroll {
         height: calc(100vh - 50px);
+        overflow-x: hidden;
         overflow-y: auto;
         padding-top: 20px;
         margin-top: -20px;
@@ -88,9 +92,6 @@ body {
 /* class to keep div's aspect ratio 16:9 */
 .aspect-ratio-16-by-9 {
     position: relative;
-    /*
-    padding-bottom: 25%;
-    */
     padding-bottom: 56.25%;
 }
 .aspect-ratio-16-by-9 > div, .aspect-ratio-target {
@@ -101,102 +102,104 @@ body {
     right: 0;
 }
 
-/*
-main, aside {
-    overflow-y: auto;
+/********************* Expanded information tooltips ************************/
+.fixed-table-body {
+    overflow: visible;
 }
-@media (max-width: 1199px) {
-    body {
-        padding-top: 120px;
-    }
-    .navbar-page {
-        margin-top: 50px;
-        z-index: 1020;
-    }
-}
-@media (min-width: 1200px) {
-    .navbar-main {
-        right: 38%;
-    }
-    .navbar-page {
-        left: 62%;
-    }
-}
-*/
-/*
-#wrapper {
-    min-height: 100%;
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    top: 0px;
-    left: 0;
+.expanded-info {
+    position: relative;
     display: inline-block;
+    cursor: context-menu;
 }
-#main-wrapper {
-    height: 100%;
-    overflow-y: auto;
-    padding: 50px 0 0px 0;
+a.expanded-info {
+    cursor: pointer;
 }
-#main {
-    position: relative;
-    height: 100%;
-    overflow-y: auto;
-    padding: 0 15px;
+.expanded-info-content-top,
+.expanded-info-content-left,
+.expanded-info-content-right,
+.expanded-info-content-bottom {
+    position: absolute;
+    z-index: 1000000;
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s ease;
+    transition-delay: 0ms;
 }
-#sidebar-wrapper {
-    height: 100%;
-    padding: 50px 0 0px 0;
-    position: fixed;
-    border-right: 1px solid gray;
+.expanded-info-content-top {
+    bottom: 100%;
+    min-width: 100%;
 }
-#sidebar {
-    position: relative;
-    height: 100%;
-    overflow-y: auto;
+.expanded-info-content-left {
+    top: 50%;
+    right: 100%;
+    margin-top: 0;
+    transition-delay: 100ms;
 }
-@media (max-width: 992px) {
-    body {
-        padding-top: 0px;
-    }
+.expanded-info-content-right {
+    top: 50%;
+    left: 100%;
+    margin-top: 0;
+    transition-delay: 100ms;
 }
-@media (min-width: 992px) {
-    #main-wrapper {
-        float:right;
-    }
+.expanded-info-content-bottom {
+    top: 100%;
+    min-width: 100%;
 }
-@media (max-width: 992px) {
-    #main-wrapper {
-        padding-top: 0px;
-    }
+.expanded-info-content-top:before,
+.expanded-info-content-left:before,
+.expanded-info-content-right:before,
+.expanded-info-content-bottom:before {
+    content: "";
+    position: absolute;
+    z-index: 1000000;
+    width: 0;
+    height: 0;
+    border-width: 6px;
+    border-style: solid;
 }
-@media (max-width: 992px) {
-    #sidebar-wrapper {
-        position: static;
-        height:auto;
-        max-height: 300px;
-        border-right:0;
-    }
+.expanded-info-content-top:before {
+    left: 8px;
+    margin-top: -15px;
+    border-color: currentcolor transparent transparent transparent;
 }
-*/
-/*
-body {
-    padding-top:70px;
+.expanded-info-content-bottom:before {
+    left: 8px;
+    bottom: 100%;
+    border-color: transparent transparent currentcolor transparent;
 }
-#pageNavigation {
-    height: 50px;
+.expanded-info-content-left:before {
+    top: calc(50% - 6px);
+    left: 100%;
+    border-color: transparent transparent transparent currentcolor;
 }
-main {
-    margin-top: 70px;
-    overflow-y:auto;
-    height:92vh;
+.expanded-info-content-right:before {
+    top: calc(50% - 6px);
+    right: 100%;
+    border-color: transparent currentcolor transparent transparent;
 }
-@media (min-width: 1200px) {
-    .navbar-corner {
-        border-bottom-right-radius: 10px;
-    }
+.expanded-info:hover > .expanded-info-content-top,
+.expanded-info:hover > .expanded-info-content-left,
+.expanded-info:hover > .expanded-info-content-right,
+.expanded-info:hover > .expanded-info-content-bottom {
+    visibility: visible;
+    opacity: 1;    
 }
-*/
+.expanded-info:hover > .expanded-info-content-top {
+}
+.expanded-info:hover > .expanded-info-content-left {
+    transform: translate(-8px, -50%);
+}
+.expanded-info:hover > .expanded-info-content-right {
+    transform: translate(8px, -50%);
+}
+.expanded-info:hover > .expanded-info-content-bottom {
+}
+.expanded-info-content-left > *,
+.expanded-info-content-right > * {
+    margin: 0;
+}
+/****************************************************************************/
+
 .typeahead-multidata-group {
     font-size: 12px;
     font-weight: bold;
@@ -402,15 +405,58 @@ main {
 }
 
 
+/*********************** Bootstrap some extension ***************************/
+/* nav list sizes */
+.nav-lg > li > a {
+    padding: 10px 16px;
+    font-size: 18px;
+}
 .nav-sm > li > a {
-    padding: 5px 8px;
+    padding: 5px 10px;
+    font-size: 12px;
 }
 .nav-xs > li > a {
-    padding: 2px 4px;
-    
+    padding: 1px 5px;
+    font-size: 12px;
 }
-
-
+/* list group items sizes */
+.list-group-lg > .list-group-item,
+.list-group > .list-group-item-lg {
+    padding: 10px 16px;
+    font-size: 18px;
+}
+.list-group-sm > .list-group-item,
+.list-group > .list-group-item-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+}
+.list-group-xs > .list-group-item,
+.list-group > .list-group-item-xs {
+    padding: 1px 5px;
+    font-size: 12px;
+}
+/* Badge danger, info, etc. xtyles */
+.label-as-badge {
+    border-radius: 1em;
+}
+/* Alerts sizes */
+.alert-lg {
+    padding: 18px;
+    font-size: 18px;
+}
+.alert-sm {
+    padding: 10px;
+    font-size: 12px;
+}
+.alert-xs {
+    padding: 5px;
+    font-size: 12px;
+}
+/****************************************************************************/
+/* bootstrap-slider fix */
+.slider.slider-horizontal {
+    width: 100%;
+}
 
 .hint:after, [data-hint]:after {
     white-space: pre;

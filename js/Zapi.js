@@ -25,15 +25,12 @@ define(['config', 'moment'], function(zabimin, moment) {
         },
         history: {
             get: {
-                hostids: 0
+                itemids: 0
             }
         },
         trigger: {
             get: {
                 output: ['description'],
-                //selectHosts: 'extend',
-                sortfield: 'lastchange',
-                sortorder: 'DESC',
                 expandComment: true,
                 expandDescription: true,
                 expandExpression: true
@@ -41,13 +38,7 @@ define(['config', 'moment'], function(zabimin, moment) {
         },
         event: {
             get: {
-                output: 'extend',
-                selectHosts: 'extend',
-                //selectRelatedObject: 'extend',
-                //select_alerts: 'extend',
-                //select_acknowledges: 'extend'
-                sortfield: 'clock',
-                sortorder: 'DESC'
+                eventids: 0
             }
         }
     };

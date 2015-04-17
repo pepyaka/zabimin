@@ -1,0 +1,163 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-md-push-9 col-scroll">
+            <nav>
+                <ul class="nav nav-pills" id="events-sub-nav">
+                    <li class="active">
+                        <a href="" data-href="#!Monitoring/Events/Triggers">Triggers</a>
+                    </li>
+                    <!-- No related objects in zabbix api for discovery events 
+                    <li>
+                        <a href="" data-href="#!Monitoring/Events/Discovery">Discovery</a>
+                    </li>
+                    -->
+                    <li>
+                        <a href="" data-href="#!Monitoring/Events/Items">Items</a>
+                    </li>
+                </ul>
+            </nav>
+            <br>
+            <div id="filter">
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="group-select" class="col-lg-6 control-label">Group</label>
+                        <div class="col-lg-6">
+                            <select class="selectpicker form-control pull-right"
+                                    id="group-select"
+                                    data-style="btn-primary"
+                                    data-hash-args="groupid"
+                                    disabled>
+                                <option value="">All groups</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="host-select" class="col-lg-6 control-label">Host</label>
+                        <div class="col-lg-6">
+                            <select class="selectpicker form-control pull-right"
+                                    id="host-select"
+                                    data-style="btn-primary"
+                                    data-hash-args="hostid"
+                                    disabled>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="trigger-select" class="col-lg-4 control-label">Trigger</label>
+                        <div class="col-lg-8">
+                            <select class="selectpicker form-control pull-right"
+                                    id="trigger-select"
+                                    data-style="btn-primary"
+                                    data-hash-args="triggerid"
+                                    disabled>
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <div class='col-xs-12'>
+                                    <label for="datetimerange-slider">Time interval</label>
+                                    <input  class="hidden"
+                                            id="datetimerange-slider"
+                                            type="text"
+                                            data-slider-range="true"
+                                            data-slider-enabled="false">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class='col-xs-6'>
+                                    <label for="datetimerange-since">Since</label>
+                                    <input id="datetimerange-since" type='text' class="form-control datetimepicker"/>
+                                </div>
+                                <div class='col-xs-6'>
+                                    <label for="datetimerange-till">Till</label>
+                                    <input id="datetimerange-till" type='text' class="form-control datetimepicker"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="datetimerange-select" class="col-lg-6 control-label">Fixed interval</label>
+                                <div class="col-lg-6">
+                                    <select class="selectpicker form-control pull-right"
+                                            id="datetimerange-select"
+                                            data-style="btn-default">
+                                        <option value="" disabled="disabled">Custom range</option>
+                                        <option value="hour">Hour</option>
+                                        <option value="day">Day</option>
+                                        <option value="today">Today</option>
+                                        <option value="yesterday">Yesterday</option>
+                                        <option value="week">Week</option>
+                                        <option value="this_week">This week</option>
+                                        <option value="last_week">Last week</option>
+                                        <option value="month">Month</option>
+                                        <option value="this_month">This month</option>
+                                        <option value="last_month">Last month</option>
+                                        <option value="year">Year</option>
+                                        <option value="this_year">This year</option>
+                                        <option value="last_year">Last year</option>
+                                        <option value="all">All</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="filterTrigger" class="form-group">
+                        <label class="col-xs-3 control-label">
+                            Trigger
+                        </label>
+                        <div class="col-xs-9">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modalFilterTrigger" disabled="disabled">
+                                    Select
+                                </button>
+                                <button id="events-trigger-teset" type="button" class="btn btn-default">
+                                    Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-md-9 col-md-pull-3 col-scroll">
+            <table id="events-trigger" class="table table-hover table-condensed table-striped">
+                <thead>
+                    <tr>
+                        <th data-field="clock">Time</th>
+                        <th data-field="hosts">Host</th>
+                        <th data-field="relatedObject">Description</th>
+                        <th data-field="value">Status</th>
+                        <th data-field="relatedObject">Severity</th>
+                        <th data-field="acknowledges">Ack</th>
+                        <th data-field="alerts">Actions</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div><!-- Page content end -->
+
+<div class="modal fade" id="modal-ack-editor" tabindex="-1" role="dialog" aria-labelledby="modal-ack-editor" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">
+                    Alarm acknowledges:
+                    <strong></strong>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="info-messages"></div>
+                <br>
+                <textarea class="form-control" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="modal-ack-editor-btn-save">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,15 +1,22 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-2 col-md-push-10">
+        <div class="col-md-2 col-md-push-10 col-scroll">
             <div id="filter">
-                <div class="btn-group btn-group-justified" id="latest-data-trends" role="group">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" data-hash-value="">History</button>
+                <form>
+                    <div class="form-group">
+                        <label for="screen-select" class="control-label">Screen</label>
+                        <div class="">
+                            <select class="selectpicker form-control pull-right"
+                                    id="screen-select"
+                                    data-style="btn-primary"
+                                    data-hash-args="screenid"
+                                    disabled>
+                                <option value="">Nothing selected</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default" data-hash-value="true">Trends</button>
-                    </div>
-                </div>
+                </form>
+                <br>
                 <br>
                 <form class="form-horizontal">
                     <div class="panel panel-default">
@@ -29,16 +36,16 @@
                                 <div class='col-xs-9'>
                                     <input id="datetimerange-since" type='text' class="form-control datetimepicker"/>
                                 </div>
-                            </div>
                             <div class="form-group">
+                            </div>
                                 <label for="datetimerange-till" class="col-xs-3 control-label">Till</label>
                                 <div class='col-xs-9'>
                                     <input id="datetimerange-till" type='text' class="form-control datetimepicker"/>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="datetimerange-select" class="col-xs-3 control-label">Fixed</label>
-                                <div class="col-xs-9">
+                                <label for="datetimerange-select" class="col-xs-12">Fixed interval</label>
+                                <div class="col-xs-12">
                                     <select class="selectpicker form-control pull-right"
                                             id="datetimerange-select"
                                             data-style="btn-default">
@@ -61,48 +68,16 @@
                                 </div>
                             </div>
                         </div>
-                    </div><!-- dateTimeRangePicker -->
+                    </div>
                 </form>
             </div>
         </div>
         <div class="col-md-10 col-md-pull-2 col-scroll">
-            <h4 id="latest-data-title" class="text-center">
-                Host: graph
-            </h4>
-            <div id="latest-data-tabs">
-                <ul class="nav nav-tabs">
-                    <li data-hash-value="graph">
-                        <a href="">Graph</a>
-                    </li>
-                    <li data-hash-value="table">
-                        <a href="">Table</a>
-                    </li>
-                    <li data-hash-value="text">
-                        <a href="">Text</a>
-                    </li>
-                </ul>
-                <div class="tab-content">
-                    <div class="tab-pane" id="latest-data-graph">
-                        <div class="aspect-ratio-16-by-9">
-                            <div id="chart">Chart</div>
-                        </div>
-                    </div>
-                    <div class="tab-pane" id="latest-data-table">
-                        <br>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th data-field="clock">Time</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <div class="tab-pane" id="latest-data-text">
-                        <br>
-                        <pre>Text data</pre>
-                    </div>
-                </div>
-            </div>
+            <h3 class="text-center" id="screen-name"></h3>
+            <table id="screens" align="center" border="2" bordercolor="white">
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
 </div><!-- Page content end -->

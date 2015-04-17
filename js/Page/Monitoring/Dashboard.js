@@ -1,8 +1,8 @@
-define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select'], function(zapi, moment, util) {
+define(['Zapi', 'moment', 'Util', 'Page', 'bootstrap-table', 'bootstrap-select'], function(zapi, moment, util, page) {
     "use strict";
 
     //Page global variables
-    var page = '#!Monitoring/Dashboard';
+    var pageHash = '#!Monitoring/Dashboard';
     var timeoutId;
 
     //Page components
@@ -112,7 +112,55 @@ define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select'], functi
                         field: 'lastEvent',
                         title: 'Actions',
                         formatter: function (e) {
-                            return e.alertsa || '-'
+                            var alerts = e.alerts;
+                            var actions;
+                            var alrts = [
+                                [[],[],[]],
+                                [[],[]]
+                            ];
+                            var badges = [
+                                ['', 'alert-success', 'alert-danger'],
+                                ['progress-bar-success', 'progress-bar-danger']
+                            ];
+                            if (alerts.length > 0) {
+                                alerts.forEach(function (a) {
+                                    var medias = a.mediatypes.map(function (m) {
+                                        return m.description
+                                    }).join(', ');
+                                    var msg = (
+                                        '<li class="list-group-item">' +
+                                            (a.error ? a.error : a.sendto + ' (' + medias + ')') +
+                                        '</li>'
+                                    );
+                                    if (alrts[a.alerttype][a.status].length > 0) {
+                                        alrts[a.alerttype][a.status][3]++;
+                                        alrts[a.alerttype][a.status][7].push(msg);
+                                    } else {
+                                        alrts[a.alerttype][a.status] = [
+                                            '<span class="expanded-info badge ', badges[a.alerttype][a.status], '">',
+                                                1,
+                                                '<div class="expanded-info-content-left">',
+                                                    '<div class="panel panel-default">',
+                                                        '<div class="list-group list-group-sm text-left text-nowrap">',
+                                                            [msg],
+                                                        '</div>',
+                                                    '</div>',
+                                                '</div>',
+                                            '</span>'
+                                        ];
+                                    }
+                                });
+                                actions = alrts.map(function (alertType) {
+                                    return alertType.map(function (stts) {
+                                        if (stts[7]) {
+                                            stts[7] = stts[7].join('');
+                                        }
+                                        return stts.join('')
+                                    }).join(' ')
+                                }).join(' ')
+                            }
+                            return actions
+
                         }
                     }]
                 })
@@ -163,9 +211,8 @@ define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select'], functi
                         message: textarea.val()
                     });
                     eventAck.done(function () {
-                        modal.modal('hide')
-                        //update page
-                        util.hash({ updated: moment().format('HH:mm:ss') }, true);
+                        modal.modal('hide');
+                        page.load();
                     });
                 })
         }
@@ -409,15 +456,15 @@ define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select'], functi
             });
             $('#items')
                 .html(
-                    '<span class="badge alert-success">' +
+                    '<span class="text-success">' +
                         enabled +
                     '</span>' +
                     ' / ' +
-                    '<span class="badge alert-danger">' +
+                    '<span class="text-danger">' +
                         disabled +
                     '</span>' +
                     ' / ' +
-                    '<span class="badge alert-warning">' +
+                    '<span class="text-muted">' +
                         notsupported +
                     '</span>'
                 )
@@ -437,7 +484,7 @@ define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select'], functi
         discoveryStatus.init();
         $('#refresh')
             .on('click', function () {
-                util.hash({ updated: moment().format('HH:mm:ss') }, true);
+                page.load();
             })
         $('#refresh-time')
             .on('change', function () {
@@ -498,10 +545,8 @@ define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select'], functi
         $('#refresh-time')
             .selectpicker('val', refresh);
         timeoutId = window.setTimeout(function () {
-            if (page === '#!' + util.hash().page) {
-                util.hash({
-                    updated: moment().format('HH:mm:ss')
-                }, true);
+            if (pageHash === '#!' + util.hash().page) {
+                page.load();
             }
         }, refresh * 1000);
 

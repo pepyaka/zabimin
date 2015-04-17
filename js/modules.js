@@ -4,23 +4,64 @@ require.config({
         'text': ['//cdnjs.cloudflare.com/ajax/libs/require-text/2.0.12/text'],
 
         //Common libs
-        'jquery': ['//code.jquery.com/jquery-2.1.1', 'lib/jquery.min'],
-        'moment': ['//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min'],
-        'typeahead': ['//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.4/typeahead.bundle.min'],
-        'bootstrap': ['//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap', 'libs/bootstrap.min'],
-        'bootstrap-select': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select'],//http://silviomoreto.github.io/bootstrap-select/
-        'bootstrap-datetimepicker': ['//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.0.0/js/bootstrap-datetimepicker.min'],//http://eonasdan.github.io/bootstrap-datetimepicker/
+        //http://jquery.com/
+        'jquery': [
+            '../dist/jquery/dist/jquery.min',
+            '//code.jquery.com/jquery-2.1.3.min'
+        ],
+        //http://getbootstrap.com/
+        'bootstrap': [
+            '../dist/bootstrap/dist/js/bootstrap.min',
+            '//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min'
+        ],
+        //http://momentjs.com/
+        'moment': [
+            '../dist/moment/min/moment-with-locales.min',
+            '//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min'
+        ],
+        //https://twitter.github.io/typeahead.js/
+        'typeahead': [
+            '../typeahead.js/dist/typeahead.bundle.min',
+            '//cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.10.5/typeahead.bundle.min'
+        ],
+        //http://silviomoreto.github.io/bootstrap-select/
+        'bootstrap-select': [
+            '../dist/bootstrap-select/dist/js/bootstrap-select.min',
+            '//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/js/bootstrap-select'
+        ],
+        //http://eonasdan.github.io/bootstrap-datetimepicker/
+        'bootstrap-datetimepicker': [
+            '../dist/bootstrap-datetimepicker/src/js/bootstrap-datetimepicker',
+            '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min'
+        ],
         //http://bootstrap-table.wenzhixin.net.cn/       
         'bootstrap-table': [
-            '../dist/bootstrap-table/dist/bootstrap-table.min',
+            '../dist/bootstrap-table/src/bootstrap-table',
             '//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.6.0/bootstrap-table.min'
         ],
         //https://github.com/dangrossman/bootstrap-daterangepicker
         'bootstrap-daterangepicker': [
             '//cdn.jsdelivr.net/bootstrap.daterangepicker/1.3.19/daterangepicker'
         ],
-        'select2': ['//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-beta.3/js/select2.min'],
+        //https://github.com/seiyria/bootstrap-slider
+        'bootstrap-slider': [
+            '../dist/bootstrap-slider/js/bootstrap-slider',
+            '//cdn.rawgit.com/seiyria/bootstrap-slider/master/js/bootstrap-slider'
+        ],
+        'select2': [
+            '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-beta.3/js/select2.min'
+        ],
+
+        //http://ecomfe.github.io/echarts/index-en.html
+        'joint': [
+            '//cdnjs.cloudflare.com/ajax/libs/jointjs/0.9.0/joint.min'
+        ],
         //Chart libs
+        //http://ecomfe.github.io/echarts/index-en.html
+        'echarts': [
+            '../dist/echarts/build/dist/echarts-all',
+            '//cdnjs.cloudflare.com/ajax/libs/echarts/2.2.1/echarts-all'
+        ],
         'jqplot': ['//cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.8/jquery.jqplot.min'],
         'jqplot.cursor': ['//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.cursor'],
         'jqplot.highlighter': ['//cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.highlighter'],
@@ -73,7 +114,15 @@ require.config({
         'bootstrap-datetimepicker': ['jquery', 'moment', 'bootstrap'],
         'bootstrap-select': ['bootstrap'],
         'bootstrap-table': ['jquery', 'bootstrap'],
-        'highcharts': ['jquery'],
+        'bootstrap-slider': ['jquery', 'bootstrap'],
+        'highstock': {
+            exports: 'Highcharts',
+            deps: ['jquery']
+        },
+        'highcharts': {
+            exports: 'Highcharts',
+            deps: ['jquery']
+        },
         'nvd3': {
             deps: ['d3'],
             exports: 'nv'

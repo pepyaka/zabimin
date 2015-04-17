@@ -1,0 +1,85 @@
+<div class="container">
+    <div class="row col-scroll">
+        <div class="col-xs-offset-2 col-xs-8">
+            <h4>Zabbix API</h4>
+            <dl class="dl-horizontal">
+                <dt>URL</dt>
+                <dd id="zapi-url">URL not updated</dd>
+            </dl>
+            <hr>
+            <h4>Hosts</h4>
+            <div class="row">
+                <div class="col-xs-6">
+                    <dl class="dl-horizontal">
+                        <dt>Total</dt>
+                        <dd id="hosts-total">0</dd>
+                        <dt class="text-success">Enabled</dt>
+                        <dd id="hosts-enabled" class="text-success">0</dd>
+                        <dt class="text-danger">Disabled</dt>
+                        <dd id="hosts-disabled" class="text-danger">0</dd>
+                        <dt class="text-info">Templates</dt>
+                        <dd id="hosts-templates" class="text-info">0</dd>
+                    </dl>
+                </div>
+                <div class="col-xs-6">
+                    <div id="hosts-pie" style="height:100px;"></div>
+                </div>
+            </div>
+            <hr>
+            <h4>Items</h4>
+            <div class="row">
+                <div class="col-xs-6">
+                    <dl class="dl-horizontal">
+                        <dt>Total</dt>
+                        <dd id="items-total">0</dd>
+                        <dt class="text-success">Enabled</dt>
+                        <dd id="items-enabled" class="text-success">0</dd>
+                        <dt class="text-danger">Disabled</dt>
+                        <dd id="items-disabled" class="text-danger">0</dd>
+                        <dt class="text-muted">Not supported</dt>
+                        <dd id="items-not-supported" class="text-muted">0</dd>
+                    </dl>
+                </div>
+                <div class="col-xs-6">
+                    <div id="items-pie" style="height:100px;"></div>
+                </div>
+            </div>
+            <hr>
+            <h4>Triggers</h4>
+            <div class="row">
+                <div class="col-xs-3">
+                    <dl class="dl-horizontal">
+                        <dt class="text-success">Enabled</dt>
+                        <dd id="triggers-enabled" class="text-success">0</dd>
+                        <dt class="text-danger">Disabled</dt>
+                        <dd id="triggers-disabled" class="text-danger">0</dd>
+                    </dl>
+                </div>
+                <div class="col-xs-3">
+                    <div id="triggers-status-pie" style="height:100px;"></div>
+                </div>
+                <div class="col-xs-3">
+                    <dl class="dl-horizontal">
+                        <dt class="text-success">OK</dt>
+                        <dd id="triggers-ok" class="text-success">0</dd>
+                        <dt class="text-danger">Problem</dt>
+                        <dd id="triggers-problem" class="text-danger">0</dd>
+                    </dl>
+                </div>
+                <div class="col-xs-3">
+                    <div id="triggers-value-pie" style="height:100px;"></div>
+                </div>
+            </div>
+            <dl class="dl-horizontal">
+                <dt>Total</dt>
+                <dd id="triggers-total">0</dd>
+            </dl>
+            <hr>
+            <h4>Server</h4>
+            <dl class="dl-horizontal">
+                <dt>Required perfomance</dt>
+                <dd id="server-req-perf">0</dd>
+            </dl>
+        </div>
+    </div>
+</div>
