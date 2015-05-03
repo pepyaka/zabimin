@@ -46,6 +46,7 @@ define(['Util', 'moment', 'bootstrap-select', 'bootstrap-datetimepicker', 'boots
                     $('#ajax-page')
                         .removeClass('spinner')
                         .html(html);
+                    current = hash.page;
                 });
             }
         );

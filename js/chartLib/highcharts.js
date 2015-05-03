@@ -335,6 +335,63 @@ define(['highstock'], function() {
                 return [data]
             }
         },
+        'Reports/Bar': {
+            init: function (chart) {
+                return {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: null
+                    },
+                    xAxis: {
+                        categories: [
+                            'Jan',
+                            'Feb',
+                            'Mar',
+                            'Apr',
+                            'May',
+                            'Jun',
+                            'Jul',
+                            'Aug',
+                            'Sep',
+                            'Oct',
+                            'Nov',
+                            'Dec'
+                        ],
+                        crosshair: true
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Rainfall (mm)'
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: chart.items.map(function (item) {
+                        return {
+                            name: item.hosts[0].name + ': ' + item.name
+                        }
+                    })
+                };
+            },
+            load: function (data) {
+console.log(data)
+            }
+        },
         'dflt': {
             init: function () {
                 return {}
@@ -368,9 +425,9 @@ define(['highstock'], function() {
     };
     var load = function(data, chart) {
         var highChart = $('#' + chart.idSel).highcharts();
-        var series = forms[chart.form || dflt].load(data, chart);
-        series.forEach(function (s, i) {
-            highChart.series[i].setData(s, false);
+        var series = forms[chart.form || 'dflt'].load(data, chart);
+        highChart.series.forEach(function (s, i) {
+            s.setData(series[i], false);
         });
         highChart.hideLoading();
         highChart.redraw();

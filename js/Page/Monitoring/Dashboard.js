@@ -194,7 +194,7 @@ define(['Zapi', 'moment', 'Util', 'Page', 'bootstrap-table', 'bootstrap-select']
                                         '<span class="pull-right">' +
                                             moment(ack.clock, 'X').format('lll') +
                                         '</span>' +
-                                        '<div class="alert alert-info" role="alert">' +
+                                        '<div class="alert alert-sm alert-info" role="alert">' +
                                             ack.message +
                                         '</div>'
                             })
@@ -527,6 +527,8 @@ define(['Zapi', 'moment', 'Util', 'Page', 'bootstrap-table', 'bootstrap-select']
             ],
             selectLastEvent: 'extend',
             selectGroups: ['name'],
+            sortfield: ['lastchange'],
+            sortorder: 'DESC',
             limit: 20
         });
         var itemGet = zapi.req('item.get', {

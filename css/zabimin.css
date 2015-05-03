@@ -24,12 +24,17 @@ body {
     padding-top: 70px;
 }
 @media (min-width: 992px) {
+    /*
     body {
+        overflow-y: hidden;
+    }
+    */
+    .col-scroll-container {
         overflow-y: hidden;
     }
     .col-scroll {
         height: calc(100vh - 50px);
-        overflow-x: hidden;
+        overflow-x: visible;
         overflow-y: auto;
         padding-top: 20px;
         margin-top: -20px;
@@ -89,18 +94,25 @@ body {
     cursor: default;
 }
 
-/* class to keep div's aspect ratio 16:9 */
+/*************************** aspect ratio classes ***************************/
 .aspect-ratio-16-by-9 {
     position: relative;
     padding-bottom: 56.25%;
 }
-.aspect-ratio-16-by-9 > div, .aspect-ratio-target {
+.aspect-ratio-50 {
+    position: relative;
+    padding-bottom: 50%;
+}
+.aspect-ratio-16-by-9 > div,
+.aspect-ratio-50 > div,
+.aspect-ratio-target {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
 }
+/****************************************************************************/
 
 /********************* Expanded information tooltips ************************/
 .fixed-table-body {

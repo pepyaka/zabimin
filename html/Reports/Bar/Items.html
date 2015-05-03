@@ -1,0 +1,133 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-md-push-9">
+            <nav>
+                <ul class="nav nav-pills" id="bar-reports-sub-nav">
+                    <li class="active">
+                        <a href="#!Reports/Bar/Periods">Periods</a>
+                    </li>
+                    <li>
+                        <a href="#!Reports/Bar/Items">Items</a>
+                    </li>
+                    <li>
+                        <a href="#!Reports/Bar/Hosts">Hosts</a>
+                    </li>
+                </ul>
+            </nav>
+            <br>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Items</h4>
+                </div>
+                <ul class="list-group" id="item-list" data-itemid="[]">
+                </ul>
+                <div class="panel-body">
+                    <div class="col-lg-9" id="item-selector">
+                        <form class="form-horizontal">
+                             <div class="form-group">
+                                 <label for="group-select" class="col-xs-5 control-label">Group</label>
+                                 <div class="col-xs-7">
+                                     <select class="form-control selectpicker pull-right"
+                                             id="group-select"
+                                             data-style="btn-sm btn-primary"
+                                             data-hash-args="groupid"
+                                             disabled>
+                                         <option value="">All groups</option>
+                                     </select>
+                                 </div>
+                             </div>
+                             <div class="form-group">
+                                 <label for="host-select" class="col-xs-5 control-label">Host</label>
+                                 <div class="col-xs-7">
+                                     <select class="form-control selectpicker pull-right"
+                                             id="host-select"
+                                             data-style="btn-sm btn-primary"
+                                             data-hash-args="hostid"
+                                             data-live-search="true"
+                                             disabled>
+                                     </select>
+                                 </div>
+                             </div>
+                             <div class="form-group">
+                                 <label for="item-select" class="col-xs-3 control-label">Item</label>
+                                 <div class="col-xs-9">
+                                     <select class="form-control selectpicker pull-right"
+                                             id="item-select"
+                                             data-style="btn-sm btn-primary"
+                                             data-hash-args="itemid"
+                                             data-live-search="true"
+                                             disabled>
+                                     </select>
+                                 </div>
+                             </div>
+                        </form>
+                    </div>
+                    <div class="col-lg-3">
+                        <button type="button" class="btn btn-success" id="item-add">
+                            Add
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">Period</h4>
+                </div>
+                <div class="panel-body">
+                    <form class="form-horizontal">
+                        <div class="form-group collapse in" id="period-range">
+                            <div class='col-xs-6'>
+                                <label for="period-since">Since</label>
+                                <input id="period-since" type='text' class="form-control datetimepicker"/>
+                            </div>
+                            <div class='col-xs-6'>
+                                <label for="period-till">Till</label>
+                                <input id="period-till" type='text' class="form-control datetimepicker"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="scale-select" class="col-xs-6 control-label">Scale</label>
+                            <div class="col-xs-6">
+                                <select class="form-control selectpicker"
+                                        id="scale-select"
+                                        data-style="btn-primary"
+                                        data-hash-args="scale">
+                                    <option value="hourly">Hourly</option>
+                                    <option value="">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="yearly">Yearly</option>
+                                    <option value="custom"data-content="<span class='label label-default'>Custom</span>">Custom</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <ul class="list-group collapse" id="custom-scale-list">
+                    <li class="list-group-item">
+                        <form class="form-inline">
+                            <div class='form-group'>
+                                <input id="custom-scale-since" type='text' class="form-control input-sm datetimepicker"/>
+                            </div>
+                            <div class='form-group'>
+                                <input id="custom-scale-till" type='text' class="form-control input-sm datetimepicker"/>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-success">Add
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-9 col-md-pull-3">
+            <div id="bar-graph">
+                <h4 class="graph-title text-center">Graph</h4>
+                <div class="aspect-ratio-50">
+                    <div class="graph-container" id="bar-report-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
