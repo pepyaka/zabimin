@@ -1,5 +1,7 @@
 define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datetimepicker'], function(zapi, util, moment, zabimin) {
     "use strict";
+    var now = moment();
+    var monthAgo = moment().subtract(1, 'month');
 
     var itemsFilter = {
         prep: $.Deferred(),
@@ -167,27 +169,54 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
     };
     var periodFilter = {
         init: function () {
-            var customScale = null;
-            $('.datetimepicker').datetimepicker();
             $('#scale-select')
                 .on('change', function () {
                     var val = $(this).val();
-                    if (val === 'custom') {
-                        $('#custom-scale-list').collapse('show')
-                        $('#period-range').collapse('hide')
-                    } else {
-                        $('#period-range').collapse('show')
-                        $('#custom-scale-list').collapse('hide')
-                    }
                     util.hash({
-                        scale: val || null
+                        scale: val === 'day' ? null : val
+                    }, true);
+                });
+            $('#period-since')
+                .datetimepicker({
+                    format: 'll',
+                    defaultDate: monthAgo
+                })
+                .on('dp.change', function (e) {
+                    util.hash({
+                        since: moment(e.date).format('YYYY-MM-DDTHH:mm')
+                    }, true);
+                });
+            $('#period-till')
+                .datetimepicker({
+                    format: 'll',
+                    defaultDate: now
+                })
+                .on('dp.change', function (e) {
+                    util.hash({
+                        till: moment(e.date).format('YYYY-MM-DDTHH:mm')
                     }, true);
                 });
         },
         update: function (hashArgs) {
+            $('#scale-select')
+                .selectpicker(
+                    'val',
+                    hashArgs.scale ? hashArgs.scale[0] : 'day'
+                );
+            if (hashArgs.since) {
+                $('#period-since')
+                    .data('DateTimePicker')
+                        .date(moment(hashArgs.since[0]));
+            }
+            if (hashArgs.till) {
+                $('#period-till')
+                    .data('DateTimePicker')
+                        .date(moment(hashArgs.till[0]));
+            }
         }
     };
     var chart = {
+        prev: {},
         prep: $.Deferred(),
         init: function () {
             require(['chartLib/' + zabimin.chartLib], function (chartLib) {
@@ -198,99 +227,159 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
             var barChart = {
                 form: 'Reports/Bar',
                 idSel: 'bar-report-chart',
-                scale: chartArgs.scale
             };
             var itemids = chartArgs.items.map(function (i) {
                 return i.itemid;
             });
-            var itemGet = zapi.req('item.get', {
-                itemids: itemids.length > 0 ? itemids : 0,
-                selectHosts: ['name'],
-                output: [
-                    'name',
-                    'description',
-                    'value_type'
-                ]
-            });
+            var sameItemIds = (
+                itemids.equals(chart.prev.itemids)
+            ) || (
+                chart.prev.itemids = itemids,
+                false
+            );
+            var sameTimePeriod = (
+                chartArgs.since === chart.prev.since &&
+                chartArgs.till === chart.prev.till
+            ) || (
+                chart.prev.since = chartArgs.since,
+                chart.prev.till = chartArgs.till,
+                false
+            );
             chart.prep.done(function (chartLib) {
-                itemGet.done(function (zapiResponse) {
+                // get items only if it changed
+                if (!sameItemIds) {
+                    chart.itemGet = zapi.req('item.get', {
+                        itemids: itemids.length > 0 ? itemids : 0,
+                        selectHosts: ['name'],
+                        output: [
+                            'name',
+                            'description',
+                            'value_type'
+                        ]
+                    });
+                }
+                chart.itemGet.done(function (zapiResponse) {
                     var items = zapiResponse.result;
-                    // Add fake deffered object for zapi requests to 
-                    // always pass multiple Deferred objects to jQuery.when()
-                    var reqArray = [ $.Deferred() ];
-                    barChart.items = items.map(function (item) {
-                        var i = chartArgs.items.filter(function (i) {
-                            return item.itemid === i.itemid
+                    var scale = createCategories(
+                        chartArgs.scale,
+                        chartArgs.mSince,
+                        chartArgs.mTill
+                    );
+                    barChart.categories = scale.map(function (c) {
+                        return c.date
+                    });
+                    barChart.items = chartArgs.items.map(function (item) {
+                        var i = items.filter(function (i, index) {
+                            return (
+                                item.itemid === i.itemid &&
+                                (item.dataSrc = index, true)
+                            )
+                                
                         })[0];
-                        return $.extend(i, item);
+                        return $.extend(item, i);
                     });
                     chartLib.init(barChart);
-                    items.forEach(function (item) {
-                        reqArray.push(
-                            zapi.req('trends.get', {
-                                itemids: item.itemid,
-                                history: item.value_type,
-                                time_from: chartArgs.since,
-                                time_till: chartArgs.till
-                            })
-                        );
-                    });
-                    $.when.apply(null, reqArray).done(function() {
+                    // get history data if time period or items was changed
+                    if (!sameTimePeriod || !sameItemIds) {
+                        // Add fake deffered object for zapi requests to 
+                        // always pass multiple Deferred objects to jQuery.when()
+                        chart.trendsGetArr = [ $.Deferred() ];
+                        items.forEach(function (item) {
+                            chart.trendsGetArr.push(
+                                zapi.req('trends.get', {
+                                    itemids: item.itemid,
+                                    history: item.value_type,
+                                    time_from: chartArgs.mSince.format('X'),
+                                    time_till: chartArgs.mTill.format('X')
+                                })
+                            );
+                        });
+                        // Process chart data after ALL history items loaded
+                        chart.trendsGetArr[0].resolve(false);
+                    }
+                    $.when.apply(null, chart.trendsGetArr).done(function() {
                         // extract all responses except fake deferred
                         var args = Array.prototype.slice.call(arguments, 1);
                         var trendsData = args.map(function (zapiResponse) {
                             return zapiResponse[0].result
                         });
-                        var data = procData(trendsData, 86400);
-                        chartLib.load(data, barChart);
+                        var data = procData(trendsData, scale);
+                        chartLib.load(
+                            barChart.items.map(function (item) {
+                                return data[item.dataSrc]
+                            }),
+                            barChart
+                        );
                     });
-                    reqArray[0].resolve(false);
                 });
             });
+            function createCategories(period, mSince, mTill) {
+                var period = (
+                    [
+                        'hour',
+                        'day',
+                        'week',
+                        'month',
+                        'year'
+                    ].indexOf(period) > -1 ?
+                    period :
+                    'day'
+                );
+                var formatDate = function(period, start, end) {
+                    return {
+                        hour: start.format('HH:mm'),
+                        day: start.format('dd, D MMM'),
+                        week: start.format('ll') + ' - ' + end.format('ll'),
+                        month: start.format('MMMM'),
+                        year: start.format('YYYY')
+                    }[period]
+                };
+                var mCur = moment(mSince);
+                var scale = [];
+                while (mCur.isBefore(mTill)) {
+                    var start = moment(mCur).startOf(period);
+                    var end = moment(mCur).endOf(period);
+                    scale.push({
+                        date: formatDate(period, start, end),
+                        start: start.unix(),
+                        end: end.unix()
+                    });
+                    // Protect period name (infiloop cause)
+                    mCur.add(1, period);
+                }
+                return scale
+            };
             function procData(trendsData, scale) {
-                var tzOffset = new Date().getTimezoneOffset() * 60;
-                var clockObj = {};
-                var data = trendsData.map(function (itemData, i) {
-                    itemData.forEach(function (d) {
-                        var scaleClock = d.clock - d.clock % scale + tzOffset;
-                        if (clockObj[scaleClock]) {
-                            if (clockObj[scaleClock][i]) {
-                                clockObj[scaleClock][i].push(d);
-                            } else {
-                                clockObj[scaleClock][i] = [d];
-                            }
+                var data = [];
+                scale.forEach(function (s) {
+                    trendsData.forEach(function (item, i) {
+                        var preData = item.filter(function (d) {
+                            var clock = Number(d.clock);
+                            return clock >= s.start && clock < s.end
+                        });
+                        var d = {
+                            min: Math.min.apply(null,
+                                preData.map(function (d) {
+                                    return Number(d.value_min)
+                                })
+                            ),
+                            max: Math.max.apply(null,
+                                preData.map(function (d) {
+                                    return Number(d.value_max)
+                                })
+                            ),
+                            sum: preData.reduce(function (sum, d) {
+                                return sum + Number(d.value_avg)
+                            }, 0),
+                            cnt: preData.length
+                        };
+                        d.avg = d.sum / d.cnt;
+                        if (data[i]) {
+                            data[i].push(d);
                         } else {
-                            clockObj[scaleClock] = [];
-                            clockObj[scaleClock][i] = [d];
+                            data[i] = [d];
                         }
                     });
-                    // Create data array of arrays, exactly length as rawData array
-                    return []
-                });
-                Object.keys(clockObj).forEach(function (clock) {
-                    clockObj[clock].forEach(function (itemData, i) {
-                        var avgArr = itemData.map(function (d) {
-                            return d.value_avg
-                        });
-                        var minArr = itemData.map(function (d) {
-                            return d.value_min
-                        });
-                        var maxArr = itemData.map(function (d) {
-                            return d.value_max
-                        });
-                        var sum = avgArr.reduce(function(sum, value) {
-                            return sum + Number(value)
-                        }, 0);
-                        data[i].push({
-                            ms: clock * 1000,
-                            avg: sum / avgArr.length,
-                            min: Math.min.apply(null, minArr),
-                            max: Math.max.apply(null, maxArr)
-                        })
-                    });
-                });
-                data.sort(function (a, b) {
-                    return a.ms - b.ms
                 })
                 return data
             }
@@ -322,12 +411,15 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
                 []
             ),
             scale: hashArgs.scale ? hashArgs.scale[0] : 'day',
-            since: (
+            mSince: moment(
                 hashArgs.since ?
-                moment(hashArgs.since[0]).format('X') :
-                Date.now()/1000 - 86400 * 30
+                hashArgs.since[0] :
+                monthAgo
             ),
-            till: hashArgs.till && moment(hashArgs.till[0]).format('X')
+            mTill: moment(
+                hashArgs.till &&
+                hashArgs.till[0]
+            )
         });
     };
 

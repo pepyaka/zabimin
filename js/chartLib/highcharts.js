@@ -345,38 +345,23 @@ define(['highstock'], function() {
                         text: null
                     },
                     xAxis: {
-                        categories: [
-                            'Jan',
-                            'Feb',
-                            'Mar',
-                            'Apr',
-                            'May',
-                            'Jun',
-                            'Jul',
-                            'Aug',
-                            'Sep',
-                            'Oct',
-                            'Nov',
-                            'Dec'
-                        ],
-                        crosshair: true
-                    },
-                    yAxis: {
-                        min: 0,
-                        title: {
-                            text: 'Rainfall (mm)'
-                        }
+                        //type: 'datetime'
+                        categories: chart.categories
                     },
                     tooltip: {
-                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
-                        footerFormat: '</table>',
+                        //headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        //pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        //    '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+                        //footerFormat: '</table>',
+                        //pointFormatter: function () {
+                        //    return this.y.toLocaleString() + '<br>'
+                        //},
                         shared: true,
-                        useHTML: true
+                        //useHTML: true
                     },
                     plotOptions: {
                         column: {
+                            //pointPlacement: 'between',
                             pointPadding: 0.2,
                             borderWidth: 0
                         }
@@ -388,8 +373,12 @@ define(['highstock'], function() {
                     })
                 };
             },
-            load: function (data) {
-console.log(data)
+            load: function (data, chart) {
+                return data.map(function (item, i) {
+                    return item.map(function (d) {
+                        return d[chart.items[i].func]
+                    });
+                });
             }
         },
         'dflt': {

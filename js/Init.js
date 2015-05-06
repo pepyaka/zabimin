@@ -1,6 +1,34 @@
 define(['Page', 'Zapi', 'jquery', 'bootstrap'], function(Page, zapi) {
     "use strict";
 
+    // attach the .equals method to Array's prototype to call it on any array
+    Array.prototype.equals = function (array, similar) {
+        // if the other array is a falsy value, return
+        if (!array)
+            return false;
+    
+        // compare lengths - can save a lot of time 
+        if (this.length != array.length)
+            return false;
+    
+        for (var i = 0; i < this.length; i++) {
+            // Check if we have nested arrays
+            if (this[i] instanceof Array && array[i] instanceof Array) {
+                // recurse into the nested arrays
+                if (!this[i].equals(array[i], similar))
+                    return false;
+            }
+            else if (!similar && this[i] != array[i]) {
+                // Warning - two different object instances will never be equal: {x:20} != {x:20}
+                return false;
+            }
+            else if (similar) {
+                return this.sort().equals(array.sort(), true);
+            }
+        }
+        return true;
+    }
+
     $(document).ready(function () {
 
         //Check zabbix api version
