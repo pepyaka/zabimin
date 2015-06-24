@@ -55,9 +55,6 @@ define(['Zapi', 'Util', 'bootstrap-table', 'bootstrap-select'], function(zapi, u
     var inventoryTable = {
         init: function() {
             var columns = [{
-                    field: 'name',
-                    title: 'Host',
-                    sortable: true,
                     class: "text-nowrap",
                     formatter: function(name, host) {
                         return (
@@ -67,12 +64,6 @@ define(['Zapi', 'Util', 'bootstrap-table', 'bootstrap-select'], function(zapi, u
                         )
                     }
                 }, {
-                    field: 'groups',
-                    title: 'Groups',
-                    searchable: false,
-                    sortable: true,
-                    align: 'center',
-                    valign: 'middle',
                     formatter: function(groups) {
                         var groupList = groups.map(function(g) {
                             return (
@@ -95,9 +86,6 @@ define(['Zapi', 'Util', 'bootstrap-table', 'bootstrap-select'], function(zapi, u
                         )
                     }
                 }, {
-                    field: 'interfaces',
-                    title: 'Interfaces',
-                    sortable: true,
                     formatter: function(intfs) {
                         var intList = $.map(intfs, function(i) {
                             return i.ip
@@ -105,62 +93,18 @@ define(['Zapi', 'Util', 'bootstrap-table', 'bootstrap-select'], function(zapi, u
                         return intList.join(', ')
                     }
                 }, {
-                    field: 'inventory',
-                    title: 'Name',
-                    visible: false,
-                    formatter: function(inventory) {
-                        return inventory.name
-                    },
                 }, {
-                    field: 'inventory',
-                    title: 'Type',
-                    visible: false,
-                    formatter: function(inventory) {
-                        return inventory.type
-                    }
                 }, {
-                    field: 'inventory',
-                    title: 'OS',
-                    sortable: true,
-                    formatter: function(inventory) {
-                        return inventory.os
-                    }
                 }, {
-                    field: 'inventory',
-                    title: 'Model',
-                    searchable: true,
-                    formatter: function(inventory) {
-                        return inventory.model
-                    }
                 }, {
-                    field: 'inventory',
-                    title: 'Serial',
                     formatter: function(i) {
                         var a = i.serialno_a ? '<span class="label label-primary">'+i.serialno_a+'</span>' : ''
                         var b = i.serialno_b ? ' <span class="label label-default">'+i.serialno_b+'</span>' : ''
                         return a + b
                     }
                 }, {
-                    field: 'inventory',
-                    title: 'Tag',
-                    visible: false,
-                    formatter: function(i) {
-                        return i.tag
-                    }
                 }, {
-                    field: 'inventory',
-                    title: 'MAC Address',
-                    searchable: true,
-                    visible: false,
-                    formatter: function(i) {
-                        return i.macaddress_a
-                    },
                 }, {
-                    field: 'inventory',
-                    title: 'Vendor',
-                    formatter: function(inventory) {
-                        return inventory.vendor
-                    }
             }];
             $('#hosts-inventory')
                 .bootstrapTable({
@@ -178,6 +122,7 @@ define(['Zapi', 'Util', 'bootstrap-table', 'bootstrap-select'], function(zapi, u
         update: function(hashArgs) {
             var hostGet = zapi.req('host.get', {
                 groupids: hashArgs.groupid,
+                output: ['host', 'name'],
                 selectInventory: 'extend',
                 selectInterfaces: ['ip', 'type']
             });
@@ -185,23 +130,34 @@ define(['Zapi', 'Util', 'bootstrap-table', 'bootstrap-select'], function(zapi, u
                 .fadeTo('fast', 0.3)
             hostGet.done(function(hostResponse) {
                 var inventoryProp;
+                var hosts = hostResponse.result.map(function(h) {
+                    return $.extend({
+                        type: h.inventory.type,
+                        os: h.inventory.os,
+                        model: h.inventory.model,
+                        serial: h.inventory,
+                        tag: h.inventory.tag,
+                        mac: h.inventory.macaddress_a,
+                        vendor: h.inventory.vendor
+                    }, h) 
+                });
                 $.each(hashArgs, function (k, v) {
                     var p = k.split('.');
                     if (p[0] === 'inventory') {
                         inventoryProp = [ p[1], v[0] ];
                     }
                 });
-                var hosts = inventoryProp ?
-                            hostResponse.result.filter(function (h) {
-                                var filter = false;
-                                $.each(h.inventory, function (k, v) {
-                                    if (inventoryProp[0] === k && inventoryProp[1] === v) {
-                                        filter = true
-                                    }
-                                });
-                                return filter
-                            }) :
-                            hostResponse.result;
+                if (inventoryProp) {
+                    hosts = hosts.filter(function (h) {
+                        var filter = false;
+                        $.each(h.inventory, function (k, v) {
+                            if (inventoryProp[0] === k && inventoryProp[1] === v) {
+                                filter = true
+                            }
+                        });
+                        return filter
+                    });
+                }
                 $('#hosts-inventory')
                     .bootstrapTable('load', hosts)
                     .fadeTo('fast', 1)

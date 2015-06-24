@@ -37,7 +37,7 @@ require.config({
         //http://bootstrap-table.wenzhixin.net.cn/       
         'bootstrap-table': [
             '../dist/bootstrap-table/src/bootstrap-table',
-            '//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.6.0/bootstrap-table.min'
+            '//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.8.1/bootstrap-table.min'
         ],
         //https://github.com/dangrossman/bootstrap-daterangepicker
         'bootstrap-daterangepicker': [
@@ -48,10 +48,6 @@ require.config({
             '../dist/bootstrap-slider/js/bootstrap-slider',
             '//cdn.rawgit.com/seiyria/bootstrap-slider/master/js/bootstrap-slider'
         ],
-        'select2': [
-            '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.0-beta.3/js/select2.min'
-        ],
-
         //http://ecomfe.github.io/echarts/index-en.html
         'joint': [
             '//cdnjs.cloudflare.com/ajax/libs/jointjs/0.9.0/joint.min'

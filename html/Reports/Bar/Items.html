@@ -3,10 +3,10 @@
         <div class="col-md-3 col-md-push-9">
             <nav>
                 <ul class="nav nav-pills" id="bar-reports-sub-nav">
-                    <li class="active">
+                    <li>
                         <a href="#!Reports/Bar/Periods">Periods</a>
                     </li>
-                    <li>
+                    <li class="active">
                         <a href="#!Reports/Bar/Items">Items</a>
                     </li>
                     <li>
@@ -19,56 +19,90 @@
                 <div class="panel-heading">
                     <h4 class="panel-title">Items</h4>
                 </div>
-                <ul class="list-group" id="item-list" data-itemid="[]">
-                </ul>
                 <div class="panel-body">
-                    <div class="col-lg-9" id="item-selector">
-                        <form class="form-horizontal">
-                             <div class="form-group">
-                                 <label for="group-select" class="col-xs-5 control-label">Group</label>
-                                 <div class="col-xs-7">
-                                     <select class="form-control selectpicker pull-right"
-                                             id="group-select"
-                                             data-style="btn-sm btn-primary"
-                                             data-hash-args="groupid"
-                                             disabled>
-                                         <option value="">All groups</option>
-                                     </select>
+                    <div class="row">
+                        <div class="col-lg-6" id="item-selector">
+                            <form class="form-horizontal">
+                                 <div class="form-group">
+                                     <label for="group-select" class="col-xs-3 control-label">Group</label>
+                                     <div class="col-xs-9">
+                                         <select class="form-control input-sm selectpicker pull-right"
+                                                 id="group-select"
+                                                 data-style="btn-sm btn-primary"
+                                                 data-hash-args="groupid"
+                                                 disabled>
+                                             <option value="">All groups</option>
+                                         </select>
+                                     </div>
                                  </div>
-                             </div>
-                             <div class="form-group">
-                                 <label for="host-select" class="col-xs-5 control-label">Host</label>
-                                 <div class="col-xs-7">
-                                     <select class="form-control selectpicker pull-right"
-                                             id="host-select"
-                                             data-style="btn-sm btn-primary"
-                                             data-hash-args="hostid"
-                                             data-live-search="true"
-                                             disabled>
-                                     </select>
+                                 <div class="form-group">
+                                     <label for="host-select" class="col-xs-3 control-label">Host</label>
+                                     <div class="col-xs-9">
+                                         <select class="form-control input-sm selectpicker pull-right"
+                                                 id="host-select"
+                                                 data-style="btn-sm btn-primary"
+                                                 data-hash-args="hostid"
+                                                 data-live-search="true"
+                                                 disabled>
+                                         </select>
+                                     </div>
                                  </div>
-                             </div>
-                             <div class="form-group">
-                                 <label for="item-select" class="col-xs-3 control-label">Item</label>
-                                 <div class="col-xs-9">
-                                     <select class="form-control selectpicker pull-right"
-                                             id="item-select"
-                                             data-style="btn-sm btn-primary"
-                                             data-hash-args="itemid"
-                                             data-live-search="true"
-                                             disabled>
-                                     </select>
+                                 <div class="form-group">
+                                     <label for="item-select" class="col-xs-3 control-label">Item</label>
+                                     <div class="col-xs-9">
+                                         <select class="form-control input-sm selectpicker pull-right"
+                                                 id="item-select"
+                                                 data-style="btn-sm btn-primary"
+                                                 data-hash-args="itemid"
+                                                 data-live-search="true"
+                                                 disabled>
+                                         </select>
+                                     </div>
                                  </div>
-                             </div>
-                        </form>
-                    </div>
-                    <div class="col-lg-3">
-                        <button type="button" class="btn btn-success" id="item-add">
-                            Add
-                            <span class="glyphicon glyphicon-plus"></span>
-                        </button>
+                            </form>
+                        </div>
+                        <div class="col-lg-6">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="func-select" class="col-xs-3 control-label">Func</label>
+                                    <div class="col-xs-9">
+                                        <select class="form-control input-sm selectpicker pull-right"
+                                                id="func-select"
+                                                data-style="btn-sm btn-default">
+                                            <option value="min">Min</option>
+                                            <option value="avg" selected>Avg</option>
+                                            <option value="max">Max</option>
+                                            <option value="sum">Sum</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-12">
+                                    <input type="text" class="form-control input-sm" id="item-label" placeholder="Label">
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="pull-right">
+                                <button type="button" class="btn btn-success" id="item-add" disabled>
+                                    Add
+                                    <span class="glyphicon glyphicon-plus"></span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                <table class="table" id="item-table">
+                    <thead>
+                        <tr>
+                            <th>Host</th>
+                            <th>Item</th>
+                            <th>Func</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -76,7 +110,7 @@
                 </div>
                 <div class="panel-body">
                     <form class="form-horizontal">
-                        <div class="form-group collapse in" id="period-range">
+                        <div class="form-group" id="period-range">
                             <div class='col-xs-6'>
                                 <label for="period-since">Since</label>
                                 <input id="period-since" type='text' class="form-control datetimepicker"/>
@@ -86,39 +120,26 @@
                                 <input id="period-till" type='text' class="form-control datetimepicker"/>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="scale-select" class="col-xs-6 control-label">Scale</label>
-                            <div class="col-xs-6">
-                                <select class="form-control selectpicker"
-                                        id="scale-select"
-                                        data-style="btn-primary"
-                                        data-hash-args="scale">
-                                    <option value="hourly">Hourly</option>
-                                    <option value="">Daily</option>
-                                    <option value="weekly">Weekly</option>
-                                    <option value="monthly">Monthly</option>
-                                    <option value="yearly">Yearly</option>
-                                    <option value="custom"data-content="<span class='label label-default'>Custom</span>">Custom</option>
-                                </select>
-                            </div>
-                        </div>
                     </form>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-success" id="period-add">
+                            Add
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </div>
                 </div>
-                <ul class="list-group collapse" id="custom-scale-list">
-                    <li class="list-group-item">
-                        <form class="form-inline">
-                            <div class='form-group'>
-                                <input id="custom-scale-since" type='text' class="form-control input-sm datetimepicker"/>
-                            </div>
-                            <div class='form-group'>
-                                <input id="custom-scale-till" type='text' class="form-control input-sm datetimepicker"/>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-success">Add
-                                <span class="glyphicon glyphicon-plus"></span>
-                            </button>
-                        </form>
-                    </li>
-                </ul>
+                <table class="table" id="period-table">
+                    <thead>
+                        <tr>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Side</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
         <div class="col-md-9 col-md-pull-3">

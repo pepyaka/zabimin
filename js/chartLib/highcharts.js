@@ -346,7 +346,8 @@ define(['highstock'], function() {
                     },
                     xAxis: {
                         //type: 'datetime'
-                        categories: chart.categories
+                        categories: chart.categories,
+                        crosshair: true
                     },
                     tooltip: {
                         //headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
@@ -359,6 +360,17 @@ define(['highstock'], function() {
                         shared: true,
                         //useHTML: true
                     },
+                    yAxis: [{ // Primary yAxis
+                        title: {
+                            text: null
+                        }
+                    }, { // Secondary yAxis
+                        title: {
+                            text: null
+                        },
+                        opposite: true
+                    }],
+
                     plotOptions: {
                         column: {
                             //pointPlacement: 'between',
@@ -366,17 +378,28 @@ define(['highstock'], function() {
                             borderWidth: 0
                         }
                     },
-                    series: chart.items.map(function (item) {
+                    series: chart.series.map(function (s) {
                         return {
-                            name: item.hosts[0].name + ': ' + item.name
+                            name: s.name,
+                            yAxis: s.side === 'left' ? 0 : 1
                         }
                     })
+                    //series: chart.items.map(function (item) {
+                    //    return {
+                    //        name: (
+                    //            item.hosts[0].name + ': ' +
+                    //            (item.label ? item.label : item.name) +
+                    //            ' (' + item.func + ')'
+                    //        ),
+                    //        yAxis: item.side === 'left' ? 0 : 1
+                    //    }
+                    //})
                 };
             },
             load: function (data, chart) {
                 return data.map(function (item, i) {
                     return item.map(function (d) {
-                        return d[chart.items[i].func]
+                        return d[chart.series[i].func]
                     });
                 });
             }

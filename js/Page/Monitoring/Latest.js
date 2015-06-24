@@ -1,93 +1,132 @@
 // Monitoring/Triggers page
-define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, util, moment) {
+define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'bootstrap-select'], function(zapi, util, moment) {
     "use strict";
 
     var page = '#!Monitoring/Latest';
 
     var filter = {
+        prep: $.Deferred(),
         init: function(hosts, groups, apps) {
-            $('#group-list')
-                .select2({
-                    data: groups.map(function(g) {
-                        return {
-                            id: g.groupid,
-                            text: g.name
-                        }
-                    }),
-                    placeholder: groups.length + ' host groups'
-                })
-                .prop('disabled', false)
-            $('#host-list')
-                .select2({
-                    data: hosts.map(function(h) {
-                        return {
-                            id: h.hostid,
-                            text: h.name
-                        }
-                    }),
-                    placeholder: hosts.length + ' hosts'
-                })
-                .prop('disabled', false)
-            $('#apps-list')
-                .select2({
-                    data: apps.map(function(a) {
-                        return {
-                            id: a.name,
-                            text: a.name
-                        }
-                    }),
-                    placeholder: apps.length + ' applications'
-                })
-                .prop('disabled', false)
-            $('#filter-reset')
+            var hostGet = zapi.req('host.get', {
+                selectGroups: ['name'],
+                selectApplications: 'extend'
+            });
+            $('.selectpicker')
+                .selectpicker()
+            $('[data-hash-arg]')
+                .on('change', function(e) {
+                    var $this = $(this);
+                    var val = $this.val() || null;
+                    var hashArg = {};
+                    if ($this.prop('type') === 'checkbox') {
+                        val = $this.prop('checked') || null
+                    }
+                    hashArg[$this.data('hashArg')] =  val;
+                    util.hash(hashArg, true);
+                });
+            $('[type=reset]')
                 .on('click', function() {
                     util.hash(null, true)
                 });
-        },
-        update: function(hash) {
-            // detach event listener to avoid multievents on change
-            $('#filter')
-                .off('change.filter');
-            // set selectors to hash values
-            $('[data-hash="groupid"]')
-                .val(hash.groupid)
-                .trigger('change')
-            $('[data-hash="hostid"]')
-                .val(hash.hostid)
-                .trigger('change')
-            $('[data-hash="application"]')
-                .val(hash.application)
-                .trigger('change')
-            $('[data-hash="name"]')
-                .val(hash.name)
-            $('[data-hash="errors"]')
-                .prop('checked', hash.errors)
-            $('[data-hash="details"]')
-                .prop('checked', hash.details)
-            //reattach event handler
-            $('#filter')
-                .on('change.filter', '[data-hash]', function(e) {
-                    var t = $(e.target);
-                    var h = {};
-                    if (t.is('input[type=checkbox]')) {
-                        h[t.data('hash')] = t.prop('checked') || null;
-                    } else {
-                        h[t.data('hash')] = t.val();
-                    }
-                    util.hash(h, true);
+            hostGet.done(function(zapiResponse) {
+                var hosts = zapiResponse.result;
+                var groups = [];
+                var groupList = [];
+                hosts.forEach(function(host) {
+                    host.groups.forEach(function(g) {
+                        if (groups[g.groupid]) {
+                            groups[g.groupid].hosts.push(host);
+                        } else {
+                            groups[g.groupid] = g;
+                            groups[g.groupid].hosts = [host];
+                        }
+                    });
                 });
+                // Remove sparse
+                groups = groups.filter(Boolean);
+                groups.sort(function(a, b) {
+                    return a.name > b.name ? 1 : -1
+                });
+                groups.forEach(function (g) {
+                    groupList.push(
+                        '<option value="' + g.groupid + '">' +
+                            g.name +
+                        '</option>'
+                    );
+                });
+                $('.selectpicker')
+                    .prop('disabled', false)
+                $('[data-hash-arg="groupid"]')
+                    .append(groupList)
+                    .selectpicker('refresh')
+                filter.prep.resolve(groups, hosts);
+            });
+        },
+        update: function(groups, hosts, hashArgs) {
+            var selHosts = hosts;
+            var selApps = [];
+            if (hashArgs.groupid) {
+                selHosts = groups.filter(function(g) {
+                    return g.groupid === hashArgs.groupid[0]
+                })[0].hosts;
+            }
+            selHosts.forEach(function(h) {
+                selApps = selApps.concat(h.applications.map(function(a) {
+                        return a.name
+                }));
+            });
+            // Uniq app names array
+            selApps = selApps.filter(function(v, i, s) {
+                return s.indexOf(v) === i
+            });
+            selApps.sort(function(a, b) {
+                return a.toLowerCase() > b.toLowerCase() ? 1 : -1
+            });
+            
+            $('[data-hash-arg="groupid"]')
+                .val(hashArgs.groupid && hashArgs.groupid[0])
+                .selectpicker('refresh');
+            $('[data-hash-arg="hostid"]')
+                .html(
+                     selHosts.map(function(h) {
+                         return (
+                             '<option value="' + h.hostid + '">' +
+                                h.name +
+                             '</option>'
+                         )
+                     })
+                )
+                .val(hashArgs.hostid ? hashArgs.hostid : '')
+                .selectpicker('refresh');
+            $('[data-hash-arg="app"]')
+                .html(
+                    '<option value="">Nothing selected</option>' +
+                     selApps.map(function(a) {
+                         return (
+                             '<option value="' + a + '">' +
+                                a +
+                             '</option>'
+                         )
+                     })
+                )
+                .val(hashArgs.app ? hashArgs.app[0] : '')
+                .selectpicker('refresh');
+            $('[data-hash-arg="name"]')
+                .val(hashArgs.name && hashArgs.name[0])
         }
     };
-    var itemTable = {
-        itemidList: [],
+    var table = {
         init: function() {
-            var itemidList = this.itemidList;
             var columns = [{
-                    checkbox: true
+                    checkbox: true,
+                    formatter: function(undefined, i) {
+                        if (i.value_type !== "0" && i.value_type !== "3" ) {
+                            return {
+                                disabled: true
+                            }
+                        }
+                    },
                 }, {
-                    field: 'hosts',
-                    title: 'Host',
-                    sortable: true,
                     formatter: function(hosts) {
                         return hosts[0].name
                     },
@@ -95,47 +134,29 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, 
                         return a > b ? -1 : 1
                     }
                 }, {
-                    field: 'applications',
-                    title: 'Applications',
-                    sortable: true,
                     formatter: function(apps) {
                         return apps.map(function(a) {
                             return a.name
                         }).join(', ')
                     }
                 }, {
-                    field: 'name',
-                    title: 'Item name',
-                    sortable: true,
                     formatter: function(name, i) {
                         var link = '#!Monitoring/Latest/Data&itemid=' + i.itemid;
                         var desc = i.description || name;
-                        return '<a href="'+link+'" class="hint--top hint--rounded" data-hint="'+desc+'">'+name+'</a>'
+                        if (i.value_type === "0" || i.value_type === "3" ) {
+                            return '<a href="'+link+'" class="hint--top hint--rounded" data-hint="'+desc+'">'+name+'</a>'
+                        } else {
+                            return name
+                        }
                     }
                 }, {
-                    field: 'delay',
-                    title: 'Interval',
-                    visible: false,
                 }, {
-                    field: 'history',
-                    title: 'History',
-                    visible: false,
                 }, {
-                    field: 'trends',
-                    title: 'Trends',
-                    visible: false,
                 }, {
-                    field: 'type',
-                    title: 'Type',
-                    sortable: true,
                     formatter: function(type) {
                         return zapi.map('Item', 'type', type).value
                     }
                 }, {
-                    field: 'lastclock',
-                    title: 'Last check',
-                    sortable: true,
-                    searchable: false,
                     formatter: function(lastclock) {
                         var v = '-';
                         if (lastclock != 0) {
@@ -144,9 +165,6 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, 
                         return v
                     }
                 }, {
-                    field: 'lastvalue',
-                    title: 'Last value',
-                    searchable: false,
                     formatter: function(lv, i) {
                         var v = util.showUnit(lv, i.units);
                         v = v[0] + ' ' + v[1] + v[2]
@@ -156,10 +174,6 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, 
                         return v
                     }
                 }, {
-                    field: 'prevvalue',
-                    title: 'Value change',
-                    visible: false,
-                    searchable: false,
                     formatter: function(prevvalue, item) {
                         var v = '-';
                         if (item.value_type == 0 || item.value_type == 3) {
@@ -168,9 +182,6 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, 
                         return v + item.units
                     }
                 }, {
-                    field: 'error',
-                    title: 'Info',
-                    align: 'center',
                     formatter: function(error) {
                         return error ? '<span class="label label-danger hint--left hint--rounded hint--error" data-hint="'+error+'">Error</span>' : ''
                     }
@@ -188,164 +199,84 @@ define(['Zapi', 'Util', 'moment', 'bootstrap-table', 'select2'], function(zapi, 
                     columns: columns
                 })
                 .css('opacity', 0.3)
-                .on('check.bs.table', function (e, row) {
-                    itemidList.push(row.itemid);
-                    $('#latest-data')
-                        .prop('href', '#!Monitoring/Latest/Data&itemid=' + itemidList.join(','))
-                        .removeClass('disabled')
-                    $('#latest-data-stacked')
-                        .prop('href', '#!Monitoring/Latest/Data&stacked=true&itemid=' + itemidList.join(','))
-                        .removeClass('disabled')
+                .on('check.bs.table uncheck.bs.table', function(e) {
+                    var allSel = $(this).bootstrapTable('getAllSelections');
+                    var itemids = allSel.map(function(r) {
+                        return r.itemid
+                    });
+                    $('#graph-links a').each(function() {
+                        var $a = $(this);
+                        $a.prop('href', $a.data('href') + '&itemid=' + itemids.join(','))
+                        if (itemids.length > 0) {
+                            $a.removeClass('disabled');
+                        } else {
+                            $a.addClass('disabled');
+                        }
+                    });
                 })
-                .on('uncheck.bs.table', function (e, row) {
-                    var i = itemidList.indexOf(row.itemid)
-                    if (i > -1) {
-                        itemidList.splice(i, 1);
-                    }
-                    if (itemidList.length > 0) {
-                        $('#latest-data')
-                            .prop('href', '#!Monitoring/Latest/Data&itemid=' + itemidList.join(','))
-                            .removeClass('disabled')
-                        $('#latest-data-stacked')
-                            .prop('href', '#!Monitoring/Latest/Data&stacked=true&itemid=' + itemidList.join(','))
-                            .removeClass('disabled')
-                    } else {
-                        $('#latest-data')
-                            .prop('href', '#!Monitoring/Latest/Data')
-                            .addClass('disabled')
-                        $('#latest-data-stacked')
-                            .prop('href', '#!Monitoring/Latest/Data&stacked=true')
-                            .addClass('disabled')
-                    }
-                })
+                       
         },
         update: function(hash) {
-            this.itemidList = [];
-            $('#latest-data')
-                .prop('href', '#!Monitoring/Latest/Data')
-                .addClass('disabled')
-            $('#latest-data-stacked')
-                .prop('href', '#!Monitoring/Latest/Data&stacked=true')
-                .addClass('disabled')
+            var itemid = hash.hostid || hash.groupid || hash.host
+                || hash.group || hash.application || hash.name
+                ? null : 0;
+            var itemGet = zapi.req('item.get', {
+                itemids: itemid,
+                hostids: hash.hostid,
+                groupids: hash.groupid,
+                host: hash.host && hash.host[0],
+                group: hash.group && hash.group[0],
+                application: hash.app && hash.app[0],
+                search: {
+                    name: hash.name && hash.name[0]
+                },
+                filter: {
+                    status: 0
+                },
+                output: [
+                    'name',
+                    'description',
+                    'delay',
+                    'history',
+                    'trends',
+                    'type',
+                    'lastclock',
+                    'units',
+                    'lastvalue',
+                    'value_type',
+                    'prevvalue',
+                    'error'
+                ],
+                //selectGraphs: 'count',
+                //with_monitored_items: true,
+                //preservekeys: true,
+                selectApplications: ['name'],
+                selectHosts: ['name'],
+                monitored: true,
+                limit: 10000
+            });
             $('#items')
                 .fadeTo('fast', 0.3)
-            getItemData(hash, function(items) {
+            itemGet.done(function(zapiResponse) {
                 $('#items')
-                    .bootstrapTable('load', items)
+                    .bootstrapTable('load', zapiResponse.result)
                     .fadeTo('fast', 1)
             });
         }
     };
 
-    var init = function(hash) {
-        $(".select2").select2();
-        getHostData(function(hosts, groups, apps) {
-            filter.init(hosts, groups, apps);
-            filter.update(hash)
-        });
-        itemTable.init();
-        itemTable.update(hash);
+    var init = function(hashArgs) {
+        filter.init(hashArgs);
+        table.init();
+        update(hashArgs);
     };
-    var update = function(hash) {
-        filter.update(hash);
-        itemTable.update(hash);
+    var update = function(hashArgs) {
+        filter.prep.done(function (groups, hosts) {
+            filter.update(groups, hosts, hashArgs);
+        });
+        table.update(hashArgs);
     };
 
-    //Page common functions
-    function getHostData(getHostDataDone) {
-        var hostGet = zapi.req('host.get', {
-            selectGroups: ['name'],
-            selectApplications: 'extend'
-        });
-        hostGet.done(function(zapiResponse) {
-            var appObj = {};
-            var hosts = zapiResponse.result;
-            var groups = [];
-            var apps = [];
-            hosts.forEach(function(host) {
-                host.groups.forEach(function(g) {
-                    if (groups[g.groupid]) {
-                        groups[g.groupid].hosts.push(host);
-                    } else {
-                        groups[g.groupid] = g;
-                        groups[g.groupid].hosts = [host];
-                    }
-                });
-                host.applications.forEach(function(a) {
-                    if (appObj[a.name]) {
-                        appObj[a.name].hosts.push(host);
-                        appObj[a.name].appids.push(a.applicationid);
-                        
-                    } else {
-                        appObj[a.name] = {
-                            hosts: [host],
-                            appids: [a.applicationid]
-                        }
-                    }
-                });
-            });
-            // Remove sparse
-            groups = groups.filter(Boolean);
-            groups.sort(function(a, b) {
-                return a.name > b.name ? 1 : -1
-            });
-            for (var app in appObj) {
-                apps.push({
-                    name: app,
-                    hosts: appObj[app].hosts,
-                    appids: appObj[app].appids
-                })
-            }
-            apps.sort(function(a, b) {
-                return a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
-            });
-            getHostDataDone(hosts, groups, apps);
-        });
-    };
-    function getItemData(hash, getItemDataDone) {
-        var itemid = hash.hostid || hash.groupid || hash.host
-            || hash.group || hash.application || hash.name
-            ? null : 0;
-        var itemGet = zapi.req('item.get', {
-            itemids: itemid,
-            hostids: hash.hostid,
-            groupids: hash.groupid,
-            host: hash.host && hash.host[0],
-            group: hash.group && hash.group[0],
-            application: hash.application && hash.application[0],
-            search: {
-                name: hash.name && hash.name[0]
-            },
-            filter: {
-                status: 0
-            },
-            output: [
-                'name',
-                'description',
-                'delay',
-                'history',
-                'trends',
-                'type',
-                'lastclock',
-                'units',
-                'lastvalue',
-                'value_type',
-                'prevvalue',
-                'error'
-            ],
-            //selectGraphs: 'count',
-            //with_monitored_items: true,
-            //preservekeys: true,
-            selectApplications: ['name'],
-            selectHosts: ['name'],
-            monitored: true,
-            limit: 10000
-        });
-        itemGet.done(function(zapiResponse) {
-            getItemDataDone(zapiResponse.result);
-        });
-    };
-    
     return {
         init: init,
         update: update

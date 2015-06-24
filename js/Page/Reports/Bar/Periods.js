@@ -30,6 +30,10 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
                         }
                     });
                 });
+                groups = groups.filter(Boolean);
+                groups.sort(function (a, b) {
+                    return a.name > b.name ? 1 : -1
+                });
                 groups.forEach(function (g) {
                     groupList.push(
                         '<option value="' + g.groupid + '">' +
@@ -46,7 +50,9 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
                         var selGroupId = $(this).val();
                         var selHosts;
                         if (selGroupId > 0) {
-                            selHosts = groups[selGroupId].hosts
+                            selHosts = groups.filter(function (g) {
+                                return g.groupid === selGroupId
+                            })[0].hosts;
                         } else {
                             selHosts = hosts;
                         }
@@ -126,7 +132,7 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
                             item: items.length > 0 ? items : null
                         }, true);
                     });
-                itemsFilter.prep.resolve(hosts);
+                _this.prep.resolve(hosts);
             });
         },
         update: function(hashArgs) {
@@ -135,21 +141,17 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
                 if (hashArgs.item) {
                     hashArgs.item.forEach(function (hashItem) {
                         var iArr = hashItem.split(':');
-                        var iId = iArr[0];
-                        var iFunc = iArr[1];
-                        var iSide = iArr[2];
-                        var iLabel = iArr[3];
                         hosts.forEach(function (h) {
                             var item = h.items.filter(function (i) {
-                                return i.itemid === iId;
+                                return i.itemid === iArr[0];
                             })[0];
                             if (item) {
                                 itemTable.push(
                                     '<tr data-item="' + hashItem + '">' +
                                         '<td>' + h.name + '</td>' +
                                         '<td>' + item.name + '</td>' +
-                                        '<td>' + iFunc + '</td>' +
-                                        '<td>' + iSide + '</td>' +
+                                        '<td>' + iArr[1] + '</td>' +
+                                        '<td>' + iArr[2] + '</td>' +
                                         '<td>' +
                                             '<button type="button" class="close">' +
                                                 '<span aria-hidden="true">&times;</span>' +
@@ -227,6 +229,7 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
             var barChart = {
                 form: 'Reports/Bar',
                 idSel: 'bar-report-chart',
+                series: [],
             };
             var itemids = chartArgs.items.map(function (i) {
                 return i.itemid;
@@ -238,11 +241,11 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
                 false
             );
             var sameTimePeriod = (
-                chartArgs.since === chart.prev.since &&
-                chartArgs.till === chart.prev.till
+                chartArgs.mSince.unix() === chart.prev.since &&
+                chartArgs.mTill.unix() === chart.prev.till
             ) || (
-                chart.prev.since = chartArgs.since,
-                chart.prev.till = chartArgs.till,
+                chart.prev.since = chartArgs.mSince.unix(),
+                chart.prev.till = chartArgs.mTill.unix(),
                 false
             );
             chart.prep.done(function (chartLib) {
@@ -268,16 +271,24 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
                     barChart.categories = scale.map(function (c) {
                         return c.date
                     });
-                    barChart.items = chartArgs.items.map(function (item) {
-                        var i = items.filter(function (i, index) {
-                            return (
-                                item.itemid === i.itemid &&
-                                (item.dataSrc = index, true)
-                            )
-                                
-                        })[0];
-                        return $.extend(item, i);
+                    chartArgs.items.forEach(function (argItem) {
+                        var item;
+                        items.some(function (i, index) {
+                            item = i;
+                            argItem.dataSrc = index;
+                            return argItem.itemid === i.itemid
+                        });
+                        barChart.series.push({
+                            name: (
+                                item.hosts[0].name + ': ' +
+                                item.name +
+                                ' (' + argItem.func + ')'
+                            ),
+                            side: argItem.side,
+                            func: argItem.func
+                        });
                     });
+                    chartLib.destroy(barChart.idSel);
                     chartLib.init(barChart);
                     // get history data if time period or items was changed
                     if (!sameTimePeriod || !sameItemIds) {
@@ -305,8 +316,8 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
                         });
                         var data = procData(trendsData, scale);
                         chartLib.load(
-                            barChart.items.map(function (item) {
-                                return data[item.dataSrc]
+                            chartArgs.items.map(function (argItem) {
+                                return data[argItem.dataSrc]
                             }),
                             barChart
                         );
@@ -357,23 +368,28 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
                             var clock = Number(d.clock);
                             return clock >= s.start && clock < s.end
                         });
-                        var d = {
-                            min: Math.min.apply(null,
-                                preData.map(function (d) {
-                                    return Number(d.value_min)
-                                })
-                            ),
-                            max: Math.max.apply(null,
-                                preData.map(function (d) {
-                                    return Number(d.value_max)
-                                })
-                            ),
-                            sum: preData.reduce(function (sum, d) {
+                        var min = Math.min.apply(null,
+                            preData.map(function (d) {
+                                return Number(d.value_min)
+                            })
+                        );
+                        var max = Math.max.apply(null,
+                            preData.map(function (d) {
+                                return Number(d.value_max)
+                            })
+                        );
+                        var sum = preData.reduce(function (sum, d) {
                                 return sum + Number(d.value_avg)
-                            }, 0),
-                            cnt: preData.length
+                        }, 0);
+                        var cnt = preData.length;
+
+                        var d = {
+                            min: $.isNumeric(min) ? min : null,
+                            max: $.isNumeric(max) ? max : null,
+                            sum: cnt > 0 ? sum : null,
+                            cnt: cnt,
+                            avg: cnt > 0 ? sum / cnt : null
                         };
-                        d.avg = d.sum / d.cnt;
                         if (data[i]) {
                             data[i].push(d);
                         } else {
@@ -394,22 +410,24 @@ define(['Zapi', 'Util', 'moment', 'config', 'bootstrap-select', 'bootstrap-datet
         update(hashArgs);
     };
     var update = function(hashArgs) {
+        var items = [];
         itemsFilter.update(hashArgs);
         periodFilter.update(hashArgs);
-        chart.draw({
-            items: (
-                hashArgs.item ? 
-                hashArgs.item.map(function (i) {
-                    var iArr = i.split(':');
-                    return {
+        if ($.isArray(hashArgs.item)) {
+            hashArgs.item.forEach(function (i) {
+                var iArr = i.split(':');
+                if ($.isNumeric(iArr[0]) && iArr[0] !== '0') {
+                    items.push({
                         itemid: iArr[0],
                         func: iArr[1],
                         side: iArr[2],
-                        label: iArr[3],
-                    };
-                }) :
-                []
-            ),
+                        label: iArr[3]
+                    });
+                }
+            });
+        }
+        chart.draw({
+            items: items,
             scale: hashArgs.scale ? hashArgs.scale[0] : 'day',
             mSince: moment(
                 hashArgs.since ?

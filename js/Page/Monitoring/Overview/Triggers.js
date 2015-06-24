@@ -1,4 +1,4 @@
-define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select', 'select2'], function(zapi, moment, util) {
+define(['Zapi', 'moment', 'Util', 'bootstrap-table', 'bootstrap-select'], function(zapi, moment, util) {
     "use strict";
 
 
