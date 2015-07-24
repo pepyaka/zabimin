@@ -16,7 +16,7 @@ cd zabimin
 ```bash
 cp -v js/config.example.js js/config.js
 ```
-4. Edit config. Set Zabbix™ API URL.
+4. Edit config. Set Zabbix™ API URL. You need to set remote URL (ex. http://zabbix.example.net/api_jsonrpc.php)
 5. Start for example python simple http server
 ```bash
 python -m SimpleHTTPServer
